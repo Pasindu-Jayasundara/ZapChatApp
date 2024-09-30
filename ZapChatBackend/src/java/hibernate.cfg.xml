@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/colo-shop?useSSL=false</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">Pasindu328@Bhathiya</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.show_sql">true</property>   
+        
+        <mapping class="entity.Account_type" />  
+        <mapping class="entity.AdminDetailTable" />  
+        <mapping class="entity.Brand" />  
+        <mapping class="entity.Cart" />  
+        <mapping class="entity.Category" />  
+        <mapping class="entity.Message" />  
+        <mapping class="entity.Message_status" />  
+        <mapping class="entity.Newsletter" />  
+        <mapping class="entity.OrderDataTable" />  
+        <mapping class="entity.Order_item" />  
+        <mapping class="entity.Order_status" />  
+        <mapping class="entity.Product" />  
+        <mapping class="entity.Product_color" />  
+        <mapping class="entity.Reply" />  
+        <mapping class="entity.Review" />  
+        <mapping class="entity.Seller" />  
+        <mapping class="entity.Size" />  
+        <mapping class="entity.Status" />  
+        <mapping class="entity.UserTable" />  
+        <mapping class="entity.Verified_status" />  
+        <mapping class="entity.Wishlist" />  
+        
+    </session-factory>
+</hibernate-configuration>

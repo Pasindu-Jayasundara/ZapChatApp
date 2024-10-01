@@ -6,17 +6,19 @@ export function InputField({ params }) {
     const [getLable, setLable] = useState("");
     const [getSecureTextEntry, setSecureTextEntry] = useState(false);
     const [getInputMode, setInputMode] = useState("text");
+    const [getMaxLength, setMaxLength] = useState(10);
 
     useEffect(() => {
         setLable(params.lableText)
         setSecureTextEntry(params.secureTextEntry)
         setInputMode(params.inputMode)
+        setMaxLength(params.maxLength)
     }, [params])
 
     return (
         <View style={styles.view}>
             <Text style={styles.label}>{getLable}</Text>
-            <TextInput style={styles.input} cursorColor={"#ff5b6b"} secureTextEntry={getSecureTextEntry} inputMode={getInputMode}></TextInput>
+            <TextInput maxLength={getMaxLength} style={styles.input} cursorColor={"#ff5b6b"} secureTextEntry={getSecureTextEntry} inputMode={getInputMode}></TextInput>
         </View>
     );
 

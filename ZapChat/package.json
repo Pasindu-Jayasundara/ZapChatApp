@@ -1,7 +1,7 @@
 {
   "name": "zapchat",
   "version": "1.0.0",
-  "main": "./src/screens/Login",
+  "main": "./src/screens/ProfileSetUp",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",

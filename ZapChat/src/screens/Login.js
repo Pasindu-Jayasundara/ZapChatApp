@@ -42,7 +42,7 @@ export default function Login() {
     );
 
 }
-registerRootComponent(Login)
+// registerRootComponent(Login)
 
 const styles = StyleSheet.create({
     fields: {

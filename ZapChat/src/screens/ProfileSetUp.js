@@ -22,7 +22,7 @@ export function ProfileSetUp() {
                 <View style={styles.inputFields}>
                     <InputField params={{ lableText: "About", maxLength: 10 }} />
 
-                    <Button style={design} text={"Next"}/>
+                    <Button style={design} text={"Create Profile"}/>
                 </View>
             </View>
 

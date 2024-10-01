@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         color: "#ff5b6b",
         fontSize: 23,
         fontWeight: "bold",
-        marginTop: 50,
+        marginTop: 75,
         paddingLeft: 35,
     },
     safearea: {
@@ -52,8 +52,9 @@ const styles = StyleSheet.create({
     },
     scrolView: {
         flex: 1,
-        justifyContent: "center",
+        // justifyContent: "center",
         // backgroundColor: "red",
-        alignItems: "center"
+        alignItems: "center",
+        paddingTop:90
     }
 })

@@ -1,8 +1,9 @@
 import { registerRootComponent } from "expo";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export function ProfileSetUp() {
 

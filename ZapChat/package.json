@@ -1,7 +1,7 @@
 {
   "name": "zapchat",
   "version": "1.0.0",
-  "main": "./src/screens/ProfileSetUp",
+  "main": "./src/screens/Home",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,11 +9,13 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "bootstrap-icons": "^1.11.3",
     "expo": "~51.0.35",
     "expo-image": "~1.13.0",
     "expo-image-manipulator": "~12.0.5",
     "expo-image-picker": "~15.0.7",
     "expo-linear-gradient": "~13.0.2",
+    "expo-router": "~3.5.23",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
     "react-native": "0.74.5",

@@ -3,6 +3,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { registerRootComponent } from "expo";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const logoIcon = require("../../assets/images/logo.gif");
 

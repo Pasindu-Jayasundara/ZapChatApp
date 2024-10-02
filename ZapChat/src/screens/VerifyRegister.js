@@ -1,7 +1,8 @@
 import { registerRootComponent } from "expo";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export function VerifyRegister() {
 

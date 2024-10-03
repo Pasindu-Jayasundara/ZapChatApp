@@ -1,5 +1,5 @@
 import { registerRootComponent } from "expo";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
@@ -19,17 +19,28 @@ export default function profileSetUp() {
 
     async function request() {
 
+        let imageTypeArr=[".png",".jpg",".jpeg"]
+
         if (getAbout.trim()=="") {
             Alert.alert("Missing About")
 
-        } else {
+        } else if (getImageResult.uri.trim()=="") {
+            Alert.alert("Missing Image")
+
+        } else if (getImageResult.type!="image") {
+            Alert.alert("Not a Image")
+
+        } if (!imageTypeArr.includes(getImageResult.uri.slice(getImageResult.uri.lastIndexOf('.')).toLowerCase())) {
+            Alert.alert("Invalid Image Type")
+
+        } else{
 
             let sessionId = await AsyncStorage.getItem("user")
-
-            let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Prfile"
+            let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Profile"
 
             let formData = new FormData()
-            formData.append("image",)
+            formData.append("imageUri",getImageResult.uri)
+            formData.append("imageType",getImageResult.type)
             formData.append("about",getAbout)
 
             let response = await fetch(url, {
@@ -44,7 +55,7 @@ export default function profileSetUp() {
                 let obj = await response.json()
                 if (obj.success) {
 
-                    router.push("/profileSetUp")
+                    Alert.alert(obj.data);
 
                 } else {
                     Alert.alert(obj.data);

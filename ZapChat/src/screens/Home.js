@@ -43,7 +43,7 @@ export function Home() {
     )
 }
 
-registerRootComponent(Home)
+// registerRootComponent(Home)
 
 const styles = StyleSheet.create({
     body: {

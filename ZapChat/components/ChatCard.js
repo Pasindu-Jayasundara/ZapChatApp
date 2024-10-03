@@ -1,13 +1,23 @@
 import { Image } from "expo-image"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
 
-export function ChatCard() {
+export function ChatCard({data}) {
 
-    const [getImage, setStatusimage] = useState(require("../assets/images/Avatar.png"))
-    const [getName, setName] = useState("My name ")
-    const [getMsg, setMsg] = useState("My Last Message")
-    const [getTime, setTime] = useState("2024/12/11")
+    const [getImage, setImage] = useState(require("../assets/images/profileDefault.png"))
+    const [getName, setName] = useState("")
+    const [getLastMsg, setLastMessage] = useState("")
+    const [getTime, setTime] = useState("")
+
+    useEffect(()=>{
+
+        setImage(data.)
+        setName(data.)
+        setLastMessage(data.)
+        setTime(data.)
+
+    },[data])
+
     return (
         <Pressable style={styles.container}>
             <Image source={getImage} style={styles.image} />
@@ -16,7 +26,7 @@ export function ChatCard() {
                     <Text style={styles.name} numberOfLines={1}>{getName}</Text>
                     <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
                 </View>
-                <Text style={styles.message} numberOfLines={1}>{getMsg}</Text>
+                <Text style={styles.message} numberOfLines={1}>{getLastMsg}</Text>
                 
             </View>
         </Pressable>

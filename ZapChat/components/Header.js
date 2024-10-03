@@ -8,9 +8,11 @@ const search = require("../assets/images/search.svg")
 const dot = require("../assets/images/dot.svg")
 const backArrow = require("../assets/images/back-arrow.svg")
 
-export function Header() {
+export function Header({func}) {
 
     const [getStatus, setStatus] = useState(false)
+    const [getText, setText] = useState("")
+    
     const searchButtonPress = (() => {
 
         let newStatus = getStatus ? false : true
@@ -31,6 +33,15 @@ export function Header() {
         return () => backHandler.remove();
     }, [getStatus]);
 
+    function searchText(text){
+        setText(text)
+        if(getText.length>5){
+            func(text)
+        }else{
+            func("")
+        }
+    }
+
     return (
         <>
             {getStatus ? (
@@ -38,7 +49,7 @@ export function Header() {
                     <Pressable onPress={searchButtonPress}>
                         <Image source={backArrow} style={styles.icon} />
                     </Pressable>
-                    <TextInput style={styles.input} placeholder="Search ...." />
+                    <TextInput style={styles.input} placeholder="Search ...." onChangeText={text=>searchText(text)}/>
                 </View>
             ) : (
                 <View  style={styles.container}>

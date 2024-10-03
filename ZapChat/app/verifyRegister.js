@@ -5,6 +5,7 @@ import { Button } from "../components/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function verifyRegister() {
 
@@ -17,16 +18,19 @@ export default function verifyRegister() {
 
         } else {
 
+            let sessionId = await AsyncStorage.getItem("user")
+
             let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/VerifyUser"
             let data = {
-                otp: getOtp
+                otp: getOtp,
             }
 
             let response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    'Cookie': `JSESSIONID=${sessionId}`
                 }
             })
             if (response.ok) {
@@ -34,15 +38,7 @@ export default function verifyRegister() {
                 let obj = await response.json()
                 if (obj.success) {
 
-                    try {
-
-                        await AsyncStorage.setItem("user", JSON.stringify(obj.data))
-                        router.push("/profileSetUp")
-
-                    } catch (error) {
-                        Alert.alert("Something Went Wrong")
-                        console.log(error)
-                    }
+                    router.replace("/home")
 
                 } else {
                     Alert.alert(obj.data);
@@ -64,8 +60,8 @@ export default function verifyRegister() {
                 <Text style={styles.subtitle}>An otp number has been send your number via SMS</Text>
 
                 <View style={styles.field}>
-                    <InputField params={{ lableText: "OTP", func:setOtp}} />
-                    <Button style={{}} text={"Verify Number"} func={request}/>
+                    <InputField params={{ lableText: "OTP", func: setOtp }} />
+                    <Button style={{}} text={"Verify Number"} func={request} />
                 </View>
             </View>
         </SafeAreaView>
@@ -75,7 +71,7 @@ export default function verifyRegister() {
 const styles = StyleSheet.create({
     field: {
         marginTop: 40,
-        rowGap:20
+        rowGap: 20
     },
     container: {
         justifyContent: "center",

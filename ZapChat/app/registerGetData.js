@@ -40,8 +40,8 @@ export default function registerGetData() {
 
             let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Register"
             let data = {
-                mobile: getFirstName,
-                mobile: getLastName,
+                fName: getFirstName,
+                lName: getLastName,
                 mobile: getMobile,
                 password: getPassword,
                 reTypePassword: getReTypePassword
@@ -61,7 +61,7 @@ export default function registerGetData() {
 
                     try {
 
-                        await AsyncStorage.setItem("user", JSON.stringify(obj.data))
+                        await AsyncStorage.setItem("user", obj.data)
                         router.push("/verifyRegister")
 
                     } catch (error) {

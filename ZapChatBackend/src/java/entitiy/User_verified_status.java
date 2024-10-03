@@ -17,7 +17,7 @@ public class User_verified_status implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "status", length = 10, nullable = false)
+    @Column(name = "status", length = 15, nullable = false)
     private String status;
 
     public User_verified_status() {

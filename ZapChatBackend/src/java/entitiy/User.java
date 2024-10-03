@@ -45,6 +45,12 @@ public class User implements Serializable {
 
     @Column(name = "otp", length = 10, nullable = false)
     private int otp;
+    
+    @Column(name = "about", length = 45, nullable = true)
+    private String about;
+    
+    @Column(name = "profile_image", nullable = true)
+    private String profile_image;
 
     public User() {
     }
@@ -119,6 +125,22 @@ public class User implements Serializable {
 
     public void setOtp(int otp) {
         this.otp = otp;
+    }
+
+    public String getAbout() {
+        return about;
+    }
+
+    public void setAbout(String about) {
+        this.about = about;
+    }
+
+    public String getProfile_image() {
+        return profile_image;
+    }
+
+    public void setProfile_image(String profile_image) {
+        this.profile_image = profile_image;
     }
 
    

@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native"
 
 export function ChatCard() {
 
-    const [getImage, setStatusimage] = useState(require("../../assets/images/Avatar.png"))
+    const [getImage, setStatusimage] = useState(require("../assets/images/Avatar.png"))
     const [getName, setName] = useState("My name ")
     const [getMsg, setMsg] = useState("My Last Message")
     const [getTime, setTime] = useState("2024/12/11")

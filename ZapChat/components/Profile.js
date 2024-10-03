@@ -4,7 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Button } from "./Button";
 import { InputField } from "./InputField";
 
-const defaultProfileImage = require("../../assets/images/profileDefault.png")
+const defaultProfileImage = require("../assets/images/profileDefault.png")
 
 export function Profile() {
 

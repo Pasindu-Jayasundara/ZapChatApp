@@ -4,8 +4,8 @@ import { BackHandler, Modal, Pressable, TextInput } from "react-native";
 import { StyleSheet, View } from "react-native";
 import EmojiModal from 'react-native-emoji-modal-goldin';
 
-const attachIcon = require("../../assets/images/attach.svg")
-const sendIcon = require("../../assets/images/send-fill.svg")
+const attachIcon = require("../assets/images/attach.svg")
+const sendIcon = require("../assets/images/send-fill.svg")
 
 export function ChatFooter() {
 

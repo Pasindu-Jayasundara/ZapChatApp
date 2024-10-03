@@ -4,8 +4,9 @@ import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
-export function ProfileSetUp() {
+export default function profileSetUp() {
 
     const design = {
         marginTop: 20,
@@ -23,7 +24,7 @@ export function ProfileSetUp() {
                 <View style={styles.inputFields}>
                     <InputField params={{ lableText: "About", maxLength: 10 }} />
 
-                    <Button style={design} text={"Create Profile"}/>
+                    <Button style={design} text={"Create Profile"} func={()=>{router.replace("/home")}}/>
                 </View>
             </View>
 
@@ -31,7 +32,7 @@ export function ProfileSetUp() {
     )
 }
 
-registerRootComponent(ProfileSetUp)
+// registerRootComponent(ProfileSetUp)
 
 const styles = StyleSheet.create({
     inputFields: {

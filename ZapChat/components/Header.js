@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Tab } from "./Tab";
 
-const search = require("../../assets/images/search.svg")
-const dot = require("../../assets/images/dot.svg")
-const backArrow = require("../../assets/images/back-arrow.svg")
+const search = require("../assets/images/search.svg")
+const dot = require("../assets/images/dot.svg")
+const backArrow = require("../assets/images/back-arrow.svg")
 
 export function Header() {
 

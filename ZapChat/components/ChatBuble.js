@@ -2,9 +2,9 @@ import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-const sendTick = require("../../assets/images/send.svg")
-const receivedTick = require("../../assets/images/received.svg")
-const readTick = require("../../assets/images/read.svg")
+const sendTick = require("../assets/images/send.svg")
+const receivedTick = require("../assets/images/received.svg")
+const readTick = require("../assets/images/read.svg")
 
 export function ChatBuble({ params }) {
 

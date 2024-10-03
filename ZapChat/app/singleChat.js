@@ -7,7 +7,7 @@ import { ChatBuble } from "../components/ChatBuble";
 import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
 
-export function SingleChat() {
+export function singleChat() {
 
     return (
         <SafeAreaView style={styles.safearea}>
@@ -35,7 +35,7 @@ export function SingleChat() {
     )
 }
 
-registerRootComponent(SingleChat)
+// registerRootComponent(SingleChat)
 
 const styles = StyleSheet.create({
     body: {

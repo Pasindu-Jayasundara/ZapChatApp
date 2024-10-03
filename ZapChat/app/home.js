@@ -5,18 +5,18 @@ import { Header } from "../components/Header";
 import { ChatCard } from "../components/ChatCard";
 import { FloatingAction } from "react-native-floating-action";
 
-export function Home() {
+export default function home() {
 
     const actions = [
         {
             text: "Create New Group",
-            icon: require("../../assets/images/people.png"),
+            icon: require("../assets/images/people.png"),
             name: "1",
             position: 1,
         },
         {
             text: "New Chat",
-            icon: require("../../assets/images/chat.png"),
+            icon: require("../assets/images/chat.png"),
             name: "2",
             position: 2,
         }

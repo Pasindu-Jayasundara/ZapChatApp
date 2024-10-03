@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native"
 
 export function ChatHeader() {
 
-    const [getImage, setStatusimage] = useState(require("../../assets/images/Avatar.png"))
+    const [getImage, setStatusimage] = useState(require("../assets/images/Avatar.png"))
     const [getName, setName] = useState("My name ")
     const [getAbout, setAbout] = useState("About")
     return (

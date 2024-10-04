@@ -2,12 +2,14 @@ import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
-import { registerRootComponent } from "expo";
 import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
+import * as SplashScreen from 'expo-splash-screen';
 
 const logoIcon = require("../assets/images/logo.gif");
+
+SplashScreen.preventAutoHideAsync();
 
 export default function index() {
 
@@ -21,13 +23,17 @@ export default function index() {
 
                 let user = await AsyncStorage.getItem("user")
                 if (user != null) {
+
                     let verified = await AsyncStorage.getItem("verified");
+                    
                     if (verified != null && verified == "true") {
-                        router.push("/home")
+                        router.replace("/home")
                     } else {
                         await AsyncStorage.removeItem("verified");
                         await AsyncStorage.removeItem("user");
                     }
+                }else{ 
+                    SplashScreen.hideAsync();
                 }
 
             } catch (error) {
@@ -65,7 +71,7 @@ export default function index() {
                             await AsyncStorage.setItem("user", JSON.stringify(obj.data))
                             await AsyncStorage.setItem("verified", "true")
 
-                            router.push("/home")
+                            router.replace("/home")
 
                         } catch (error) {
                             Alert.alert("Something Went Wrong")
@@ -124,7 +130,6 @@ export default function index() {
     );
 
 }
-// registerRootComponent(Login)
 
 const styles = StyleSheet.create({
     link: {

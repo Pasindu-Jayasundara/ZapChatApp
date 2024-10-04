@@ -4,10 +4,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Button } from "./Button";
 import { InputField } from "./InputField";
 import * as ImagePicker from 'expo-image-picker';
+import { useEffect, useState } from "react";
 
 const defaultProfileImage = require("../assets/images/profileDefault.png")
 
-export function Profile({ getFunc,setFunc }) {
+export function Profile() {
+
+    const [getResult, setResult] = useState("")
 
     const design = {
         backgroundColor: "#d1d1d1",
@@ -26,15 +29,15 @@ export function Profile({ getFunc,setFunc }) {
         console.log(result);
 
         if (!result.canceled) {
-            setFunc(result);
+            setResult(result);
         }
     };
-
+ 
     return (
         <View style={styles.container}>
             <Image
                 style={styles.image}
-                source={getFunc.assets[0].uri}
+                source={getResult.assets[0].uri}
                 contentFit="cover"
                 transition={1000}
                 contentPosition={"center"}

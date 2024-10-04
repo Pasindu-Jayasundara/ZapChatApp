@@ -43,7 +43,7 @@ public class User implements Serializable {
     @JoinColumn(name = "user_verified_status_id")
     private User_verified_status user_verified_status;
 
-    @Column(name = "otp", length = 10, nullable = false)
+    @Column(name = "otp", length = 10, nullable = true)
     private int otp;
     
     @Column(name = "about", length = 45, nullable = true)

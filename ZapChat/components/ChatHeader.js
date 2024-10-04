@@ -1,12 +1,21 @@
 import { Image } from "expo-image"
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
 
-export function ChatHeader() {
+export function ChatHeader({data}) {
 
-    const [getImage, setStatusimage] = useState(require("../assets/images/Avatar.png"))
+    const [getImage, setImage] = useState(require("../assets/images/profileDefault.png"))
     const [getName, setName] = useState("My name ")
     const [getAbout, setAbout] = useState("About")
+
+    useEffect(() => {
+        if(data.image!="../assets/images/profileDefault.png"){
+            setImage(data.image)
+        }
+        setName(data.name)
+        setAbout(data.about)
+    }, [])
+
     return (
         <Pressable style={styles.container}>
             <Image source={getImage} style={styles.image} />

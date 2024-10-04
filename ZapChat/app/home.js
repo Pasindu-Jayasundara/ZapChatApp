@@ -15,6 +15,7 @@ export default function home() {
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
     const [getCategory, setCategory] = useState("chat")
+    const [getHeaderImage, setHeaderImage] = useState(require("../assets/images/profileDefault.png"))
 
 
     const actions = [
@@ -51,7 +52,7 @@ export default function home() {
     useEffect(() => {
 
         (async () => {
-
+ 
             try {
                 if (getUser == "") {
                     let sessionId = await AsyncStorage.getItem("user")
@@ -86,10 +87,19 @@ export default function home() {
                     let obj = await response.json()
                     if (obj.success) {
 
-                        setChatDataArr(obj.data)
+                        setChatDataArr(obj.data.data)
+                        setHeaderImage(obj.data.profile)
 
                     } else {
-                        Alert.alert(obj.data);
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data); 
+                        }
                         console.log(obj.data)
                     }
 
@@ -108,9 +118,9 @@ export default function home() {
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <Header searchTextFunc={setSearchText} categoryFunc={setCategory} />
+            <Header searchTextFunc={setSearchText} categoryFunc={setCategory} img={getHeaderImage}/>
 
-            <FlashList contentContainerStyle={styles.body} data={getChatDataArr} renderItem={({ item }) => <ChatCard data={item} />} estimatedItemSize={200} />
+            <FlashList contentContainerStyle={styles.body} data={getChatDataArr} renderItem={({ item }) => <ChatCard data={item} />} keyExtractor={item => item.chatId} estimatedItemSize={200} />
 
             <FloatingAction
                 color="#fc384b"

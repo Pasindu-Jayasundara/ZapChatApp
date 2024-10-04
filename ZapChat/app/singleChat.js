@@ -1,19 +1,23 @@
 import { registerRootComponent } from "expo";
-import { ScrollView, StyleSheet } from "react-native";
+import { Alert, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatHeader } from "../components/ChatHeader";
 import { StatusBar } from "expo-status-bar";
 import { ChatBuble } from "../components/ChatBuble";
 import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
+import { useEffect, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 
-export function singleChat() {
+export default function singleChat() {
+
+    const data = useLocalSearchParams();
 
     return (
         <SafeAreaView style={styles.safearea}>
 
-            <ChatHeader />
-            
+            <ChatHeader data={data}/>
+
             <ScrollView contentContainerStyle={styles.body}>
 
                 <Date />

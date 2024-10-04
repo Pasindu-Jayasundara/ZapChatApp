@@ -38,8 +38,9 @@ export default function verifyRegister() {
                 let obj = await response.json()
                 if (obj.success) {
 
-                    await AsyncStorage.setItem("verified", JSON.stringify(true))
-                    router.replace("/home")
+                    await AsyncStorage.removeItem("verified")
+                    await AsyncStorage.removeItem("user")
+                    router.replace("/")
 
                 } else {
                     Alert.alert(obj.data);

@@ -8,16 +8,23 @@ const search = require("../assets/images/search.svg")
 const dot = require("../assets/images/dot.svg")
 const backArrow = require("../assets/images/back-arrow.svg")
 
-export function Header({func}) {
+export function Header({searchTextFunc,categoryFunc}) {
 
     const [getStatus, setStatus] = useState(false)
     const [getText, setText] = useState("")
+    const [getCategory, setCategory] = useState("chat")
     
     const searchButtonPress = (() => {
 
         let newStatus = getStatus ? false : true
         setStatus(newStatus)
     })
+
+    useEffect(() => {
+        
+        categoryFunc(getCategory)
+
+    }, [getCategory]);
 
     useEffect(() => {
         const handleBackPress = () => {
@@ -36,9 +43,9 @@ export function Header({func}) {
     function searchText(text){
         setText(text)
         if(getText.length>5){
-            func(text)
+            searchTextFunc(text)
         }else{
-            func("")
+            searchTextFunc("")
         }
     }
 
@@ -62,7 +69,7 @@ export function Header({func}) {
                             <Image source={dot} style={styles.icon} />
                         </View>
                     </View>
-                    <Tab />
+                    <Tab func={setCategory}/>
                 </View>
             )}
         </>

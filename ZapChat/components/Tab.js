@@ -1,23 +1,39 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
 
-export function Tab() {
+export function Tab({ func }) {
+
+    const [getCategory, setCategory] = useState("chat")
+
+    const pressCategory = (category) => {
+        setCategory(category)
+    }
+
+    useEffect(() => {
+
+        func(getCategory)
+
+    }, [getCategory])
 
     return (
         <View style={styles.container}>
-            <Pressable style={styles.button}>
-                <Text>Chat</Text>
+            <Pressable onPress={() => { pressCategory("chat") }} style={styles.button} >
+                <Text style={getCategory=="chat"?styles.active:""}>Chat</Text>
             </Pressable>
-            <Pressable style={styles.button}>
-                <Text>Group</Text>
+            <Pressable onPress={() => { pressCategory("group") }} style={styles.button}>
+                <Text style={getCategory=="group"?styles.active:""}>Group</Text>
             </Pressable>
-            <Pressable style={styles.button}>
-                <Text>Status</Text>
+            <Pressable onPress={() => { pressCategory("status") }} style={styles.button}>
+                <Text style={getCategory=="status"?styles.active:""}>Status</Text>
             </Pressable>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    active:{
+        color:"#ff5b6b"
+    },
     button: {
         paddingHorizontal: 10,
         paddingVertical: 5

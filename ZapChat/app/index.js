@@ -14,10 +14,6 @@ export default function index() {
     const [getMobile, setMobile] = useState("")
     const [getPassword, setPassword] = useState("")
 
-    const design = {
-        marginTop: 18
-    }
-
     useEffect(() => {
 
         (async () => {
@@ -28,7 +24,7 @@ export default function index() {
                     let verified = await AsyncStorage.getItem("verified");
                     if (verified != null && verified == "true") {
                         router.push("/home")
-                    }else{
+                    } else {
                         await AsyncStorage.removeItem("verified");
                         await AsyncStorage.removeItem("user");
                     }
@@ -66,13 +62,10 @@ export default function index() {
 
                         try {
 
-                            if (await AsyncStorage.getItem("user") == null) {
-                                await AsyncStorage.setItem("user", JSON.stringify(obj.data))
-                            }
-                            let verified = await AsyncStorage.getItem("verified");
-                            if (verified != null && verified == "true") {
-                                router.push("/home")
-                            }
+                            await AsyncStorage.setItem("user", JSON.stringify(obj.data))
+                            await AsyncStorage.setItem("verified", "true")
+
+                            router.push("/home")
 
                         } catch (error) {
                             Alert.alert("Something Went Wrong")
@@ -116,7 +109,7 @@ export default function index() {
                         <View style={styles.fields}>
                             <InputField params={{ lableText: "Mobile", inputMode: "tel", secureTextEntry: false, func: setMobile }} />
                             <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: setPassword }} />
-                            <Button text={"Let's Go"} style={design} func={request} />
+                            <Button text={"Let's Go"} style={{ marginTop: 18 }} func={request} />
                             <Text style={styles.linkText}>
                                 New to ZapChat?
                                 <Link href={"/register"} style={styles.link}> Register Now</Link>

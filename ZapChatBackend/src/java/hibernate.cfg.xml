@@ -12,6 +12,10 @@
         <mapping class="entity.User" />  
         <mapping class="entity.User_online_status" />  
         <mapping class="entity.User_verified_status" />  
+        <mapping class="entity.Single_chat" />  
+        <mapping class="entity.Message_status" />  
+        <mapping class="entity.Message_content_type" />  
+        <mapping class="entity.Message" />  
         
     </session-factory>
 </hibernate-configuration>

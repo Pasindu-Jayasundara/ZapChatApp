@@ -14,6 +14,8 @@ export default function home() {
     const [getChatDataArr, setChatDataArr] = useState([])
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
+    const [getCategory, setCategory] = useState("chat")
+
 
     const actions = [
         {
@@ -32,8 +34,15 @@ export default function home() {
 
     useEffect(() => {
         (async () => {
+
             let verified = await AsyncStorage.getItem("verified");
-            if (verified == null || verified != "true") {
+            let user = await AsyncStorage.getItem("user");
+
+            if (verified == null || verified != "true" || user == null) {
+
+                await AsyncStorage.removeItem("verified")
+                await AsyncStorage.removeItem("user")
+
                 router.replace("/")
             }
         })()
@@ -59,9 +68,13 @@ export default function home() {
 
                 let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Home"
 
+                let obj = {
+                    searchText: getSearchText,
+                    category: getCategory
+                }
                 let response = await fetch(url, {
                     method: "POST",
-                    body: JSON.stringify(getSearchText),
+                    body: JSON.stringify(obj),
                     headers: {
                         "Content-Type": "application/json",
                         'Cookie': `JSESSIONID=${getUser}`
@@ -91,11 +104,11 @@ export default function home() {
 
         })()
 
-    }, [getSearchText])
+    }, [getSearchText, getCategory])
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <Header func={setSearchText} />
+            <Header searchTextFunc={setSearchText} categoryFunc={setCategory} />
 
             <FlashList contentContainerStyle={styles.body} data={getChatDataArr} renderItem={({ item }) => <ChatCard data={item} />} estimatedItemSize={200} />
 

@@ -1,5 +1,5 @@
 import { registerRootComponent } from "expo";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "../components/Header";
 import { ChatCard } from "../components/ChatCard";
@@ -31,15 +31,28 @@ export default function home() {
     ]
 
     useEffect(() => {
+        (async () => {
+            let verified = await AsyncStorage.getItem("verified");
+            if (verified == null || verified != "true") {
+                router.replace("/")
+            }
+        })()
+    }, [])
+
+    useEffect(() => {
 
         (async () => {
 
             try {
                 if (getUser == "") {
                     let sessionId = await AsyncStorage.getItem("user")
-                    if(sessionId==null){
+                    if (sessionId == null) {
+
+                        await AsyncStorage.removeItem("verified");
+                        await AsyncStorage.removeItem("user");
+
                         router.replace("/")
-                    }else{
+                    } else {
                         setUser(sessionId)
                     }
                 }
@@ -51,7 +64,7 @@ export default function home() {
                     body: JSON.stringify(getSearchText),
                     headers: {
                         "Content-Type": "application/json",
-                        'Cookie': `JSESSIONID=${sessionId}`
+                        'Cookie': `JSESSIONID=${getUser}`
                     }
                 })
 
@@ -103,7 +116,7 @@ export default function home() {
 
 const styles = StyleSheet.create({
     body: {
-        flexGrow: 1,
+        // flexGrow: 1,
         paddingTop: 15,
         // backgroundColor:"green"
     },

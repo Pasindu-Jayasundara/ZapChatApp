@@ -1,10 +1,11 @@
 import { registerRootComponent } from "expo";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { router } from "expo-router";
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function registerGetData() {
 
@@ -62,6 +63,7 @@ export default function registerGetData() {
                     try {
 
                         await AsyncStorage.setItem("user", obj.data)
+                        await AsyncStorage.setItem("verified", JSON.stringify(false))
                         router.push("/verifyRegister")
 
                     } catch (error) {
@@ -122,7 +124,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     scrolView: {
-        flex: 1,
+        flexGrow: 1,
         justifyContent: "flex-start",
         // backgroundColor: "red",
         paddingTop: 30,

@@ -2,9 +2,9 @@ package controller;
 
 import com.google.gson.Gson;
 import dto.Response_DTO;
-import entitiy.User;
-import entitiy.User_online_status;
-import entitiy.User_verified_status;
+import entity.User;
+import entity.User_online_status;
+import entity.User_verified_status;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;

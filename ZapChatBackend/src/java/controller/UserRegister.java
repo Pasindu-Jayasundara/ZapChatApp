@@ -3,9 +3,9 @@ package controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entitiy.User;
-import entitiy.User_online_status;
-import entitiy.User_verified_status;
+import entity.User;
+import entity.User_online_status;
+import entity.User_verified_status;
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
@@ -52,7 +52,7 @@ public class UserRegister extends HttpServlet {
             notVerifiedCriteria.add(Restrictions.eq("status", "Not-Verified"));
             User_verified_status notverifystatus = (User_verified_status) notVerifiedCriteria.uniqueResult();
 
-            final int otp = Integer.parseInt(UUID.randomUUID().toString().replace("-", "").substring(0, 8));
+            final int otp = 10000000 + (int) (Math.random() * 90000000);
 
             User user = new User();
             user.setFirst_name(first_name);
@@ -63,7 +63,7 @@ public class UserRegister extends HttpServlet {
             user.setRegistered_datetime(new Date());
             user.setUser_online_status(offlineStatus);
             user.setUser_verified_status(notverifystatus);
-            user.setAbout(first_name+" "+last_name);
+            user.setAbout(first_name + " " + last_name);
             user.setProfile_image("../assets/images/profileDefault.png");
 
             request.getSession().setAttribute("user", user);
@@ -71,8 +71,7 @@ public class UserRegister extends HttpServlet {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-
-                    //SendSMS.send(mobile, "Your ZapChat OTP Code is:"+otp);
+                    SendSMS.send(mobile, "Your ZapChat OTP Code is:" + otp);
                 }
             }).start();
 

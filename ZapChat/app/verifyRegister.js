@@ -1,5 +1,5 @@
 import { registerRootComponent } from "expo";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -38,6 +38,7 @@ export default function verifyRegister() {
                 let obj = await response.json()
                 if (obj.success) {
 
+                    await AsyncStorage.setItem("verified", JSON.stringify(true))
                     router.replace("/home")
 
                 } else {

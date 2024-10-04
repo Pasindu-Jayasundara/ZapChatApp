@@ -3,7 +3,7 @@ package model;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entitiy.User;
+import entity.User;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -127,12 +127,12 @@ public class UserRegisterFilter implements Filter {
                         isInvalid = true;
                         errorMessage = "Invalid Mobile Number Format";
 
-                    } else if (!Validation.isValidName(fName)) {
+                    } else if (!Validation.isValidName(fName.trim())) {
                         //invalid first name
                         isInvalid = true;
                         errorMessage = "Invalid First Name Format";
 
-                    } else if (!Validation.isValidName(lName)) {
+                    } else if (!Validation.isValidName(lName.trim())) {
                         //invalid last name
                         isInvalid = true;
                         errorMessage = "Invalid Last Name Format";

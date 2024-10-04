@@ -11,10 +11,10 @@ export function ChatCard({data}) {
 
     useEffect(()=>{
 
-        setImage(data.)
-        setName(data.)
-        setLastMessage(data.)
-        setTime(data.)
+        // setImage(data.)
+        // setName(data.)
+        // setLastMessage(data.)
+        // setTime(data.)
 
     },[data])
 

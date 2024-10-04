@@ -2,7 +2,7 @@ package controller;
 
 import com.google.gson.Gson;
 import dto.Response_DTO;
-import entitiy.User;
+import entity.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

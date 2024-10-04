@@ -25,7 +25,13 @@ export default function index() {
 
                 let user = await AsyncStorage.getItem("user")
                 if (user != null) {
-                    router.replace("/home")
+                    let verified = await AsyncStorage.getItem("verified");
+                    if (verified != null && verified == "true") {
+                        router.push("/home")
+                    }else{
+                        await AsyncStorage.removeItem("verified");
+                        await AsyncStorage.removeItem("user");
+                    }
                 }
 
             } catch (error) {
@@ -60,8 +66,13 @@ export default function index() {
 
                         try {
 
-                            await AsyncStorage.setItem("user", JSON.stringify(obj.data))
-                            router.push("/home")
+                            if (await AsyncStorage.getItem("user") == null) {
+                                await AsyncStorage.setItem("user", JSON.stringify(obj.data))
+                            }
+                            let verified = await AsyncStorage.getItem("verified");
+                            if (verified != null && verified == "true") {
+                                router.push("/home")
+                            }
 
                         } catch (error) {
                             Alert.alert("Something Went Wrong")

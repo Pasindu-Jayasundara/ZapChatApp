@@ -3,7 +3,7 @@ package model;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entitiy.User;
+import entity.User;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -42,14 +42,14 @@ public class VerifyUserFilter implements Filter {
             errorMessage = "Session Timeout";
 
         } else {
-            String otp = fromJson.get("token").getAsString();
+            String otp = fromJson.get("otp").getAsString();
 
             if (otp.length() != 8) {
                 //invalid token length
                 isInvalid = true;
                 errorMessage = "Invalid OTP Length";
 
-            } else if (Validation.isInteger(otp)) {
+            } else if (!Validation.isInteger(otp)) {
                 //invalid token length
                 isInvalid = true;
                 errorMessage = "Invalid OTP Type";

@@ -1,4 +1,4 @@
-package entitiy;
+package entity;
 
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -9,18 +9,18 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "User_verified_status")
-public class User_verified_status implements Serializable {
+@Table(name = "User_online_status")
+public class User_online_status implements Serializable {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(name = "status", length = 15, nullable = false)
+    
+    @Column(name = "status",length = 20,nullable = false)
     private String status;
 
-    public User_verified_status() {
+    public User_online_status() {
     }
 
     public int getId() {

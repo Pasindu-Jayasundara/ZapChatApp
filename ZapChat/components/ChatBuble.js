@@ -9,9 +9,10 @@ const readTick = require("../assets/images/read.svg")
 
 export function ChatBuble({ params }) {
 
-    const [getTime, setTime] = useState("19:25")
-    const [getSide, setSide] = useState("left")
-    const [getMessage, setMessage] = useState("left")
+    const [getTime, setTime] = useState("")
+    const [getDate, setDate] = useState("")
+    const [getSide, setSide] = useState("")
+    const [getMessage, setMessage] = useState("")
 
     const [getWrapperStyle, setWrapperStyle] = useState({})
     const [getContainerStyle, setContainerStyle] = useState({})
@@ -19,6 +20,8 @@ export function ChatBuble({ params }) {
 
     const [getIsNewDate, setIsNewDate] = useState(false)
     const [getTic, setTic] = useState("")
+    const [getContentType, setContentType] = useState("")
+    const [getFilePath, setFilePath] = useState("")
 
     const rightSideWrapper = {
         alignSelf: 'flex-end',
@@ -31,15 +34,21 @@ export function ChatBuble({ params }) {
         color: "black"
     }
 
-    let prevDate;
     useEffect(() => {
+
         setSide(params.side)
         setTime(params.time)
-        setMessage(params.message)
+        setContentType(params.type)
 
-        if(prevDate!=params.date){
-            prevDate= params.date
+        if(getContentType=="Message"){
+            setMessage(params.message)
+        }else if(getContentType=="File"){
+            setFilePath(params.path)
+        }
+
+        if(getDate!=params.date){
             setIsNewDate(true)
+            setDate(params.date)
         }else{
             setIsNewDate(false)
         }
@@ -72,7 +81,7 @@ export function ChatBuble({ params }) {
 
     return (
         <>
-            {getIsNewDate ? <Date date={prevDate}/> : ""}
+            {getIsNewDate ? <Date date={getDate}/> : ""}
 
             <View style={[styles.wrapper, getWrapperStyle]}>
                 <View style={[styles.container, getContainerStyle]}>

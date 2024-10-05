@@ -34,45 +34,47 @@ export default function singleChat() {
                     } else {
                         setUser(sessionId)
                     }
-                }
+                } else {
 
-                let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/SingleChat"
+                    let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/SingleChat"
 
-                let obj = {
-                    chatId: data.chatId
-                }
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(obj),
-                    headers: {
-                        "Content-Type": "application/json",
-                        'Cookie': `JSESSIONID=${getUser}`
+                    let obj = {
+                        otherUserId: data.userId
                     }
-                })
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
+                            'Cookie': `JSESSIONID=${getUser}`
+                        }
+                    })
 
-                if (response.ok) {
+                    if (response.ok) {
 
-                    let obj = await response.json()
-                    if (obj.success) {
+                        let obj = await response.json()
+                        if (obj.success) {
 
-                        setChat(obj.data)
+                            setChat(obj.data)
+
+                        } else {
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                            console.log(obj.data)
+                        }
 
                     } else {
-                        if (obj.data == "Please LogIn") {
-
-                            await AsyncStorage.removeItem("verified");
-                            await AsyncStorage.removeItem("user");
-
-                            router.replace("/")
-                        } else {
-                            Alert.alert(obj.data);
-                        }
-                        console.log(obj.data)
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
                     }
 
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
                 }
 
             } catch (error) {
@@ -88,9 +90,9 @@ export default function singleChat() {
 
             <ChatHeader data={data} />
 
-            <FlashList contentContainerStyle={styles.body} keyExtractor={item.messageId} renderItem={({ item }) => <ChatBuble params={item} />} data={getChat} />
-            
-            <ChatFooter />
+            <FlashList contentContainerStyle={styles.body} data={getChat} renderItem={({ item }) => <ChatBuble params={item} />} keyExtractor={item.messageId} />
+
+            <ChatFooter data={data} func={setChat}/>
         </SafeAreaView>
     )
 }

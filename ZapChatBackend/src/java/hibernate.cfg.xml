@@ -16,6 +16,7 @@
         <mapping class="entity.Message_status" />  
         <mapping class="entity.Message_content_type" />  
         <mapping class="entity.Message" />  
+        <mapping class="entity.File" />  
         
     </session-factory>
 </hibernate-configuration>

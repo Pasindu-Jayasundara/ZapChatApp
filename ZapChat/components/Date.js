@@ -1,11 +1,20 @@
 import { Text, View } from "react-native"
 import { StyleSheet } from "react-native"
+import { useEffect, useState } from "react";
 
-export function Date() {
+export function Date({date}) {
+
+    const [getDate,setDate]=useState("")
+
+    useEffect(() => {
+        
+        setDate(date)
+
+    }, [date])
 
     return (
         <View style={styles.container}>
-            <Text style={styles.date}>2024/12/15</Text>
+            <Text style={styles.date}>{getDate}</Text>
         </View>
     )
 }

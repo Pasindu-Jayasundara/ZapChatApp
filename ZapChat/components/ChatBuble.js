@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Date } from "./Date";
 
 const sendTick = require("../assets/images/send.svg")
 const receivedTick = require("../assets/images/received.svg")
@@ -16,6 +17,9 @@ export function ChatBuble({ params }) {
     const [getContainerStyle, setContainerStyle] = useState({})
     const [getTextStyle, setTextStyle] = useState({})
 
+    const [getIsNewDate, setIsNewDate] = useState(false)
+    const [getTic, setTic] = useState("")
+
     const rightSideWrapper = {
         alignSelf: 'flex-end',
         marginTop: 0,
@@ -27,10 +31,30 @@ export function ChatBuble({ params }) {
         color: "black"
     }
 
+    let prevDate;
     useEffect(() => {
         setSide(params.side)
         setTime(params.time)
         setMessage(params.message)
+
+        if(prevDate!=params.date){
+            prevDate= params.date
+            setIsNewDate(true)
+        }else{
+            setIsNewDate(false)
+        }
+
+        if(params.messageStatus=="Send"){
+            setTic(sendTick)
+
+        }else if(params.messageStatus=="Received"){
+            setTic(receivedTick)
+
+        }else if(params.messageStatus=="Read"){
+            setTic(readTick)
+
+        }
+        
     }, [params])
 
     useEffect(() => {
@@ -47,23 +71,27 @@ export function ChatBuble({ params }) {
     }, [getSide])
 
     return (
-        <View style={[styles.wrapper, getWrapperStyle]}>
-            <View style={[styles.container, getContainerStyle]}>
-                <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
+        <>
+            {getIsNewDate ? <Date date={prevDate}/> : ""}
+
+            <View style={[styles.wrapper, getWrapperStyle]}>
+                <View style={[styles.container, getContainerStyle]}>
+                    <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
+                </View>
+                <View style={styles.detail}>
+                    <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
+                    {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
+                </View>
             </View>
-            <View style={styles.detail}>
-                <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
-                {getSide=="right"?<Image source={receivedTick} style={styles.tick} />:""}
-            </View>
-        </View>
+        </>
     )
 }
 const styles = StyleSheet.create({
     detail: {
         flexDirection: "row",
         // backgroundColor:"green",
-        justifyContent:"flex-end",
-        columnGap:5
+        justifyContent: "flex-end",
+        columnGap: 5
     },
     tick: {
         width: 18,

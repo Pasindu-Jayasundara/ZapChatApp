@@ -7,16 +7,20 @@ import { ChatBuble } from "../components/ChatBuble";
 import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
 import { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FlashList } from "@shopify/flash-list";
 
 export default function singleChat() {
 
     const data = useLocalSearchParams();
+    const [getUser, setUser] = useState("")
+    const [getChat, setChat] = useState([])
 
     useEffect(() => {
 
         (async () => {
- 
+
             try {
                 if (getUser == "") {
                     let sessionId = await AsyncStorage.getItem("user")
@@ -35,8 +39,7 @@ export default function singleChat() {
                 let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/SingleChat"
 
                 let obj = {
-                    searchText: getSearchText,
-                    category: getCategory
+                    chatId: data.chatId
                 }
                 let response = await fetch(url, {
                     method: "POST",
@@ -52,8 +55,7 @@ export default function singleChat() {
                     let obj = await response.json()
                     if (obj.success) {
 
-                        setChatDataArr(obj.data.data)
-                        setHeaderImage(obj.data.profile)
+                        setChat(obj.data)
 
                     } else {
                         if (obj.data == "Please LogIn") {
@@ -63,7 +65,7 @@ export default function singleChat() {
 
                             router.replace("/")
                         } else {
-                            Alert.alert(obj.data); 
+                            Alert.alert(obj.data);
                         }
                         console.log(obj.data)
                     }
@@ -86,28 +88,12 @@ export default function singleChat() {
 
             <ChatHeader data={data} />
 
-            <ScrollView contentContainerStyle={styles.body}>
-
-                <Date />
-
-                <ChatBuble params={{ side: "left", time: "19:20", message: "message" }} />
-                <ChatBuble params={{ side: "right", time: "19:20", message: "message" }} />
-
-                <Date />
-
-                <ChatBuble params={{ side: "left", time: "19:20", message: "message" }} />
-                <ChatBuble params={{ side: "right", time: "19:20", message: "message" }} />
-                <ChatBuble params={{ side: "left", time: "19:20", message: "message" }} />
-                <ChatBuble params={{ side: "right", time: "19:20", message: "message" }} />
-
-            </ScrollView>
-
+            <FlashList contentContainerStyle={styles.body} keyExtractor={item.messageId} renderItem={({ item }) => <ChatBuble params={item} />} data={getChat} />
+            
             <ChatFooter />
         </SafeAreaView>
     )
 }
-
-// registerRootComponent(SingleChat)
 
 const styles = StyleSheet.create({
     body: {

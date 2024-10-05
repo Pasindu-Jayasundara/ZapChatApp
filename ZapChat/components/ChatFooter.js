@@ -29,18 +29,18 @@ export function ChatFooter() {
 
 
     }
-    // const text =(text)=>{
-    //     setText(getText+text)
-    // }
+    const typeText =(text)=>{
+        setText(text)
+    }
     return (
         <View style={styles.container}>
             <View style={[styles.modalView, getModalStatus]}>
-                <EmojiModal onEmojiSelected={(emoji) => { setEmoji(emoji) }} columns={10} />
+                <EmojiModal onEmojiSelected={(emoji) => { typeText(emoji) }} columns={10} />
             </View>
             <Pressable style={styles.pressable} onPress={modal}>
                 <Image source={attachIcon} style={styles.icon} />
             </Pressable>
-            <TextInput value={getText} style={[styles.input, getInputFieldHeight]} multiline={true} onContentSizeChange={(event) => {
+            <TextInput onChangeText={text=>typeText(text)} value={getText} style={[styles.input, getInputFieldHeight]} multiline={true} onContentSizeChange={(event) => {
                 setInputFieldHeight(event.nativeEvent.contentSize.height);
             }} />
             <Pressable style={styles.pressable} onPress={send}>

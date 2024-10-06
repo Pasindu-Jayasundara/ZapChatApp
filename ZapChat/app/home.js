@@ -1,4 +1,3 @@
-import { registerRootComponent } from "expo";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "../components/Header";
@@ -8,6 +7,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StatusCard } from "../components/StatusCard";
 
 export default function home() {
 
@@ -15,6 +15,8 @@ export default function home() {
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
     const [getCategory, setCategory] = useState("chat")
+    const [getFirstTime, setFirstTime] = useState(true)
+    const [getIsFound, setIsFound] = useState(false)
     const [getHeaderImage, setHeaderImage] = useState(require("../assets/images/profileDefault.png"))
 
 
@@ -52,7 +54,7 @@ export default function home() {
     useEffect(() => {
 
         (async () => {
- 
+
             try {
                 if (getUser == "") {
                     let sessionId = await AsyncStorage.getItem("user")
@@ -67,7 +69,7 @@ export default function home() {
                     }
                 }
 
-                let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Home"
+                let url = process.env.EXPO_PUBLIC_URL + "/Home"
 
                 let obj = {
                     searchText: getSearchText,
@@ -88,7 +90,13 @@ export default function home() {
                     if (obj.success) {
 
                         setChatDataArr(obj.data.data)
-                        setHeaderImage(obj.data.profile)
+
+                        setIsFound(obj.data.isFound)
+
+                        if (getFirstTime) {
+                            setHeaderImage(obj.data.profile)
+                            setFirstTime(false)
+                        }
 
                     } else {
                         if (obj.data == "Please LogIn") {
@@ -98,7 +106,7 @@ export default function home() {
 
                             router.replace("/")
                         } else {
-                            Alert.alert(obj.data); 
+                            Alert.alert(obj.data);
                         }
                         console.log(obj.data)
                     }
@@ -118,9 +126,38 @@ export default function home() {
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <Header searchTextFunc={setSearchText} categoryFunc={setCategory} img={getHeaderImage}/>
+            <Header searchTextFunc={setSearchText} categoryFunc={setCategory} img={getHeaderImage} />
 
-            <FlashList contentContainerStyle={styles.body} data={getChatDataArr} renderItem={({ item }) => <ChatCard data={item} />} keyExtractor={item => item.chatId} estimatedItemSize={200} />
+            {getIsFound ? (
+                getCategory != "status" ? (
+
+                    <FlashList
+                        contentContainerStyle={styles.body}
+                        data={getChatDataArr}
+                        renderItem={({ item }) => <ChatCard data={item} />}
+                        keyExtractor={item => item.chatId}
+                        estimatedItemSize={200}
+                    />
+
+                ) : (
+
+                    <FlashList
+                        contentContainerStyle={styles.body}
+                        data={getChatDataArr}
+                        renderItem={({ item }) => <StatusCard data={item} />}
+                        keyExtractor={item => item.chatId}
+                        estimatedItemSize={200}
+                    />
+
+                )
+
+            ) : (
+
+                <View style={styles.noView}>
+                    <Text style={styles.noText}>No Groups !</Text>
+                </View>
+
+            )}
 
             <FloatingAction
                 color="#fc384b"
@@ -138,10 +175,19 @@ export default function home() {
 }
 
 const styles = StyleSheet.create({
+    noText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#919190"
+    },
+    noView: {
+        width: "100%",
+        alignItems: "center",
+        flex: 1,
+        justifyContent: "center"
+    },
     body: {
-        // flexGrow: 1,
         paddingTop: 15,
-        // backgroundColor:"green"
     },
     safearea: {
         flex: 1

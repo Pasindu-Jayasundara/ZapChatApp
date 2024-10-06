@@ -48,7 +48,7 @@ export default function index() {
         if (getMobile.trim().length == 10) {
             if (getPassword.trim().length >= 8) {
 
-                let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Login"
+                let url = process.env.EXPO_PUBLIC_URL+"/Login"
                 let data = {
                     mobile: getMobile,
                     password: getPassword

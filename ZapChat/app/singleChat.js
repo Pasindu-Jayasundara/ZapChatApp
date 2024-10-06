@@ -36,7 +36,7 @@ export default function singleChat() {
                     }
                 } else {
 
-                    let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/SingleChat"
+                    let url = process.env.EXPO_PUBLIC_URL+"/SingleChat"
 
                     let obj = {
                         otherUserId: data.userId

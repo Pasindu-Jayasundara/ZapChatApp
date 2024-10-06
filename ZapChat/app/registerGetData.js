@@ -39,7 +39,7 @@ export default function registerGetData() {
 
         } else {
 
-            let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Register"
+            let url = process.env.EXPO_PUBLIC_URL+"/Register"
             let data = {
                 fName: getFirstName,
                 lName: getLastName,

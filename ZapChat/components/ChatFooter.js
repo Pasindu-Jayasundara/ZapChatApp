@@ -43,7 +43,7 @@ export function ChatFooter({data,func}) {
                 }
             } else {
 
-                let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/SendMessage"
+                let url = process.env.EXPO_PUBLIC_URL+"/SendMessage"
 
                 let obj = {
                     otherUserId: data.userId,

@@ -45,12 +45,15 @@ public class LoadChat extends HttpServlet {
 
         List<Single_chat> list = chatCriteria.list();
 
+        boolean isFound = false;
+
         ArrayList<Single_chat> chatArray = new ArrayList<>();
         ArrayList<Single_chat> searchChatArray = new ArrayList<>();
 
         JsonArray jsonArray = new JsonArray();
 
         if (!list.isEmpty()) {
+            // avaliable
 
             for (Single_chat single_chat : list) {
 
@@ -86,6 +89,10 @@ public class LoadChat extends HttpServlet {
                 searchFrom = chatArray;
             }
             for (Single_chat single_chat : searchFrom) {
+
+                if (!isFound) {
+                    isFound = true;
+                }
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("chatId", single_chat.getId());
@@ -149,8 +156,9 @@ public class LoadChat extends HttpServlet {
 
         JsonObject jo = new JsonObject();
         jo.addProperty("profile", user.getProfile_image());
+        jo.addProperty("isFound", isFound);
         jo.add("data", gson.toJsonTree(jsonArray));
-        
+
         Response_DTO response_DTO = new Response_DTO(true, gson.toJsonTree(jo));
 
         response.setContentType("application/json");

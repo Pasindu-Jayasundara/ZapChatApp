@@ -36,7 +36,7 @@ export default function profileSetUp() {
         } else{
 
             let sessionId = await AsyncStorage.getItem("user")
-            let url = "https://redbird-suitable-conversely.ngrok-free.app/ZapChatBackend/Profile"
+            let url = process.env.EXPO_PUBLIC_URL+"/Profile"
 
             let formData = new FormData()
             formData.append("imageUri",getImageResult.uri)

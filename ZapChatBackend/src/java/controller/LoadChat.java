@@ -45,7 +45,7 @@ public class LoadChat extends HttpServlet {
         ArrayList<Single_chat> searchChatArray = new ArrayList<>();
 
         boolean isFound = false;
-        
+
         JsonArray jsonArray = new JsonArray();
 
         if (!userList.isEmpty()) {
@@ -119,7 +119,14 @@ public class LoadChat extends HttpServlet {
 
                     jsonObject.addProperty("userId", single_chat.getTo_user().getId());
                     jsonObject.addProperty("name", single_chat.getTo_user().getFirst_name() + " " + single_chat.getTo_user().getLast_name());
-                    jsonObject.addProperty("image", single_chat.getTo_user().getProfile_image());
+
+                    if (single_chat.getTo_user().getProfile_image().equals("../assets/images/default.svg")) {
+                        jsonObject.addProperty("image", "../assets/images/person-square.svg");
+
+                    } else {
+                        jsonObject.addProperty("image", single_chat.getTo_user().getProfile_image());
+                    }
+
                     jsonObject.addProperty("onlineStatus", single_chat.getTo_user().getUser_online_status().getStatus());
                     jsonObject.addProperty("about", single_chat.getTo_user().getAbout());
 
@@ -129,7 +136,14 @@ public class LoadChat extends HttpServlet {
 
                     jsonObject.addProperty("userId", single_chat.getFrom_user().getId());
                     jsonObject.addProperty("name", single_chat.getFrom_user().getFirst_name() + " " + single_chat.getFrom_user().getLast_name());
-                    jsonObject.addProperty("image", single_chat.getFrom_user().getProfile_image());
+
+                    if (single_chat.getFrom_user().getProfile_image().equals("../assets/images/default.svg")) {
+                        jsonObject.addProperty("image", "../assets/images/person-square.svg");
+
+                    } else {
+                        jsonObject.addProperty("image", single_chat.getTo_user().getProfile_image());
+                    }
+
                     jsonObject.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());
                     jsonObject.addProperty("about", single_chat.getFrom_user().getAbout());
 

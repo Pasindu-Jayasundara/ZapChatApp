@@ -7,10 +7,11 @@ import { router } from "expo-router";
 
 const search = require("../assets/images/search.svg")
 const backArrow = require("../assets/images/back-arrow.svg")
+const profileDefault = require("../assets/images/default.svg")
 
 export function Header({ searchTextFunc, categoryFunc ,img}) {
 
-    const [getImage, setImage] = useState(require("../assets/images/profileDefault.png"))
+    const [getImage, setImage] = useState(profileDefault)
     const [getStatus, setStatus] = useState(false)
     const [getText, setText] = useState("")
     const [getCategory, setCategory] = useState("chat")
@@ -21,7 +22,7 @@ export function Header({ searchTextFunc, categoryFunc ,img}) {
         setStatus(newStatus)
     })
     useEffect(() => {
-        if(img!="../assets/images/profileDefault.png"){
+        if(img!="../assets/images/default.svg"){
             setImage(img)
         }
     }, [getImage]);
@@ -86,8 +87,8 @@ export function Header({ searchTextFunc, categoryFunc ,img}) {
 
 const styles = StyleSheet.create({
     icon2: {
-        width: 30,
-        height: 30,
+        width: 22,
+        height: 22,
         // backgroundColor:"red"
     },
     backView: {
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
     },
     iconView: {
         flexDirection: "row",
+        alignItems:"center",
         columnGap: 15
     },
     container2: {

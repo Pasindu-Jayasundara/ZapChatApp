@@ -9,6 +9,8 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
 
+const profileDefault = require("../assets/images/default.svg")
+
 export default function home() {
 
     const [getChatDataArr, setChatDataArr] = useState([])
@@ -17,7 +19,7 @@ export default function home() {
     const [getCategory, setCategory] = useState("chat")
     const [getFirstTime, setFirstTime] = useState(true)
     const [getIsFound, setIsFound] = useState(false)
-    const [getHeaderImage, setHeaderImage] = useState(require("../assets/images/profileDefault.png"))
+    const [getHeaderImage, setHeaderImage] = useState(profileDefault)
 
 
     const actions = [

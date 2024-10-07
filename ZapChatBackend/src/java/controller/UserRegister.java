@@ -64,7 +64,7 @@ public class UserRegister extends HttpServlet {
             user.setUser_online_status(offlineStatus);
             user.setUser_verified_status(notverifystatus);
             user.setAbout(first_name + " " + last_name);
-            user.setProfile_image("../assets/images/profileDefault.png");
+            user.setProfile_image("../assets/images/default.svg");
 
             request.getSession().setAttribute("user", user);
 

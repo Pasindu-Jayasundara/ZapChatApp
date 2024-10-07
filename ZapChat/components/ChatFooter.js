@@ -2,32 +2,35 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, BackHandler, Modal, Pressable, TextInput } from "react-native";
+import { Alert, BackHandler, Pressable, TextInput } from "react-native";
 import { StyleSheet, View } from "react-native";
 import EmojiModal from 'react-native-emoji-modal-goldin';
+import Modal from "react-native-modal";
+import * as ImagePicker from 'expo-image-picker';
 
 const attachIcon = require("../assets/images/attach.svg")
+const emojiIcon = require("../assets/images/emoji.svg")
 const sendIcon = require("../assets/images/send-fill.svg")
 
-export function ChatFooter({data,func}) {
+export function ChatFooter({ data, func }) {
 
     const [getInputFieldHeight, setInputFieldHeight] = useState(40)
     const [getModalStatus, setModalStatus] = useState({ display: "none" })
     const [getText, setText] = useState("")
     const [getUser, setUser] = useState("")
+    const [getEmojiModal, setEmojiModal] = useState(false)
+    const [getImage, setImage] = useState("")
 
-    const modal = () => {
-        if (getModalStatus == '{display:"flex"}') {
-            setModalStatus({ display: "none" })
-        } else {
-            setModalStatus({ display: "flex" })
-        }
-    }
+    // const modal = () => {
+    //     if (getModalStatus == '{display:"flex"}') {
+    //         setModalStatus({ display: "none" })
+    //     } else {
+    //         setModalStatus({ display: "flex" })
+    //     }
+    // }
 
     const send = async () => {
-        if (getModalStatus == '{display:"flex"}') {
-            setModalStatus({ display: "none" })
-        }
+        setEmojiModal(false)
 
         try {
             if (getUser == "") {
@@ -44,12 +47,12 @@ export function ChatFooter({data,func}) {
                 }
             } else {
 
-                let url = process.env.EXPO_PUBLIC_URL+"/SendMessage"
+                let url = process.env.EXPO_PUBLIC_URL + "/SendMessage"
 
                 let obj = {
                     otherUserId: data.userId,
-                    contentType:"Message",
-                    content:getText
+                    contentType: "Message",
+                    content: getText
                 }
                 let response = await fetch(url, {
                     method: "POST",
@@ -94,14 +97,37 @@ export function ChatFooter({data,func}) {
 
     }
 
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        console.log(result);
+
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+        }
+    };
+
     return (
         <View style={styles.container}>
-            <View style={[styles.modalView, getModalStatus]}>
-                <EmojiModal onEmojiSelected={(emoji) => setText(emoji) } columns={10} />
-            </View>
-            <Pressable style={styles.pressable} onPress={modal}>
-                <Image source={attachIcon} style={styles.icon} />
-            </Pressable>
+
+            <Modal isVisible={getEmojiModal} onBackButtonPress={()=>{setEmojiModal(false) }} onBackdropPress={()=>{setEmojiModal(false) }}>
+                <View style={styles.modalView}>
+                    <EmojiModal onEmojiSelected={(emoji) => setText((prevText) => prevText + emoji)} columns={10} />
+                </View>
+            </Modal>
+            <>
+                <Pressable style={styles.pressable} onPress={pickImage}>
+                    <Image source={attachIcon} style={styles.icon} />
+                </Pressable>
+                <Pressable style={styles.pressable} onPress={() => { setEmojiModal(!getEmojiModal) }}>
+                    <Image source={emojiIcon} style={styles.icon} />
+                </Pressable>
+            </>
             <TextInput onChangeText={text => setText(text)} value={getText} style={[styles.input, getInputFieldHeight]} multiline={true} onContentSizeChange={(event) => {
                 setInputFieldHeight(event.nativeEvent.contentSize.height);
             }} />
@@ -126,8 +152,9 @@ const styles = StyleSheet.create({
     },
     pressable: {
         // backgroundColor:"red",
-        justifyContent: "center",
+        // justifyContent: "space-around",
         alignItems: "center",
+        flexDirection: "row"
     },
     input: {
         backgroundColor: "#e3e3e3",
@@ -136,7 +163,7 @@ const styles = StyleSheet.create({
         maxHeight: 120,
         paddingHorizontal: 10,
         color: "#ff5b6b",
-        width: "80%",
+        width: "75%",
         paddingVertical: 2
     },
     icon: {

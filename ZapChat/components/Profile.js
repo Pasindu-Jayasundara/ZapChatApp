@@ -6,16 +6,20 @@ import { InputField } from "./InputField";
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from "react";
 
-const defaultProfileImage = require("../assets/images/profileDefault.png")
+const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
 
-export function Profile() {
+export function Profile({getFunc,setFunc}) {
 
-    const [getResult, setResult] = useState("")
+    const [getImage, setImage] = useState(defaultProfileImage)
+    const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select Profile Picture")
 
-    const design = {
-        backgroundColor: "#d1d1d1",
-        paddingHorizontal: 10,
-    }
+    useEffect(()=>{
+
+        if(getFunc!=null){
+            setImage(getFunc.assets[0].uri)
+        }
+
+    },[getFunc])
 
     const pickImage = async () => {
 
@@ -29,7 +33,8 @@ export function Profile() {
         console.log(result);
 
         if (!result.canceled) {
-            setResult(result);
+            setImageSelectBtnText("Change Profile Picture")
+            setFunc(result)
         }
     };
  
@@ -37,33 +42,38 @@ export function Profile() {
         <View style={styles.container}>
             <Image
                 style={styles.image}
-                source={getResult.assets[0].uri}
+                source={getImage}
                 contentFit="cover"
                 transition={1000}
                 contentPosition={"center"}
             />
-            <Button text={"Select Profile Picture"} style={design} func={pickImage} />
+            <Button text={getImageSelectBtnText} style={styles.design} func={pickImage} />
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-
+    design :{
+        backgroundColor: "#d1d1d1",
+        paddingHorizontal: 10,
+        marginTop:30
+    },
     belowView: {
         backgroundColor: "red",
         width: "100%"
     },
     container: {
         alignItems: "center",
-        borderRadius: 100,
-        justifyContent: "center",
-        alignItems: "center",
-        width: 170,
-        height: 170,
+        // borderRadius: 100,
+        // backgroundColor:"red",
+        marginTop:60
+        // justifyContent: "center",
+        // alignItems: "center",
+        // flex:1
     },
     image: {
-        width: "100%",
-        height: "100%",
-        borderRadius: 100,
+        width: 170,
+        height: 170,
+        borderRadius: 10,
     }
 })

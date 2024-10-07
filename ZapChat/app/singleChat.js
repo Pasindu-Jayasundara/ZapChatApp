@@ -6,7 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { ChatBuble } from "../components/ChatBuble";
 import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
@@ -16,7 +16,7 @@ export default function singleChat() {
     const data = useLocalSearchParams();
     const [getUser, setUser] = useState("")
     const [getChat, setChat] = useState([])
-
+    
     let date;
     let time;
 
@@ -129,6 +129,7 @@ export default function singleChat() {
 const styles = StyleSheet.create({
     body: {
         // flexGrow: 1
+        backgroundColor:"rgb(235, 235, 235)"
     },
     safearea: {
         flex: 1

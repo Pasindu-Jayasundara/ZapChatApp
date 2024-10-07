@@ -60,7 +60,7 @@ public class SendMessageFilter implements Filter {
                 } else {
 
                     boolean isOk = false;
-                    if (contentType.equals("Message") && Validation.isValidName(content)) {
+                    if (contentType.equals("Message")) {
                         isOk = true;
                     } else if (contentType.equals("File")) {
                         isOk = true;

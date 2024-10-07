@@ -6,46 +6,74 @@ import { Profile } from "../components/Profile";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function profileSetUp() {
 
-    const [getAbout,setAbout] = useState("")
+    const [getAbout, setAbout] = useState("")
     const [getImageResult, setImageResult] = useState(null)
 
-    const design = {
-        marginTop: 20,
-        width: "100%"
-    }
+    useEffect(() => {
+        (async () => {
+
+            let verified = await AsyncStorage.getItem("verified");
+            let user = await AsyncStorage.getItem("user");
+
+            if (verified == null || verified != "true" || user == null) {
+
+                await AsyncStorage.removeItem("verified")
+                await AsyncStorage.removeItem("user")
+
+                router.replace("/")
+            }
+        })()
+    }, [])
 
     async function request() {
 
-        let imageTypeArr=[".png",".jpg",".jpeg"]
+        if (getUser == "") {
+            let sessionId = await AsyncStorage.getItem("user")
+            if (sessionId == null) {
 
-        if (getAbout.trim()=="") {
+                await AsyncStorage.removeItem("verified");
+                await AsyncStorage.removeItem("user");
+
+                router.replace("/")
+            } else {
+                setUser(sessionId)
+            }
+        }
+
+        let imageTypeArr = [".png", ".jpg", ".jpeg"]
+
+        if (getAbout.trim() == "") {
             Alert.alert("Missing About")
 
-        } else if (getImageResult.uri.trim()=="") {
+        } else if (getAbout.length > 45) {
+            Alert.alert("About Too Long")
+
+        } else if (getImageResult.uri.trim() == "") {
             Alert.alert("Missing Image")
 
-        } else if (getImageResult.type!="image") {
+        } else if (getImageResult.type != "image") {
             Alert.alert("Not a Image")
 
         } if (!imageTypeArr.includes(getImageResult.uri.slice(getImageResult.uri.lastIndexOf('.')).toLowerCase())) {
             Alert.alert("Invalid Image Type")
 
-        } else{
+        } else {
 
             let sessionId = await AsyncStorage.getItem("user")
-            let url = process.env.EXPO_PUBLIC_URL+"/Profile"
+            let url = process.env.EXPO_PUBLIC_URL + "/Profile"
 
             let formData = new FormData()
-            formData.append("imageUri",getImageResult.uri)
-            formData.append("imageType",getImageResult.type)
-            formData.append("about",getAbout)
+            formData.append("imageUri", getImageResult.uri)
+            formData.append("imageType", getImageResult.type)
+            formData.append("about", getAbout)
 
             let response = await fetch(url, {
                 method: "POST",
-                body:formData,
+                body: formData,
                 headers: {
                     'Cookie': `JSESSIONID=${sessionId}`
                 }
@@ -73,15 +101,15 @@ export default function profileSetUp() {
     return (
         <SafeAreaView style={styles.safearea}>
 
-            <Text style={styles.title}>Setup Your Profile</Text>
+            <Text style={styles.title}>My Profile</Text>
             <View style={styles.scrolView}>
 
-                <Profile getFunc={getImageResult} setFunc={setImageResult}/>
+                <Profile getFunc={getImageResult} setFunc={setImageResult} />
 
                 <View style={styles.inputFields}>
-                    <InputField params={{ lableText: "About", maxLength: 10 ,func:setAbout}} />
+                    <InputField params={{ lableText: "About", maxLength: 10, func: setAbout }} />
 
-                    <Button style={design} text={"Create Profile"} func={request}/>
+                    <Button style={styles.btn} text={"Update Profile"} func={request} />
                 </View>
             </View>
 
@@ -90,6 +118,10 @@ export default function profileSetUp() {
 }
 
 const styles = StyleSheet.create({
+    btn:{ 
+        marginTop: 20, 
+        width: "100%" 
+    },
     inputFields: {
         width: "80%",
         marginTop: 70
@@ -101,7 +133,7 @@ const styles = StyleSheet.create({
         color: "#ff5b6b",
         fontSize: 23,
         fontWeight: "bold",
-        marginTop: 75,
+        // marginTop: 75,
         paddingLeft: 35,
     },
     safearea: {
@@ -112,6 +144,6 @@ const styles = StyleSheet.create({
         // justifyContent: "center",
         // backgroundColor: "red",
         alignItems: "center",
-        paddingTop:90
+        // paddingTop:90
     }
 })

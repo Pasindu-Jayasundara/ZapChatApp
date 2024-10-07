@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native"
 
 export function ChatCard({ data }) {
 
-    const [getImage, setImage] = useState(require("../assets/images/profileDefault.png"))
+    const [getImage, setImage] = useState(require("../assets/images/person-square.svg"))
     const [getName, setName] = useState("")
     const [getLastMsg, setLastMessage] = useState("")
     const [getTime, setTime] = useState("")
@@ -13,7 +13,7 @@ export function ChatCard({ data }) {
 
     useEffect(() => {
 
-        if (data.image != "../assets/images/profileDefault.png") {
+        if (data.image != "../assets/images/person-square.svg") {
             setImage(data.image)
         }
         setName(data.name)
@@ -36,7 +36,7 @@ export function ChatCard({ data }) {
 
     return (
         <Pressable style={styles.container} onPress={() => { router.push({ pathname: "/singleChat", params: data }) }}>
-            <Image source={getImage} style={styles.image} />
+            <Image source={getImage} style={styles.image}  contentFit="cover"/>
             <View style={styles.textcontainer}>
                 <View style={styles.view1}>
                     <Text style={styles.name} numberOfLines={1}>{getName}</Text>

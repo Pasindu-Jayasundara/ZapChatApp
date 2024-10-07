@@ -1,9 +1,9 @@
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { Alert, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatCard } from "../components/ChatCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -128,8 +128,6 @@ export default function newChat() {
 
             )}
 
-
-
         </SafeAreaView>
     )
 }
@@ -144,7 +142,7 @@ const styles = StyleSheet.create({
         width:"100%",
         alignItems:"center",
         flex:1,
-        justifyContent:"center"
+        justifyContent:"center",
     },
     icon: {
         width: 22,
@@ -152,7 +150,10 @@ const styles = StyleSheet.create({
     },
     head: {
         flexDirection: "row",
-        columnGap: 15
+        columnGap: 15,
+        justifyContent:"center",
+        alignItems:"center",
+        marginBottom:20
     },
     input: {
         backgroundColor: "#e3e3e3",

@@ -17,68 +17,82 @@ export default function singleChat() {
     const [getUser, setUser] = useState("")
     const [getChat, setChat] = useState([])
 
+    let date;
+    let time;
+
+    useEffect(() => {
+        (async () => {
+
+            let verified = await AsyncStorage.getItem("verified");
+            let user = await AsyncStorage.getItem("user");
+
+            if (verified == null || verified != "true" || user == null) {
+
+                await AsyncStorage.removeItem("verified")
+                await AsyncStorage.removeItem("user")
+
+                router.replace("/")
+            }
+        })()
+    }, [])
+
     useEffect(() => {
 
         (async () => {
+            if (getUser == "") {
 
-            try {
-                if (getUser == "") {
-                    let sessionId = await AsyncStorage.getItem("user")
-                    if (sessionId == null) {
+                let sessionId = await AsyncStorage.getItem("user")
+                if (sessionId == null) {
+
+                    await AsyncStorage.removeItem("verified");
+                    await AsyncStorage.removeItem("user");
+
+                    router.replace("/")
+
+                } else {
+                    setUser(sessionId)
+
+                }
+            }
+
+            let url = process.env.EXPO_PUBLIC_URL + "/SingleChat"
+
+            let obj = {
+                otherUserId: data.userId
+            }
+            let response = await fetch(url, {
+                method: "POST",
+                body: JSON.stringify(obj),
+                headers: {
+                    "Content-Type": "application/json",
+                    'Cookie': `JSESSIONID=${getUser}`
+                }
+            })
+
+            if (response.ok) {
+
+                let obj = await response.json()
+                if (obj.success) {
+
+                    setChat(obj.data)
+
+                } else {
+
+                    if (obj.data == "Please LogIn") {
 
                         await AsyncStorage.removeItem("verified");
                         await AsyncStorage.removeItem("user");
 
                         router.replace("/")
-
                     } else {
-                        setUser(sessionId)
+                        Alert.alert(obj.data);
                     }
-                } else {
-
-                    let url = process.env.EXPO_PUBLIC_URL+"/SingleChat"
-
-                    let obj = {
-                        otherUserId: data.userId
-                    }
-                    let response = await fetch(url, {
-                        method: "POST",
-                        body: JSON.stringify(obj),
-                        headers: {
-                            "Content-Type": "application/json",
-                            'Cookie': `JSESSIONID=${getUser}`
-                        }
-                    })
-
-                    if (response.ok) {
-
-                        let obj = await response.json()
-                        if (obj.success) {
-
-                            setChat(obj.data)
-
-                        } else {
-                            if (obj.data == "Please LogIn") {
-
-                                await AsyncStorage.removeItem("verified");
-                                await AsyncStorage.removeItem("user");
-
-                                router.replace("/")
-                            } else {
-                                Alert.alert(obj.data);
-                            }
-                            console.log(obj.data)
-                        }
-
-                    } else {
-                        Alert.alert("Please Try Again Later");
-                        console.log(response)
-                    }
-
+                    console.log("c: " + obj.data)
                 }
 
-            } catch (error) {
-                console.error(error)
+            } else {
+                Alert.alert("Please Try Again Later");
+                console.log(response)
             }
 
         })()
@@ -87,19 +101,34 @@ export default function singleChat() {
 
     return (
         <SafeAreaView style={styles.safearea}>
-
             <ChatHeader data={data} />
+            <FlashList
+                contentContainerStyle={styles.body}
+                data={getChat}
+                renderItem={({ item }) => {
 
-            <FlashList contentContainerStyle={styles.body} data={getChat} renderItem={({ item }) => <ChatBuble params={item} />} keyExtractor={item.messageId} />
+                    const isNewDate = (date == item.date) ? false : true;
+                    if (isNewDate) {
+                        date = item.date;
+                    }
+                    const isNewTime = (time == item.time) ? false : true;
+                    if (isNewTime) {
+                        time = item.time;
+                    }
 
-            <ChatFooter data={data} func={setChat}/>
+                    return <ChatBuble params={item} isNewDate={isNewDate} isNewTime={isNewTime}/>;
+                }}
+                estimatedItemSize={200}
+            />
+
+            <ChatFooter data={data} func={setChat} />
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
     body: {
-        flexGrow: 1
+        // flexGrow: 1
     },
     safearea: {
         flex: 1

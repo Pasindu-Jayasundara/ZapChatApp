@@ -14,6 +14,7 @@ export function ChatFooter({data,func}) {
     const [getInputFieldHeight, setInputFieldHeight] = useState(40)
     const [getModalStatus, setModalStatus] = useState({ display: "none" })
     const [getText, setText] = useState("")
+    const [getUser, setUser] = useState("")
 
     const modal = () => {
         if (getModalStatus == '{display:"flex"}') {
@@ -93,19 +94,15 @@ export function ChatFooter({data,func}) {
 
     }
 
-
-    const type = (text) => {
-        setText(text)
-    }
     return (
         <View style={styles.container}>
             <View style={[styles.modalView, getModalStatus]}>
-                <EmojiModal onEmojiSelected={(emoji) => { type(emoji) }} columns={10} />
+                <EmojiModal onEmojiSelected={(emoji) => setText(emoji) } columns={10} />
             </View>
             <Pressable style={styles.pressable} onPress={modal}>
                 <Image source={attachIcon} style={styles.icon} />
             </Pressable>
-            <TextInput onChangeText={text => type(text)} value={getText} style={[styles.input, getInputFieldHeight]} multiline={true} onContentSizeChange={(event) => {
+            <TextInput onChangeText={text => setText(text)} value={getText} style={[styles.input, getInputFieldHeight]} multiline={true} onContentSizeChange={(event) => {
                 setInputFieldHeight(event.nativeEvent.contentSize.height);
             }} />
             <Pressable style={styles.pressable} onPress={send}>

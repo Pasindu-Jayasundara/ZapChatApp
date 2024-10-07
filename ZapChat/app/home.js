@@ -154,7 +154,7 @@ export default function home() {
             ) : (
 
                 <View style={styles.noView}>
-                    <Text style={styles.noText}>No Groups !</Text>
+                    <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase()+getCategory.substring(1)} !</Text>
                 </View>
 
             )}

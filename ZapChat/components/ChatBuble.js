@@ -7,10 +7,9 @@ const sendTick = require("../assets/images/send.svg")
 const receivedTick = require("../assets/images/received.svg")
 const readTick = require("../assets/images/read.svg")
 
-export function ChatBuble({ params }) {
+export function ChatBuble({ params,isNewDate,isNewTime}) {
 
     const [getTime, setTime] = useState("")
-    const [getDate, setDate] = useState("")
     const [getSide, setSide] = useState("")
     const [getMessage, setMessage] = useState("")
 
@@ -18,7 +17,6 @@ export function ChatBuble({ params }) {
     const [getContainerStyle, setContainerStyle] = useState({})
     const [getTextStyle, setTextStyle] = useState({})
 
-    const [getIsNewDate, setIsNewDate] = useState(false)
     const [getTic, setTic] = useState("")
     const [getContentType, setContentType] = useState("")
     const [getFilePath, setFilePath] = useState("")
@@ -40,17 +38,10 @@ export function ChatBuble({ params }) {
         setTime(params.time)
         setContentType(params.type)
 
-        if(getContentType=="Message"){
+        if(params.type=="Message"){
             setMessage(params.message)
-        }else if(getContentType=="File"){
+        }else if(params.type=="File"){
             setFilePath(params.path)
-        }
-
-        if(getDate!=params.date){
-            setIsNewDate(true)
-            setDate(params.date)
-        }else{
-            setIsNewDate(false)
         }
 
         if(params.messageStatus=="Send"){
@@ -81,14 +72,14 @@ export function ChatBuble({ params }) {
 
     return (
         <>
-            {getIsNewDate ? <Date date={getDate}/> : ""}
+            {isNewDate ? <Date date={params.date}/> : ""}
 
             <View style={[styles.wrapper, getWrapperStyle]}>
                 <View style={[styles.container, getContainerStyle]}>
                     <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
                 </View>
                 <View style={styles.detail}>
-                    <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
+                    {isNewTime?<Text style={styles.time} numberOfLines={1}>{getTime}</Text>:""}
                     {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
                 </View>
             </View>

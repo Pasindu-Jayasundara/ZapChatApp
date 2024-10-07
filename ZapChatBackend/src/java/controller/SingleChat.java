@@ -51,7 +51,7 @@ public class SingleChat extends HttpServlet {
                         Restrictions.eq("to_user", user)
                 )
         ));
-        singleChatCriteria.addOrder(Order.desc("id"));
+        singleChatCriteria.addOrder(Order.asc("datetime"));
 
         List<Single_chat> SingleChatList = singleChatCriteria.list();
         JsonArray jsonArray = new JsonArray();
@@ -82,7 +82,7 @@ public class SingleChat extends HttpServlet {
             }
 
             SimpleDateFormat dateSdf = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm:ss");
+            SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm");
 
             jsonObject.addProperty("time", timeSdf.format(single_chat.getDatetime()));
             jsonObject.addProperty("date", dateSdf.format(single_chat.getDatetime()));
@@ -101,8 +101,13 @@ public class SingleChat extends HttpServlet {
             jsonArray.add(jsonObject);
 
             //update message status
-            single_chat.setMessage_status(readStatus);
-            hibernateSession.update(single_chat);
+            if (user.getId() == single_chat.getTo_user().getId()) {
+                //received 
+
+                single_chat.setMessage_status(readStatus);
+                hibernateSession.update(single_chat);
+            }
+
         }
 
         hibernateSession.beginTransaction().commit();

@@ -22,6 +22,7 @@ import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @WebServlet(name = "LoadChat", urlPatterns = {"/LoadChat"})
@@ -36,28 +37,43 @@ public class LoadChat extends HttpServlet {
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
-        Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
-        chatCriteria.add(Restrictions.or(
-                Restrictions.eq("from_user", user),
-                Restrictions.eq("to_user", user)
-        ));
-        chatCriteria.addOrder(Order.desc("id"));
-
-        List<Single_chat> list = chatCriteria.list();
-
-        boolean isFound = false;
+        Criteria userCriteria = hibernateSession.createCriteria(User.class);
+        userCriteria.add(Restrictions.ne("id", user.getId()));
+        List<User> userList = userCriteria.list();
 
         ArrayList<Single_chat> chatArray = new ArrayList<>();
         ArrayList<Single_chat> searchChatArray = new ArrayList<>();
 
+        boolean isFound = false;
+        
         JsonArray jsonArray = new JsonArray();
 
-        if (!list.isEmpty()) {
-            // avaliable
+        if (!userList.isEmpty()) {
+            //has more users
 
-            for (Single_chat single_chat : list) {
+            for (User otherUser : userList) {
 
-                chatArray.add(single_chat);
+                Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
+                chatCriteria.add(Restrictions.or(
+                        Restrictions.and(
+                                Restrictions.eq("from_user", user),
+                                Restrictions.eq("to_user", otherUser)
+                        ),
+                        Restrictions.and(
+                                Restrictions.eq("from_user", otherUser),
+                                Restrictions.eq("to_user", user)
+                        )
+                ));
+                chatCriteria.addOrder(Order.desc("id"));
+                chatCriteria.setMaxResults(1);
+                Single_chat lastChat = (Single_chat) chatCriteria.uniqueResult();
+
+                if (lastChat != null) {
+                    //has last chat
+
+                    chatArray.add(lastChat);
+                }
+
             }
 
             if (isSearch) {
@@ -121,7 +137,7 @@ public class LoadChat extends HttpServlet {
                 jsonObject.addProperty("messageStatus", single_chat.getMessage_status().getStatus());
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");
+                SimpleDateFormat time = new SimpleDateFormat("HH:mm");
                 SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
                 boolean equal = date.format(new Date()).equals(date.format(single_chat.getDatetime()));

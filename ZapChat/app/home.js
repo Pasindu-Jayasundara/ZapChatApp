@@ -24,7 +24,7 @@ export default function home() {
 
     const actions = [
         {
-            text: "Create New Group",
+            text: "New Group",
             icon: require("../assets/images/people.png"),
             name: "1",
             position: 1,

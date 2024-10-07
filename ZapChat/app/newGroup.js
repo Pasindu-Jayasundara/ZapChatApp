@@ -2,7 +2,7 @@ import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChatCard } from "../components/ChatCard";
+import { GroupCard } from "../components/GroupCard";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { InputField } from "../components/InputField";
@@ -48,10 +48,10 @@ export default function newGroup() {
 
         let url = process.env.EXPO_PUBLIC_URL + "/NewGroup"
 
-        if (getGroupName.length > 45) {
+        if (getSearchGroupName.length > 45) {
 
             let obj = {
-                name: getGroupName,
+                name: getSearchGroupName,
             }
             let response = await fetch(url, {
                 method: "POST",
@@ -68,13 +68,11 @@ export default function newGroup() {
                 if (obj.success) {
 
                     if (obj.data.isFound) {
-                        //registered user
 
                         setIsFound(true)
                         setDataArray(obj.data.data)
 
                     } else {
-                        // not registered
                         setDataArray([])
                     }
 
@@ -147,7 +145,7 @@ export default function newGroup() {
             {getIsFound ? (
 
                 <FlashList
-                    renderItem={({ item }) => <ChatCard data={item} />}
+                    renderItem={({ item }) => <GroupCard data={item} />}
                     data={getDataArray}
                     keyExtractor={item => item.userId}
                     contentContainerStyle={styles.list}

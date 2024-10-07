@@ -34,6 +34,10 @@ public class Group_chat implements Serializable {
     @ManyToOne
     @JoinColumn(name = "message_content_type_id")
     private Message_content_type message_content_type;
+    
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     public Group_chat() {
     }
@@ -76,6 +80,14 @@ public class Group_chat implements Serializable {
 
     public void setMessage_content_type(Message_content_type message_content_type) {
         this.message_content_type = message_content_type;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
     
 }

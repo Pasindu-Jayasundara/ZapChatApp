@@ -7,7 +7,7 @@ export function InputField({ params }) {
     const [getSecureTextEntry, setSecureTextEntry] = useState(false);
     const [getInputMode, setInputMode] = useState("text");
     const [getMaxLength, setMaxLength] = useState(10);
-    const [getInputValue, setInputValue] = useState("");
+    // const [getInputValue, setInputValue] = useState("");
 
     useEffect(() => {
         setLable(params.lableText)
@@ -17,7 +17,7 @@ export function InputField({ params }) {
     }, [params])
 
     const handleInputChange = (value) => {
-        setInputValue(value);
+        // setInputValue(value);
         if (params.func) {
             params.func(value);
         }
@@ -28,7 +28,7 @@ export function InputField({ params }) {
         <View style={styles.view}>
             <Text style={styles.label}>{getLable}</Text>
             <TextInput
-                value={getInputValue}
+                value={params.getFunc}
                 onChangeText={text=>handleInputChange(text)}
                 maxLength={getMaxLength}
                 style={styles.input}

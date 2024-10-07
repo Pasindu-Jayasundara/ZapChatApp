@@ -5,21 +5,33 @@ import { Button } from "./Button";
 import { InputField } from "./InputField";
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
 
-export function Profile({getFunc,setFunc}) {
+export function Profile({ getFunc, setFunc }) {
 
     const [getImage, setImage] = useState(defaultProfileImage)
     const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select Profile Picture")
 
-    useEffect(()=>{
+    useEffect(() => {
 
-        if(getFunc!=null){
+        if (typeof getFunc === 'object') {
             setImage(getFunc.assets[0].uri)
+        } else {
+
+            if (getFunc == "../assets/images/default.svg") {
+                setImage(getFunc)
+
+            } else if (getFunc.startsWith("/profile-images/")) {
+
+                const imagePath = process.env.EXPO_PUBLIC_URL + getFunc;
+                setImage({ uri: imagePath });
+
+            }
         }
 
-    },[getFunc])
+    }, [getFunc])
 
     const pickImage = async () => {
 
@@ -31,13 +43,16 @@ export function Profile({getFunc,setFunc}) {
         });
 
         console.log(result);
+        // console.log("getImageResult.assets[0]")
+        // console.log(result.assets==null)
 
         if (!result.canceled) {
+
             setImageSelectBtnText("Change Profile Picture")
             setFunc(result)
         }
     };
- 
+
     return (
         <View style={styles.container}>
             <Image
@@ -53,10 +68,10 @@ export function Profile({getFunc,setFunc}) {
 }
 
 const styles = StyleSheet.create({
-    design :{
+    design: {
         backgroundColor: "#d1d1d1",
         paddingHorizontal: 10,
-        marginTop:30
+        marginTop: 30
     },
     belowView: {
         backgroundColor: "red",
@@ -66,7 +81,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         // borderRadius: 100,
         // backgroundColor:"red",
-        marginTop:60
+        marginTop: 60
         // justifyContent: "center",
         // alignItems: "center",
         // flex:1

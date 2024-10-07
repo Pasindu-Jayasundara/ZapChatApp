@@ -96,7 +96,12 @@ export default function home() {
                         setIsFound(obj.data.isFound)
 
                         if (getFirstTime) {
-                            setHeaderImage(obj.data.profile)
+
+                            if(obj.data.profile!="../assets/images/default.svg"){
+                                setHeaderImage({uri:process.env.EXPO_PUBLIC_URL+obj.data.profile})
+                            }else{
+                                setHeaderImage(obj.data.profile)
+                            }
                             setFirstTime(false)
                         }
 

@@ -1,6 +1,7 @@
 package controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.User;
 import java.io.IOException;
@@ -53,18 +54,23 @@ public class Login extends HttpServlet {
         }
 
         String sessionId = "";
-        Response_DTO response_DTO;
+        JsonObject jo = new JsonObject();
+
         if (isSuccess) {
             sessionId = request.getSession().getId();
-            response_DTO = new Response_DTO(isSuccess, sessionId);
-
+            jo.addProperty("sessionId", sessionId);
+            
+            jo.addProperty("profileImage", user.getProfile_image());
+            jo.addProperty("profileAbout", user.getAbout());
         } else {
-            response_DTO = new Response_DTO(isSuccess, message);
+            jo.addProperty("msg", message);
         }
 
         hibernateSession.close();
 
         Gson gson = new Gson();
+        Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(jo));
+
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
 

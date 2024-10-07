@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import dto.Response_DTO;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,6 +17,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
+import org.kohsuke.rngom.util.Uri;
 
 //@MultipartConfig
 @WebFilter(urlPatterns = {"/Profile"})
@@ -33,8 +36,13 @@ public class ProfileFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         String about = httpServletRequest.getParameter("about");
-        String imageType = httpServletRequest.getParameter("imageType");
-        String img1 = httpServletRequest.getParameter("imageUri");
+        boolean isNewImage = Boolean.parseBoolean(httpServletRequest.getParameter("isNewImage"));
+        String extention = httpServletRequest.getParameter("extention");
+
+        Part img1 = null;
+        if (isNewImage) {
+            img1 = httpServletRequest.getPart("image");
+        }
 
         if (httpServletRequest.getSession().getAttribute("user") == null) {
             isInvalid = true;
@@ -44,57 +52,44 @@ public class ProfileFilter implements Filter {
             isInvalid = true;
             message = "Missing About";
 
-        } else if (imageType == null || imageType.trim().equals("")) {
-            isInvalid = true;
-            message = "Missing File Type";
-
-        } else if (img1 == null || img1.trim().equals("")) {
-            isInvalid = true;
-            message = "Missing File";
-
         } else {
 
-            if (!imageType.equals("image")) {
-                isInvalid = true;
-                message = "Invalid Type";
+            if (isNewImage) {
+                if (img1 == null) {
+                    isInvalid = true;
+                    message = "Missing File";
 
-            } else if (about.length() > 45) {
-                isInvalid = true;
-                message = "About Too Long";
+                } else if (extention == null) {
+                    isInvalid = true;
+                    message = "Missing Extention";
 
-            } else {
+                } else {
 
-                String allowedExtentions[] = {".png", ".jpg", ".jpeg"};
-                File file = new File(img1);
+                    if (extention.equals(".png") || extention.equals(".jpg") || extention.equals(".jpeg")) {
+                        if (about.length() > 45) {
+                            isInvalid = true;
+                            message = "About Too Long";
 
-                isInvalid = true;
-                message = "Invalid Extention";
-
-                for (String allowedExtention : allowedExtentions) {
-                    if (img1.endsWith(allowedExtention)) {
-                        isInvalid = false;
-                        message = "";
-                        break;
-                    }
-                }
-
-                if (!isInvalid) {
-
-                    if (!file.exists()) {
-                        isInvalid = true;
-                        message = "Image Do Not Exists";
+                        }
 
                     } else {
-
-                        request.setAttribute("image", img1);
-                        request.setAttribute("about", about);
-                        request.setAttribute("fileType", imageType);
-
-                        chain.doFilter(request, response);
-
+                        isInvalid = true;
+                        message = "Invalid Extention";
                     }
                 }
+            }
 
+            if (!isInvalid) {
+                if (isNewImage) {
+
+                    request.setAttribute("image", img1);
+                    request.setAttribute("extention", extention);
+                }
+
+                request.setAttribute("about", about);
+                request.setAttribute("isNewImage", isNewImage);
+
+                chain.doFilter(request, response);
             }
 
         }

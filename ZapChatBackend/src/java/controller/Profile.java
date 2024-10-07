@@ -25,51 +25,63 @@ public class Profile extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        boolean isSuccess = false;
+        boolean isSuccess = true;
         String message = "";
 
-        String fileType = (String) request.getAttribute("fileType");
         String about = (String) request.getAttribute("about");
-        Part image = (Part) request.getAttribute("image");
+        boolean isNewImage = (boolean) request.getAttribute("isNewImage");
 
-        if (image == null || image.getSize() == 0) {
-            message = "No image file uploaded";
-            return;
-        }
+        String extention = "";
+        Part image = null;
 
-        String applicationPath = request.getServletContext().getRealPath("");
-        String newApplicationPath = applicationPath.replace("build" + File.separator + "web", "web");
+        if (isNewImage) {
+            extention = (String) request.getAttribute("extention");
+            image = (Part) request.getAttribute("image");
 
-        File folder = new File(newApplicationPath + File.separator + "product-images" + File.separator + System.currentTimeMillis());
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        File file = new File(folder, "uploaded_image." + fileType);
-        try (InputStream inputStream = image.getInputStream()) {
-            Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            isSuccess = true;
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (image == null || image.getSize() == 0) {
+                message = "No image file uploaded";
+                isSuccess = false;
+            }
         }
 
         if (isSuccess) {
-
-            String imgPath = file.getAbsolutePath();
-            System.out.println(imgPath);
-
             User user = (User) request.getSession().getAttribute("user");
+
+            if (isNewImage) {
+                
+                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+                String applicationPath = request.getServletContext().getRealPath("");
+                String newApplicationPath = applicationPath.replace("build" + File.separator + "web", "web");
+
+                File folder = new File(newApplicationPath + File.separator + "profile-images");
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                }
+
+                File file = new File(folder, user.getId() + extention);
+                try (InputStream inputStream = image.getInputStream()) {
+                    Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    isSuccess = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                String imgPath = "/profile-images/" + user.getId() + extention;
+                user.setProfile_image(imgPath);
+
+                message = imgPath;
+            }
+
             user.setAbout(about);
-            user.setProfile_image(imgPath);
 
             Session openSession = HibernateUtil.getSessionFactory().openSession();
             openSession.update(user);
 
             openSession.beginTransaction().commit();
             openSession.close();
-        }
 
-        message = "Profile Update Success";
+        }
 
         Response_DTO response_DTO = new Response_DTO(isSuccess, message);
         Gson gson = new Gson();

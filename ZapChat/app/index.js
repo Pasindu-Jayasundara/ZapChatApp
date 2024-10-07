@@ -68,8 +68,10 @@ export default function index() {
 
                         try {
 
-                            await AsyncStorage.setItem("user", JSON.stringify(obj.data))
+                            await AsyncStorage.setItem("user", JSON.stringify(obj.data.sessionId))
                             await AsyncStorage.setItem("verified", "true")
+                            await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage))
+                            await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout))
 
                             router.replace("/home")
 
@@ -79,8 +81,8 @@ export default function index() {
                         }
 
                     } else {
-                        Alert.alert(obj.data);
-                        console.log(obj.data)
+                        Alert.alert(obj.data.msg);
+                        console.log(obj.data.msg)
                     }
 
                 } else {

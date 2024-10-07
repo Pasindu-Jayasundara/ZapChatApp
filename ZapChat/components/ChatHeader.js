@@ -9,8 +9,11 @@ export function ChatHeader({data}) {
     const [getAbout, setAbout] = useState("About")
 
     useEffect(() => {
-        if(data.image!="../assets/images/profileDefault.png"){
-            setImage(data.image)
+        // if(data.image!="../assets/images/profileDefault.png"){
+        //     setImage(data.image)
+        // }
+        if (data.image != "../assets/images/person-square.svg") {
+            setImage(process.env.EXPO_PUBLIC_URL+data.image)
         }
         setName(data.name)
         setAbout(data.about)

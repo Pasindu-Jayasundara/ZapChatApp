@@ -14,7 +14,7 @@ export function ChatCard({ data }) {
     useEffect(() => {
 
         if (data.image != "../assets/images/person-square.svg") {
-            setImage(data.image)
+            setImage(process.env.EXPO_PUBLIC_URL+data.image)
         }
         setName(data.name)
         setLastMessage(data.lastMessage)

@@ -5,13 +5,15 @@ import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function profileSetUp() {
 
     const [getAbout, setAbout] = useState("")
-    const [getImageResult, setImageResult] = useState(null)
+    const [getImageResult, setImageResult] = useState("../assets/images/default.svg")
+    const [getUser, setUser] = useState("")
+    const [getNewImage, setNewImage] = useState(false)
 
     useEffect(() => {
         (async () => {
@@ -26,7 +28,17 @@ export default function profileSetUp() {
 
                 router.replace("/")
             }
+
+            const imageJson = await AsyncStorage.getItem("profileImage")
+            const image = JSON.parse(imageJson)
+            const aboutJson = await AsyncStorage.getItem("profileAbout")
+            const about = JSON.parse(aboutJson)
+
+            setImageResult(image)
+            setAbout(about)
+
         })()
+
     }, [])
 
     async function request() {
@@ -44,7 +56,29 @@ export default function profileSetUp() {
             }
         }
 
-        let imageTypeArr = [".png", ".jpg", ".jpeg"]
+        // if (getImageResult.assets!=null) {
+        //     setNewImage(true)
+        // } else {
+        //     setNewImage(false)
+        // }
+
+        // console.warn(getNewImage)
+
+        if (getImageResult.assets!=null) {
+
+            let imageTypeArr = [".png", ".jpg", ".jpeg"]
+
+            if (getImageResult.assets[0].uri.trim() == "") {
+                Alert.alert("Missing Image")
+
+            } else if (getImageResult.assets[0].type != "image") {
+                Alert.alert("Not a Image")
+
+            } if (!imageTypeArr.includes(getImageResult.assets[0].uri.slice(getImageResult.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
+                Alert.alert("Invalid Image Type")
+
+            }
+        }
 
         if (getAbout.trim() == "") {
             Alert.alert("Missing About")
@@ -52,24 +86,43 @@ export default function profileSetUp() {
         } else if (getAbout.length > 45) {
             Alert.alert("About Too Long")
 
-        } else if (getImageResult.uri.trim() == "") {
-            Alert.alert("Missing Image")
-
-        } else if (getImageResult.type != "image") {
-            Alert.alert("Not a Image")
-
-        } if (!imageTypeArr.includes(getImageResult.uri.slice(getImageResult.uri.lastIndexOf('.')).toLowerCase())) {
-            Alert.alert("Invalid Image Type")
-
         } else {
 
-            let sessionId = await AsyncStorage.getItem("user")
+            let sessionId = getUser
             let url = process.env.EXPO_PUBLIC_URL + "/Profile"
 
             let formData = new FormData()
-            formData.append("imageUri", getImageResult.uri)
-            formData.append("imageType", getImageResult.type)
             formData.append("about", getAbout)
+            formData.append("isNewImage", getImageResult.assets!=null)
+
+            if (getImageResult.assets!=null) {
+
+                let extention;
+                let invalid;
+
+                if (getImageResult.assets[0].mimeType == "image/jpeg") {
+                    extention = ".jpeg"
+
+                } else if (getImageResult.assets[0].mimeType == "image/jpg") {
+                    extention = ".jpg"
+
+                } else if (getImageResult.assets[0].mimeType == "image/png") {
+                    extention = ".png"
+
+                } else {
+                    Alert.alert("Invalid Extention")
+                    invalid = true
+                }
+
+                if (!invalid) {
+                    formData.append("image", {
+                        name: "profileImage" + extention,
+                        type: getImageResult.assets[0].mimeType,
+                        uri: getImageResult.assets[0].uri,
+                    })
+                    formData.append("extention", extention)
+                }
+            }
 
             let response = await fetch(url, {
                 method: "POST",
@@ -83,7 +136,10 @@ export default function profileSetUp() {
                 let obj = await response.json()
                 if (obj.success) {
 
-                    Alert.alert(obj.data);
+                    await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data))
+                    await AsyncStorage.setItem("profileAbout", JSON.stringify(getAbout))
+
+                    Alert.alert("Profile Update Success");
 
                 } else {
                     Alert.alert(obj.data);
@@ -107,7 +163,7 @@ export default function profileSetUp() {
                 <Profile getFunc={getImageResult} setFunc={setImageResult} />
 
                 <View style={styles.inputFields}>
-                    <InputField params={{ lableText: "About", maxLength: 10, func: setAbout }} />
+                    <InputField params={{ lableText: "About", maxLength: 45, func: setAbout, getFunc: getAbout }} />
 
                     <Button style={styles.btn} text={"Update Profile"} func={request} />
                 </View>
@@ -118,9 +174,9 @@ export default function profileSetUp() {
 }
 
 const styles = StyleSheet.create({
-    btn:{ 
-        marginTop: 20, 
-        width: "100%" 
+    btn: {
+        marginTop: 20,
+        width: "100%"
     },
     inputFields: {
         width: "80%",

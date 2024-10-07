@@ -11,7 +11,7 @@ const profileDefault = require("../assets/images/default.svg")
 
 export function Header({ searchTextFunc, categoryFunc ,img}) {
 
-    const [getImage, setImage] = useState(profileDefault)
+    // const [getImage, setImage] = useState(profileDefault)
     const [getStatus, setStatus] = useState(false)
     const [getText, setText] = useState("")
     const [getCategory, setCategory] = useState("chat")
@@ -21,11 +21,12 @@ export function Header({ searchTextFunc, categoryFunc ,img}) {
         let newStatus = getStatus ? false : true
         setStatus(newStatus)
     })
-    useEffect(() => {
-        if(img!="../assets/images/default.svg"){
-            setImage(img)
-        }
-    }, [getImage]);
+    // useEffect(() => {
+    //     if(img!="../assets/images/default.svg"){
+    //         // setImage({uri:process.env.EXPO_PUBLIC_URL+img})
+    //     }
+    //     console.warn(getImage)
+    // }, [getImage]);
 
     useEffect(() => {
 
@@ -74,7 +75,7 @@ export function Header({ searchTextFunc, categoryFunc ,img}) {
                                 <Image source={search} style={styles.icon} />
                             </Pressable>
                             <Pressable onPress={()=>{router.push("/profileSetUp")}}>
-                                <Image source={getImage} style={[styles.icon, styles.icon2]} />
+                                <Image source={img} style={[styles.icon, styles.icon2]} />
                             </Pressable>
                         </View>
                     </View>

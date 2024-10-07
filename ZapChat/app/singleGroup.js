@@ -3,13 +3,14 @@ import { Alert, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatHeader } from "../components/ChatHeader";
 import { StatusBar } from "expo-status-bar";
-import { ChatBuble } from "../components/ChatBuble";
+import { GroupChatBuble } from "../components/GroupChatBuble";
 import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
 import { useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
+import { GroupHeader } from "../components/GroupHeader";
 
 export default function singleGroup() {
 
@@ -55,7 +56,7 @@ export default function singleGroup() {
                 }
             }
 
-            let url = process.env.EXPO_PUBLIC_URL + "/SingleChat"
+            let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
             let obj = {
                 otherUserId: data.userId
@@ -101,7 +102,7 @@ export default function singleGroup() {
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <ChatHeader data={data} />
+            <GroupHeader data={data} />
             <FlashList
                 contentContainerStyle={styles.body}
                 data={getChat}
@@ -116,7 +117,7 @@ export default function singleGroup() {
                         time = item.time;
                     }
 
-                    return <ChatBuble params={item} isNewDate={isNewDate} isNewTime={isNewTime}/>;
+                    return <GroupChatBuble params={item} isNewDate={isNewDate} isNewTime={isNewTime}/>;
                 }}
                 estimatedItemSize={200}
             />

@@ -19,6 +19,9 @@ public class Group implements Serializable{
     
     @Column(name = "name",length = 45,nullable = false)
     private String name;
+    
+    @Column(name = "image_path",nullable = false)
+    private String image_path;
 
     public Group() {
     }
@@ -37,6 +40,14 @@ public class Group implements Serializable{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImage_path() {
+        return image_path;
+    }
+
+    public void setImage_path(String image_path) {
+        this.image_path = image_path;
     }
     
 }

@@ -140,7 +140,7 @@ public class LoadStatus extends HttpServlet {
                             userObject.addProperty("datetime", time.format(statusItem.getDatetime()));
 
                         } else {
-                            userObject.addProperty("datetime", sdf.format(statusItem.getDatetime()));
+                            userObject.addProperty("datetime", date.format(statusItem.getDatetime()));
 
                         }
 

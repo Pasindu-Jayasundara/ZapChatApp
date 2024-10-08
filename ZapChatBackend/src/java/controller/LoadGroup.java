@@ -107,7 +107,7 @@ public class LoadGroup extends HttpServlet {
                     jsonObject.addProperty("datetime", time.format(groupChat.getDatetime()));
 
                 } else {
-                    jsonObject.addProperty("datetime", sdf.format(groupChat.getDatetime()));
+                    jsonObject.addProperty("datetime", date.format(groupChat.getDatetime()));
 
                 }
 

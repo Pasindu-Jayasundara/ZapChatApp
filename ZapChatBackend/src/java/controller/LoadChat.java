@@ -160,7 +160,7 @@ public class LoadChat extends HttpServlet {
                     jsonObject.addProperty("datetime", time.format(single_chat.getDatetime()));
 
                 } else {
-                    jsonObject.addProperty("datetime", sdf.format(single_chat.getDatetime()));
+                    jsonObject.addProperty("datetime", date.format(single_chat.getDatetime()));
 
                 }
 

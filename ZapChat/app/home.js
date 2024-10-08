@@ -5,7 +5,7 @@ import { ChatCard } from "../components/ChatCard";
 import { FloatingAction } from "react-native-floating-action";
 import { FlashList } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
 import { GroupCard } from "../components/GroupCard";
@@ -27,6 +27,7 @@ export default function home() {
     const [getIsFound, setIsFound] = useState(false)
     const [getHeaderImage, setHeaderImage] = useState(profileDefault)
 
+    const navigation = useNavigation();
 
     const actions = [
         {
@@ -40,6 +41,12 @@ export default function home() {
             icon: require("../assets/images/chat.png"),
             name: "2",
             position: 2,
+        },
+        {
+            text: "New Status",
+            icon: require("../assets/images/pencil.png"),
+            name: "3",
+            position: 3,
         }
     ]
 
@@ -195,9 +202,12 @@ export default function home() {
                 actions={actions}
                 onPressItem={name => {
                     if (name == 1) {
-                        router.push("/newGroup")
+                        navigation.navigate('newGroup', { data: JSON.stringify(getGroupDataArr) })
+                        // router.push({pathname:"/newGroup",params:getGroupDataArr})
                     } else if (name == 2) {
                         router.push("/newChat")
+                    }else if (name == 3) {
+                        router.push("/newStatus")
                     }
                 }}
             />

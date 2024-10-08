@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -47,7 +48,7 @@ public class NewGroup extends HttpServlet {
 
         //check if there is a group avaliable for this group name
         Criteria groupCriteria = hibernateSession.createCriteria(Group_table.class);
-        groupCriteria.add(Restrictions.eq("name", groupName));
+        groupCriteria.add(Restrictions.like("name", groupName,MatchMode.ANYWHERE));
         List<Group_table> searchedGroupList = groupCriteria.list();
 
         ArrayList<JsonObject> groupArray = new ArrayList<>();
@@ -60,29 +61,29 @@ public class NewGroup extends HttpServlet {
             for (Group_table group : searchedGroupList) {
 
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("id", group.getId());
+                jsonObject.addProperty("groupId", group.getId());
                 jsonObject.addProperty("name", group.getName());
                 jsonObject.addProperty("image", group.getImage_path());
 
                 Criteria memberCriteria = hibernateSession.createCriteria(Group_member.class);
                 memberCriteria.add(Restrictions.and(
                         Restrictions.eq("user", user),
-                        Restrictions.eq("group", group)
+                        Restrictions.eq("group_table", group)
                 ));
-                Group_table searchedGroup = (Group_table) memberCriteria.uniqueResult();
+                Group_member searchedGroup = (Group_member) memberCriteria.uniqueResult();
 
                 if (searchedGroup != null) {
                     //this user is a memebr of this group
-                    jsonObject.addProperty("member", true);
+                    jsonObject.addProperty("isNew", false);
 
                 } else {
                     //not a member
-                    jsonObject.addProperty("member", false);
+                    jsonObject.addProperty("isNew", true);
 
                 }
 
                 Criteria groupChatCriteria = hibernateSession.createCriteria(Group_chat.class);
-                groupChatCriteria.add(Restrictions.eq("group", group));
+                groupChatCriteria.add(Restrictions.eq("group_table", group));
                 groupChatCriteria.addOrder(Order.desc("id"));
                 groupChatCriteria.setMaxResults(1);
                 Group_chat groupChat = (Group_chat) groupChatCriteria.uniqueResult();
@@ -122,11 +123,11 @@ public class NewGroup extends HttpServlet {
                 }
 
                 Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
-                groupMemberCriteria.add(Restrictions.eq("group", group));
+                groupMemberCriteria.add(Restrictions.eq("group_table", group));
                 groupMemberCriteria.setProjection(Projections.count("id"));
                 Long memeberCount = (Long) groupMemberCriteria.uniqueResult();
 
-                jsonObject.addProperty("memeberCount", memeberCount);
+                jsonObject.addProperty("members", memeberCount);
                 
                 groupArray.add(jsonObject);
 

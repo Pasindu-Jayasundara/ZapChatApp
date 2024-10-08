@@ -140,6 +140,7 @@ public class SingleGroup extends HttpServlet {
 
         Gson gson = new Gson();
         Response_DTO response_DTO = new Response_DTO(true, gson.toJsonTree(jsonArray));
+        
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
 

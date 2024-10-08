@@ -18,9 +18,20 @@ export default function singleGroup() {
     const data = useLocalSearchParams();
     const [getUser, setUser] = useState("")
     const [getChat, setChat] = useState([])
+    const [getIsNew, setIsNew] = useState(false)
 
     let date;
     let time;
+
+    function toBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value; 
+        }
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true'; 
+        }
+        return !!value; 
+    }
 
     useEffect(() => {
         (async () => {
@@ -34,6 +45,14 @@ export default function singleGroup() {
 
                 router.replace("/")
             }
+
+            // if((typeof data.isNew)=="string"){
+                setIsNew(toBoolean(data.isNew))
+    
+            // }else{
+            //     setIsNew(data.isNew==true)
+    
+            // }
         })()
     }, [])
 
@@ -124,7 +143,7 @@ export default function singleGroup() {
                 />
             </View>
 
-            {data.isNew ==true ? (
+            {getIsNew ? (
                 <View style={styles.newView}>
                     <Text style={styles.newText}>Join Now to Send Messages</Text>
                 </View>

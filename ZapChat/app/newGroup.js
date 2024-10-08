@@ -7,7 +7,7 @@ import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { InputField } from "../components/InputField";
 import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
 
@@ -16,6 +16,8 @@ const searchIcon = require("../assets/images/search.svg")
 const newGroupIcon = require("../assets/images/team.png")
 
 export default function newGroup() {
+
+    const { data } = useGlobalSearchParams()
 
     const [getDataArray, setDataArray] = useState([])
     const [getSearchGroupName, setSearchGroupName] = useState("")
@@ -41,6 +43,56 @@ export default function newGroup() {
             } else {
                 setUser(user)
             }
+
+            let dataObj = JSON.parse(data)
+
+            setDataArray(dataObj)
+            if (dataObj.length > 0) {
+                setIsFound(true)
+            } else {
+
+                let url = process.env.EXPO_PUBLIC_URL + "/Home"
+
+                let obj = {
+                    searchText: "",
+                    category: "group"
+                }
+                let response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(obj),
+                    headers: {
+                        "Content-Type": "application/json",
+                        'Cookie': `JSESSIONID=${getUser}`
+                    }
+                })
+
+                if (response.ok) {
+
+                    let obj = await response.json()
+                    if (obj.success) {
+
+                        setDataArray(obj.data.data)
+                        setIsFound(obj.data.isFound)
+
+                    } else {
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                        console.log(obj.data)
+                    }
+
+                } else {
+                    Alert.alert("Please Try Again Later");
+                    console.log(response)
+                }
+
+            }
         })()
     }, [])
 
@@ -48,7 +100,7 @@ export default function newGroup() {
 
         let url = process.env.EXPO_PUBLIC_URL + "/NewGroup"
 
-        if (getSearchGroupName.length > 45) {
+        if (getSearchGroupName.length < 45) {
 
             let obj = {
                 name: getSearchGroupName,
@@ -65,6 +117,7 @@ export default function newGroup() {
             if (response.ok) {
 
                 let obj = await response.json()
+                console.log(obj)
                 if (obj.success) {
 
                     if (obj.data.isFound) {
@@ -99,7 +152,7 @@ export default function newGroup() {
 
     }
 
-    const addNewGroup = async ()=>{
+    const addNewGroup = async () => {
 
     }
 
@@ -147,7 +200,7 @@ export default function newGroup() {
                 <FlashList
                     renderItem={({ item }) => <GroupCard data={item} />}
                     data={getDataArray}
-                    keyExtractor={item => item.userId}
+                    keyExtractor={item => item.groupId}
                     contentContainerStyle={styles.list}
                     estimatedItemSize={200}
                 />
@@ -172,6 +225,9 @@ const styles = StyleSheet.create({
     },
     newButton: {
         alignSelf: "center",
+        borderRadius: 5,
+        width: "92%",
+        marginBottom: 25
     },
     noText: {
         fontSize: 20,
@@ -183,6 +239,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         flex: 1,
         justifyContent: "center",
+        backgroundColor: "rgb(235, 235, 235)"
     },
     icon: {
         width: 22,

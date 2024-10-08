@@ -48,7 +48,7 @@ public class NewGroupFilter implements Filter{
                     isInvalid = true;
                     message = "Empty Group Name";
 
-                } else if (groupName.length() < 45) {
+                } else if (groupName.length() > 45) {
                     isInvalid = true;
                     message = "Incorrect Group Name Length";
 

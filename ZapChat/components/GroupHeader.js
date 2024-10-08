@@ -16,6 +16,16 @@ export function GroupHeader({ data }) {
     const [getIsNew, setIsNew] = useState(false)
     const [getNewStyle, setNewStyle] = useState()
 
+    function toBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value; 
+        }
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true'; 
+        }
+        return !!value; 
+    }
+
     useEffect(() => {
 
         if (data.image != "../assets/images/team.png") {
@@ -23,8 +33,19 @@ export function GroupHeader({ data }) {
         }
         setName(data.name)
         setMembers(data.members + " members")
-        setIsNew(data.isNew==true)
-        if(data.isNew ==true){
+
+        // console.log(typeof data.isNew)
+        // if(typeof data.isNew=="string"){
+        //     let value = data.isNew=="true"
+        //     setIsNew(value)
+        //     console.log(getIsNew)
+
+        // }else{
+            setIsNew(toBoolean(data.isNew))
+
+        // }
+
+        if(getIsNew){
             setNewStyle(styles.space)
         }else{
             setNewStyle(null)
@@ -100,7 +121,7 @@ export function GroupHeader({ data }) {
                 <Text style={styles.name} numberOfLines={1}>{getName}</Text>
                 <Text style={styles.message} numberOfLines={1}>{getMembers}</Text>
             </View>
-            {getIsNew ? (
+            {getIsNew? (
                 <Button text={"Join"} style={styles.joinButton} func={joinGroup} />
             ) : null}
         </Pressable>

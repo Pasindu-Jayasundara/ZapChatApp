@@ -17,6 +17,7 @@ export function GroupHeader({ data }) {
     const [getNewStyle, setNewStyle] = useState()
 
     useEffect(() => {
+
         if (data.image != "../assets/images/team.png") {
             setImage(process.env.EXPO_PUBLIC_URL + data.image)
         }
@@ -26,7 +27,7 @@ export function GroupHeader({ data }) {
         if(data.isNew){
             setNewStyle(styles.space)
         }else{
-            setNewStyle()
+            setNewStyle(null)
         }
     }, [])
 
@@ -67,7 +68,7 @@ export function GroupHeader({ data }) {
 
                     setIsNew(false)
                     setNewStyle()
-                    
+
                 } else {
                     if (obj.data == "Please LogIn") {
 

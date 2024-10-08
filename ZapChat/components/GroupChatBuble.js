@@ -9,7 +9,7 @@ const readTick = require("../assets/images/read.svg")
 
 export function GroupChatBuble({ params, isNewDate, isNewTime }) {
 
-    const [getImage, setImage] = useState(require("../assets/images/person-square.svg"))
+    const [getImage, setImage] = useState(require("../assets/images/profileDefault.png"))
 
     const [getTime, setTime] = useState("")
     const [getSide, setSide] = useState("")
@@ -22,6 +22,7 @@ export function GroupChatBuble({ params, isNewDate, isNewTime }) {
     const [getTic, setTic] = useState("")
     const [getContentType, setContentType] = useState("")
     const [getFilePath, setFilePath] = useState("")
+    const [getName, setName] = useState("")
 
     const rightSideWrapper = {
         alignSelf: 'flex-end',
@@ -57,9 +58,16 @@ export function GroupChatBuble({ params, isNewDate, isNewTime }) {
 
         }
 
+        if (params.side == "left" && params.senderImg != "../assets/images/profileDefault.png") {
+            setImage({uri:process.env.EXPO_PUBLIC_URL + params.senderImg})
+            setName(params.senderName)
+        }
+
     }, [params])
 
     useEffect(() => {
+
+        console.log(getSide)
         if (getSide == "right") {
             setWrapperStyle(rightSideWrapper);
             setContainerStyle(rightSideContainer);
@@ -76,11 +84,9 @@ export function GroupChatBuble({ params, isNewDate, isNewTime }) {
         <>
             {isNewDate ? <Date date={params.date} /> : ""}
 
-            <View style={styles.outerView}>
-                <Image source={getImage} style={styles.image} contentFit="cover" />
+            {getSide == "right" ? (
 
                 <View style={[styles.wrapper, getWrapperStyle]}>
-                    <Text style={[styles.container, styles.name]}>{params.name}</Text>
                     <View style={[styles.container, getContainerStyle]}>
                         <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
                     </View>
@@ -89,18 +95,46 @@ export function GroupChatBuble({ params, isNewDate, isNewTime }) {
                         {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
                     </View>
                 </View>
-            </View>
+
+            ) : (
+
+                <View style={styles.outerView}>
+                    <Image source={getImage} style={styles.image} contentFit="cover" />
+
+                    <View style={[styles.wrapper, getWrapperStyle]}>
+                        <Text style={[styles.container, styles.name]}>{getName}</Text>
+                        <View style={[styles.container, getContainerStyle, styles.right]}>
+                            <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
+                        </View>
+                        <View style={styles.detail}>
+                            {isNewTime ? <Text style={styles.time} numberOfLines={1}>{getTime}</Text> : ""}
+                            {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
+                        </View>
+                    </View>
+                </View>
+
+            )}
+
         </>
     )
 }
 const styles = StyleSheet.create({
-    outerView:{
-        flexDirection:"row",
-        alignItems:"flex-start"
+    right: {
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+    },
+    outerView: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        paddingLeft: 5
     },
     name: {
-        fontSize: 15,
-        color: "black"
+        fontSize: 12,
+        color: "black",
+        borderBottomRightRadius: 0,
+        borderBottomLeftRadius: 0,
+        fontWeight: "bold",
+        paddingVertical: 3
     },
     image: {
         width: 30,

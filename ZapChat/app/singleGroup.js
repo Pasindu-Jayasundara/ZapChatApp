@@ -1,5 +1,5 @@
 import { registerRootComponent } from "expo";
-import { Alert, ScrollView, StyleSheet } from "react-native";
+import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatHeader } from "../components/ChatHeader";
 import { StatusBar } from "expo-status-bar";
@@ -17,7 +17,7 @@ export default function singleGroup() {
     const data = useLocalSearchParams();
     const [getUser, setUser] = useState("")
     const [getChat, setChat] = useState([])
-    
+
     let date;
     let time;
 
@@ -103,24 +103,27 @@ export default function singleGroup() {
     return (
         <SafeAreaView style={styles.safearea}>
             <GroupHeader data={data} />
-            <FlashList
-                contentContainerStyle={styles.body}
-                data={getChat}
-                renderItem={({ item }) => {
+            <View style={styles.body}>
 
-                    const isNewDate = (date == item.date) ? false : true;
-                    if (isNewDate) {
-                        date = item.date;
-                    }
-                    const isNewTime = (time == item.time) ? false : true;
-                    if (isNewTime) {
-                        time = item.time;
-                    }
+                <FlashList
+                    data={getChat}
+                    renderItem={({ item }) => {
 
-                    return <GroupChatBuble params={item} isNewDate={isNewDate} isNewTime={isNewTime}/>;
-                }}
-                estimatedItemSize={200}
-            />
+                        const isNewDate = (date == item.date) ? false : true;
+                        if (isNewDate) {
+                            date = item.date;
+                        }
+                        const isNewTime = (time == item.time) ? false : true;
+                        if (isNewTime) {
+                            time = item.time;
+                        }
+
+                        return <GroupChatBuble params={item} isNewDate={isNewDate} isNewTime={isNewTime} />;
+                    }}
+                    estimatedItemSize={200}
+                />
+            </View>
+
 
             <ChatFooter data={data} func={setChat} />
         </SafeAreaView>
@@ -129,8 +132,8 @@ export default function singleGroup() {
 
 const styles = StyleSheet.create({
     body: {
-        // flexGrow: 1
-        backgroundColor:"rgb(235, 235, 235)"
+        flexGrow: 1,
+        backgroundColor: "rgb(235, 235, 235)"
     },
     safearea: {
         flex: 1

@@ -26,10 +26,9 @@ export function StatusCard({ data }) {
 
     useEffect(() => {
 
-        // setText(getTextArr[0])
-        // setTextIndex(1)
         
-    }, [])
+        
+    }, [data])
 
     const modalhide = ()=>{
         setScrollStatus(false)

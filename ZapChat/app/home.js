@@ -176,7 +176,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={getStatusDataArr}
                         renderItem={({ item }) => <StatusCard data={item} />}
-                        keyExtractor={item => item.chatId}
+                        keyExtractor={item => item.id}
                         estimatedItemSize={200}
                     />
 
@@ -184,11 +184,9 @@ export default function home() {
 
             ) : (
 
-                <StatusCard/>
-                // <View style={styles.noView}>
-                //     <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
-                // </View>
-
+                <View style={styles.noView}>
+                    <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
+                </View>
                
             )}
 

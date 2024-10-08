@@ -9,6 +9,7 @@ import entity.Group_member;
 import entity.Group_message;
 import entity.Single_chat;
 import entity.Status;
+import entity.Status_item;
 import entity.User;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -35,90 +36,150 @@ public class LoadStatus extends HttpServlet {
 
         boolean isSearch = (boolean) request.getAttribute("isSearch");
         String searchText = (String) request.getAttribute("searchText");
-        User user = (User) request.getSession().getAttribute("user");
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
-        Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
-        chatCriteria.add(Restrictions.or(
-                Restrictions.eq("from_user", user),
-                Restrictions.eq("to_user", user)
-        ));
-        chatCriteria.addOrder(Order.desc("id"));
-        List<Single_chat> singleChatList = chatCriteria.list();
+        Criteria statusCriteria = hibernateSession.createCriteria(Status.class);
+        statusCriteria.addOrder(Order.desc("id"));
+        ArrayList<Status> statusList = (ArrayList<Status>) statusCriteria.list();
 
         boolean isFound = false;
 
-        ArrayList<Status> statusArray = new ArrayList<>();
-
-        if (!singleChatList.isEmpty()) {
-            //has chats
-
-            ArrayList<User> userArray = new ArrayList<>();
-            for (Single_chat single_chat : singleChatList) {
-
-                if (user.getId() == single_chat.getFrom_user().getId()) {
-                    //i have send this message
-
-                    userArray.add(single_chat.getTo_user());
-                } else {
-                    userArray.add(single_chat.getFrom_user());
-                }
-
-            }
-
-            if (!userArray.isEmpty()) {
-
-                ArrayList<User> searchUser = new ArrayList<>();
-
-                if (isSearch) {
-                    String searchLower = searchText.toLowerCase();
-
-                    for (User user2 : userArray) {
-
-                        String firstName = user2.getFirst_name().toLowerCase();
-                        String lastName = user2.getLast_name().toLowerCase();
-
-                        if (firstName.contains(searchLower) || lastName.contains(searchLower)) {
-
-                            searchUser.add(user2);
+        /*
+        
+        {
+            isFound:true/false,
+            data:
+            [ <--------------------------------- user array
+                { <----------------------------- 1st user object
+                    statusId:"",
+                    name:"",
+                    lastStatusTime:"",
+                    status:[ <------------------ status array
+                        { <--------------------- 1st statusof this user
+                            statusItemId:"",
+                            image:"",
+                            isImage:true/false,
+                            text:"",
+                            isText:true/false
+                        },
+                        { <--------------------- 2nd statusof this user
+                            statusItemId:"",
+                            image:"",
+                            isImage:true/false,
+                            text:"",
+                            isText:true/false
                         }
+                    ]
+                },
+            ]
+        }
 
-                    }
-                }
+         */
+        JsonArray userArray = new JsonArray();
 
-                ArrayList<User> searchFrom;
-                if (isSearch) {
-                    searchFrom = searchUser;
-                } else {
-                    searchFrom = userArray;
-                }
+        if (!statusList.isEmpty()) {
+            //has status
 
-                for (User user1 : searchFrom) {
+            isFound = true;
 
-                    Criteria statusCriteria = hibernateSession.createCriteria(Status.class);
-                    statusCriteria.add(Restrictions.eq("user", user1));
-                    statusCriteria.addOrder(Order.desc("datetime"));
+            //search
+            ArrayList<Status> searchStatusArray = new ArrayList<>();
+            if (isSearch) {
+                String searchLower = searchText.toLowerCase();
 
-                    Status status = (Status) statusCriteria.uniqueResult();
-                    if (status != null) {
-                        statusArray.add(status);
+                for (Status status : statusList) {
 
-                        if (!isFound) {
-                            isFound = true;
-                        }
+                    String firstName = status.getUser().getFirst_name();
+                    String lastName = status.getUser().getLast_name();
+
+                    if (firstName.contains(searchLower) || lastName.contains(searchLower)) {
+                        searchStatusArray.add(status);
                     }
 
                 }
             }
 
+            ArrayList<Status> searchFrom;
+            if (isSearch) {
+                searchFrom = searchStatusArray;
+            } else {
+                searchFrom = statusList;
+            }
+
+            //load data
+            for (Status status : searchFrom) {
+                User statusUser = status.getUser();
+
+                JsonObject userObject = new JsonObject();
+                userObject.addProperty("id", status.getId());
+                userObject.addProperty("name", statusUser.getFirst_name() + " " + statusUser.getLast_name());
+
+                //status items
+                Criteria statusItemCriteria = hibernateSession.createCriteria(Status_item.class);
+                statusItemCriteria.add(Restrictions.eq("status", status));
+                statusItemCriteria.addOrder(Order.desc("datetime"));
+                List<Status_item> statusItemList = statusItemCriteria.list();
+
+                boolean isFirstTime = true;
+
+                JsonArray statusArray = new JsonArray();
+                for (Status_item statusItem : statusItemList) {
+
+                    if (isFirstTime) {
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                        SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+                        SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+
+                        boolean equal = date.format(new Date()).equals(date.format(statusItem.getDatetime()));
+                        if (equal) {
+                            //same day
+                            userObject.addProperty("datetime", time.format(statusItem.getDatetime()));
+
+                        } else {
+                            userObject.addProperty("datetime", sdf.format(statusItem.getDatetime()));
+
+                        }
+
+                        isFirstTime = false;
+                    }
+
+                    JsonObject statusObject = new JsonObject();
+                    statusObject.addProperty("statusItemId", statusItem.getId());
+
+                    boolean isText = false;
+                    boolean isImage = false;
+
+                    if (statusItem.getText() != null) {
+
+                        isText = true;
+                        statusObject.addProperty("text", statusItem.getText());
+                    }
+
+                    if (statusItem.getFile_path() != null) {
+
+                        isImage = true;
+                        statusObject.addProperty("image", statusItem.getFile_path());
+                    }
+
+                    statusObject.addProperty("isText", isText);
+                    statusObject.addProperty("isImage", isImage);
+
+                    statusArray.add(statusObject);
+
+                }
+                userObject.add("status", statusArray);
+                userArray.add(userObject);
+
+            }
         }
 
         Gson gson = new Gson();
 
         JsonObject jo = new JsonObject();
         jo.addProperty("isFound", isFound);
-        jo.add("data", gson.toJsonTree(statusArray));
+        jo.add("data", gson.toJsonTree(userArray));
 
         Response_DTO response_DTO = new Response_DTO(true, gson.toJsonTree(jo));
 

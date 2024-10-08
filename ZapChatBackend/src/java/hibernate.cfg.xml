@@ -25,6 +25,7 @@
         <mapping class="entity.Group_message" />  
         <mapping class="entity.File" />  
         <mapping class="entity.Status" />  
+        <mapping class="entity.Status_item" />  
         
     </session-factory>
 </hibernate-configuration>

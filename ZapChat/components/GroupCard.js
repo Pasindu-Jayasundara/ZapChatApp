@@ -13,7 +13,6 @@ export function GroupCard({ data }) {
     const [getTime, setTime] = useState("")
 
     useEffect(() => {
-        console.log(data)
 
         if (data.image != "../assets/images/team.png") {
             setImage({uri:process.env.EXPO_PUBLIC_URL+data.image})
@@ -84,7 +83,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         // backgroundColor:"blue",
         alignItems: "center",
-        paddingVertical: 5,
+        paddingVertical: 9,
         paddingHorizontal: 10,
     }
 })

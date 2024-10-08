@@ -21,8 +21,8 @@ export default function home() {
 
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
-    // const [getCategory, setCategory] = useState("chat")
-    const [getCategory, setCategory] = useState("status")
+    const [getCategory, setCategory] = useState("chat")
+    // const [getCategory, setCategory] = useState("status")
     const [getFirstTime, setFirstTime] = useState(true)
     const [getIsFound, setIsFound] = useState(false)
     const [getHeaderImage, setHeaderImage] = useState(profileDefault)
@@ -176,7 +176,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={getStatusDataArr}
                         renderItem={({ item }) => <StatusCard data={item} />}
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item.statusId}
                         estimatedItemSize={200}
                     />
 

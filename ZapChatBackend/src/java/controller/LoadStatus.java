@@ -54,7 +54,8 @@ public class LoadStatus extends HttpServlet {
                 { <----------------------------- 1st user object
                     statusId:"",
                     name:"",
-                    lastStatusTime:"",
+                    lastStatusTime(datetime):"",
+                    image:"",
                     status:[ <------------------ status array
                         { <--------------------- 1st statusof this user
                             statusItemId:"",
@@ -112,8 +113,9 @@ public class LoadStatus extends HttpServlet {
                 User statusUser = status.getUser();
 
                 JsonObject userObject = new JsonObject();
-                userObject.addProperty("id", status.getId());
+                userObject.addProperty("statusId", status.getId());
                 userObject.addProperty("name", statusUser.getFirst_name() + " " + statusUser.getLast_name());
+                userObject.addProperty("image", statusUser.getProfile_image());
 
                 //status items
                 Criteria statusItemCriteria = hibernateSession.createCriteria(Status_item.class);
@@ -128,7 +130,7 @@ public class LoadStatus extends HttpServlet {
 
                     if (isFirstTime) {
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                         SimpleDateFormat time = new SimpleDateFormat("HH:mm");
                         SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
@@ -151,13 +153,13 @@ public class LoadStatus extends HttpServlet {
                     boolean isText = false;
                     boolean isImage = false;
 
-                    if (statusItem.getText() != null) {
+                    if (statusItem.getText() != null && !statusItem.getText().trim().equals("")) {
 
                         isText = true;
                         statusObject.addProperty("text", statusItem.getText());
                     }
 
-                    if (statusItem.getFile_path() != null) {
+                    if (statusItem.getFile_path() != null && !statusItem.getFile_path().trim().equals("")) {
 
                         isImage = true;
                         statusObject.addProperty("image", statusItem.getFile_path());

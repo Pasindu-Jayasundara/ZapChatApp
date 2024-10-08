@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
         rowGap: 3
     },
     image: {
-        width: 50,
-        height: 50,
+        width: 45,
+        height: 45,
         // backgroundColor:"red",
         alignItems: "center",
         justifyContent: "center",
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         // backgroundColor:"blue",
         alignItems: "center",
-        paddingVertical: 5,
+        paddingVertical: 9,
         paddingHorizontal: 10,
     }
 })

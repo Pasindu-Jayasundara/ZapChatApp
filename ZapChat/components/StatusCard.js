@@ -4,6 +4,9 @@ import { router } from "expo-router"
 import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
 import Modal from "react-native-modal";
+import Onboard from "react-native-onboard-carousel"
+import SwiperFlatList from "react-native-swiper-flatlist"
+import { StatusDisplay } from "./StatusDisplay"
 
 const defaultImage = require("../assets/images/profileDefault.png")
 
@@ -19,35 +22,43 @@ export function StatusCard({ data }) {
         { img: 'https://thumbs.dreamstime.com/b/environment-earth-day-hands-trees-growing-seedlings-bokeh-green-background-female-hand-holding-tree-nature-field-gra-130247647.jpg' },
         { img: 'https://cdn.pixabay.com/photo/2015/04/19/08/32/marguerite-729510__340.jpg' }
     ])
-    const [getTextArr, setTextArr] = useState(["abc","def","hij"])
-    const [getText, setText] = useState("")
+    const [getStatusArr, setStatusArr] = useState([])
+    const [getAutoPlay, setAutoPlay] = useState(false)
 
     let index = 0
 
     useEffect(() => {
 
-        
-        
+        if (data.image != "../assets/images/default.svg") {
+            setImage({ uri: process.env.EXPO_PUBLIC_URL + data.image })
+        }
+        setName(data.name)
+        setTime(data.datetime)
+
+
+        setStatusArr(data.status)
+
+
     }, [data])
 
-    const modalhide = ()=>{
+    const modalhide = () => {
         setScrollStatus(false)
         setModalStatus(false)
     }
 
-    const modalshow = ()=>{
+    const modalshow = () => {
         setScrollStatus(true)
         setModalStatus(true)
     }
 
-    const nextText = ()=>{
+    const nextText = () => {
 
         setText(getTextArr[index])
 
-        if(index < getTextArr.length){
-            let newIndex = index+1
+        if (index < getTextArr.length) {
+            let newIndex = index + 1
             index = newIndex
-        }else{
+        } else {
             index = 0
             setText(getTextArr[0])
         }
@@ -65,26 +76,27 @@ export function StatusCard({ data }) {
 
             <Modal isVisible={getModalStatus} style={styles.modal} onBackButtonPress={modalhide} onBackdropPress={modalhide}>
 
-                <View style={[styles.container,{position:"absolute",top:50}]}>
+                <View style={[styles.container, {marginTop:30,paddingLeft:20 }]}>
                     <Image source={getImage} style={styles.image} />
                     <View style={styles.textcontainer}>
-                        <Text style={[styles.name,{color:"white"}]} numberOfLines={1}>{getName}</Text>
+                        <Text style={[styles.name, { color: "white" }]} numberOfLines={1}>{getName}</Text>
                         <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
                     </View>
                 </View>
 
-                <ImageSlider
-                    data={getStatusImages}
-                    onItemChanged={nextText}
-                    onClick={() => { setScrollStatus(!getScrollStatus) }}
-                    autoPlay={getScrollStatus}
-                    timer={8000}
-                    indicatorContainerStyle={{position:"absolute",bottom:-200}}
-                >
-                    <View style={styles.textVew}>
-                        <Text style={styles.extratext}>{getText}</Text>
-                    </View>
-                </ImageSlider>
+                <SwiperFlatList
+                    autoplay={getAutoPlay}
+                    autoplayDelay={10}
+                    // autoplayLoop
+                    showPagination
+                    data={getStatusArr}
+                    renderItem={({ item }) => (
+                        
+                        <StatusDisplay data={item} func={setAutoPlay}/>
+
+                    )}
+                    style={{width:"100%"}}
+                />
 
             </Modal>
 
@@ -94,36 +106,27 @@ export function StatusCard({ data }) {
 }
 
 const styles = StyleSheet.create({
-    extratext:{ 
-        color: 'white', 
-        fontSize: 15, 
-        letterSpacing:2,
-        textAlign:"center" 
+    modal: {
+        backgroundColor: "black",
+        margin: 0,
+        flex: 1,
+        justifyContent: "center",
+        // position: "relative"
     },
-    textVew:{
-        alignItems: 'center' 
-    },
-    modal:{ 
-        backgroundColor: "black", 
-        margin: 0, 
-        flex:1,
-        justifyContent:"center",
-        position:"relative"
-    },
-    msgStatus: {
-        width: 17,
-        height: 17,
-    },
+    // msgStatus: {
+    //     width: 17,
+    //     height: 17,
+    // },
     time: {
         color: "#919190",
         fontSize: 13,
     },
-    message: {
-        // backgroundColor:"red",
-        width: "80%",
-        fontSize: 13,
-        color: "#919190"
-    },
+    // message: {
+    //     // backgroundColor:"red",
+    //     width: "80%",
+    //     fontSize: 13,
+    //     color: "#919190"
+    // },
     name: {
         fontWeight: "bold",
         fontSize: 15
@@ -140,19 +143,22 @@ const styles = StyleSheet.create({
         rowGap: 5
     },
     image: {
-        width: 60,
-        height: 60,
+        width: 50,
+        height: 50,
         // backgroundColor:"red",
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: 10
+        borderRadius: 10,
+        borderColor:"#ff5b6b",
+        borderWidth:2,
+        borderStyle:"solid"
     },
     container: {
         width: "100%",
         flexDirection: "row",
         // backgroundColor:"blue",
         alignItems: "center",
-        paddingVertical: 5,
+        paddingVertical: 9,
         paddingHorizontal: 10,
     }
 })

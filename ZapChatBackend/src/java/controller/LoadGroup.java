@@ -26,6 +26,7 @@ import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @WebServlet(name = "LoadGroup", urlPatterns = {"/LoadGroup"})
@@ -80,13 +81,13 @@ public class LoadGroup extends HttpServlet {
                 searchFrom = memberArray;
             }
             for (Group_member groupMember : searchFrom) {
-                
+
                 if (!isFound) {
                     isFound = true;
                 }
-                
+
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("chatId", groupMember.getGroup_table().getId());
+                jsonObject.addProperty("groupId", groupMember.getGroup_table().getId());
                 jsonObject.addProperty("name", groupMember.getGroup_table().getName());
                 jsonObject.addProperty("image", groupMember.getGroup_table().getImage_path());
 
@@ -121,8 +122,28 @@ public class LoadGroup extends HttpServlet {
 
                 } else {
                     jsonObject.addProperty("lastMessage", "File Content");
-
                 }
+
+                Criteria memberCountCriteria = hibernateSession.createCriteria(Group_member.class);
+                memberCountCriteria.add(Restrictions.eq("group_table", groupMember.getGroup_table()));
+                memberCountCriteria.setProjection(Projections.count("id"));
+                Long count = (Long) memberCountCriteria.uniqueResult();
+
+                jsonObject.addProperty("members", count);
+
+                Criteria isNewCriteria = hibernateSession.createCriteria(Group_member.class);
+                isNewCriteria.add(Restrictions.and(
+                        Restrictions.eq("user", user),
+                        Restrictions.eq("group_table", groupMember.getGroup_table())
+                ));
+                Group_member isNew = (Group_member) isNewCriteria.uniqueResult();
+
+                if (isNew != null) {
+                    jsonObject.addProperty("isNew", false);
+                } else {
+                    jsonObject.addProperty("isNew", true);
+                }
+
                 jsonArray.add(jsonObject);
             }
 

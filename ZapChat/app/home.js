@@ -154,7 +154,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={getChatDataArr}
                         renderItem={({ item }) => <GroupCard data={item} />}
-                        keyExtractor={item => item.chatId}
+                        keyExtractor={item => item.groupId}
                         estimatedItemSize={200}
                     />
 

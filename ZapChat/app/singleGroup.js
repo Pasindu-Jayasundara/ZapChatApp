@@ -59,7 +59,7 @@ export default function singleGroup() {
             let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
             let obj = {
-                otherUserId: data.userId
+                groupId: data.groupId
             }
             let response = await fetch(url, {
                 method: "POST",

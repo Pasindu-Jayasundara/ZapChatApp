@@ -19,20 +19,16 @@ public class Home extends HttpServlet {
 
         String category = (String) request.getAttribute("category");
 
-        switch (category) {
-            case "chat":
-                request.getRequestDispatcher("/LoadChat").include(request, response);
-                break;
-            case "group":
-                request.getRequestDispatcher("/LoadGroup").include(request, response);
-                break;
-            case "status":
-                request.getRequestDispatcher("/LoadStatus").include(request, response);
-                break;
-            default:
-                break;
-        }
+        if (category.equals("chat")) {
+            request.getRequestDispatcher("/LoadChat").include(request, response);
 
+        } else if (category.equals("group")) {
+            request.getRequestDispatcher("/LoadGroup").include(request, response);
+
+        } else if (category.equals("status")) {
+            request.getRequestDispatcher("/LoadStatus").include(request, response);
+
+        }
     }
 
 }

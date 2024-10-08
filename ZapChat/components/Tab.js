@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 
 export function Tab({ func }) {
 
-    const [getCategory, setCategory] = useState("chat")
+    // const [getCategory, setCategory] = useState("chat")
+    const [getCategory, setCategory] = useState("group")
 
-    const pressCategory = (category) => {
-        setCategory(category)
-    }
+    // const pressCategory = (category) => {
+    //     func(category)
+    //     setCategory(category)
+    // }
 
     useEffect(() => {
 
@@ -17,13 +19,13 @@ export function Tab({ func }) {
 
     return (
         <View style={styles.container}>
-            <Pressable onPress={() => { pressCategory("chat") }} style={styles.button} >
+            <Pressable onPress={() => { setCategory("chat") }} style={styles.button} >
                 <Text style={getCategory=="chat"?styles.active:""}>Chat</Text>
             </Pressable>
-            <Pressable onPress={() => { pressCategory("group") }} style={styles.button}>
+            <Pressable onPress={() => { setCategory("group") }} style={styles.button}>
                 <Text style={getCategory=="group"?styles.active:""}>Group</Text>
             </Pressable>
-            <Pressable onPress={() => { pressCategory("status") }} style={styles.button}>
+            <Pressable onPress={() => { setCategory("status") }} style={styles.button}>
                 <Text style={getCategory=="status"?styles.active:""}>Status</Text>
             </Pressable>
         </View>

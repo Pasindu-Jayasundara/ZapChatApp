@@ -3,9 +3,11 @@ import { router } from "expo-router"
 import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
 
+const defaultTeam = require("../assets/images/team.png");
+
 export function GroupCard({ data }) {
 
-    const [getImage, setImage] = useState(require("../assets/images/team.png"))
+    const [getImage, setImage] = useState(defaultTeam)
     const [getName, setName] = useState("")
     const [getLastMsg, setLastMessage] = useState("")
     const [getTime, setTime] = useState("")
@@ -13,7 +15,7 @@ export function GroupCard({ data }) {
     useEffect(() => {
 
         if (data.image != "../assets/images/team.png") {
-            setImage(process.env.EXPO_PUBLIC_URL+data.image)
+            setImage({uri:process.env.EXPO_PUBLIC_URL+data.image})
         }
         setName(data.name)
         setLastMessage(data.lastMessage)

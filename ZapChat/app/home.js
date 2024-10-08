@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
+import { GroupCard } from "../components/GroupCard";
 
 const profileDefault = require("../assets/images/default.svg")
 
@@ -16,7 +17,8 @@ export default function home() {
     const [getChatDataArr, setChatDataArr] = useState([])
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
-    const [getCategory, setCategory] = useState("chat")
+    // const [getCategory, setCategory] = useState("chat")
+    const [getCategory, setCategory] = useState("group")
     const [getFirstTime, setFirstTime] = useState(true)
     const [getIsFound, setIsFound] = useState(false)
     const [getHeaderImage, setHeaderImage] = useState(profileDefault)
@@ -97,9 +99,9 @@ export default function home() {
 
                         if (getFirstTime) {
 
-                            if(obj.data.profile!="../assets/images/default.svg"){
-                                setHeaderImage({uri:process.env.EXPO_PUBLIC_URL+obj.data.profile})
-                            }else{
+                            if (obj.data.profile != "../assets/images/default.svg") {
+                                setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
+                            } else {
                                 setHeaderImage(obj.data.profile)
                             }
                             setFirstTime(false)
@@ -133,10 +135,10 @@ export default function home() {
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <Header searchTextFunc={setSearchText} categoryFunc={setCategory} img={getHeaderImage} />
+            <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} img={getHeaderImage} />
 
             {getIsFound ? (
-                getCategory != "status" ? (
+                getCategory == "chat" ? (
 
                     <FlashList
                         contentContainerStyle={styles.body}
@@ -146,7 +148,17 @@ export default function home() {
                         estimatedItemSize={200}
                     />
 
-                ) : (
+                ) : getCategory == "group" ? (
+
+                    <FlashList
+                        contentContainerStyle={styles.body}
+                        data={getChatDataArr}
+                        renderItem={({ item }) => <GroupCard data={item} />}
+                        keyExtractor={item => item.chatId}
+                        estimatedItemSize={200}
+                    />
+
+                ) : getCategory == "status" ? (
 
                     <FlashList
                         contentContainerStyle={styles.body}
@@ -156,12 +168,12 @@ export default function home() {
                         estimatedItemSize={200}
                     />
 
-                )
+                ) : null
 
             ) : (
 
                 <View style={styles.noView}>
-                    <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase()+getCategory.substring(1)} !</Text>
+                    <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
                 </View>
 
             )}

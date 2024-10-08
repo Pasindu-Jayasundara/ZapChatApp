@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entity.Group;
+import entity.Group_table;
 import entity.Group_chat;
 import entity.Group_member;
 import entity.Group_message;
@@ -64,7 +64,7 @@ public class LoadGroup extends HttpServlet {
                 String searchLower = searchText.toLowerCase();
 
                 for (Group_member groupMember : memberArray) {
-                    String groupName = groupMember.getGroup().getName().toLowerCase();
+                    String groupName = groupMember.getGroup_table().getName().toLowerCase();
 
                     if (groupName.contains(searchLower)) {
                         searchGroupArray.add(groupMember);
@@ -86,8 +86,9 @@ public class LoadGroup extends HttpServlet {
                 }
                 
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("chatId", groupMember.getGroup().getId());
-                jsonObject.addProperty("name", groupMember.getGroup().getName());
+                jsonObject.addProperty("chatId", groupMember.getGroup_table().getId());
+                jsonObject.addProperty("name", groupMember.getGroup_table().getName());
+                jsonObject.addProperty("image", groupMember.getGroup_table().getImage_path());
 
                 Criteria groupChatCriteria = hibernateSession.createCriteria(Group_chat.class);
                 groupChatCriteria.add(Restrictions.eq("group_member", groupMember));
@@ -96,7 +97,7 @@ public class LoadGroup extends HttpServlet {
                 Group_chat groupChat = (Group_chat) groupChatCriteria.uniqueResult();
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");
+                SimpleDateFormat time = new SimpleDateFormat("HH:mm");
                 SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
                 boolean equal = date.format(new Date()).equals(date.format(groupChat.getDatetime()));

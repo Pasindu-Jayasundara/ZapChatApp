@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entity.Group;
+import entity.Group_table;
 import entity.Group_chat;
 import entity.Group_file;
 import entity.Group_member;
@@ -46,9 +46,9 @@ public class NewGroup extends HttpServlet {
         String message = "";
 
         //check if there is a group avaliable for this group name
-        Criteria groupCriteria = hibernateSession.createCriteria(Group.class);
+        Criteria groupCriteria = hibernateSession.createCriteria(Group_table.class);
         groupCriteria.add(Restrictions.eq("name", groupName));
-        List<Group> searchedGroupList = groupCriteria.list();
+        List<Group_table> searchedGroupList = groupCriteria.list();
 
         ArrayList<JsonObject> groupArray = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class NewGroup extends HttpServlet {
 
             isFound=true;
             
-            for (Group group : searchedGroupList) {
+            for (Group_table group : searchedGroupList) {
 
                 JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("id", group.getId());
@@ -69,7 +69,7 @@ public class NewGroup extends HttpServlet {
                         Restrictions.eq("user", user),
                         Restrictions.eq("group", group)
                 ));
-                Group searchedGroup = (Group) memberCriteria.uniqueResult();
+                Group_table searchedGroup = (Group_table) memberCriteria.uniqueResult();
 
                 if (searchedGroup != null) {
                     //this user is a memebr of this group

@@ -16,7 +16,15 @@
         <mapping class="entity.Message_status" />  
         <mapping class="entity.Message_content_type" />  
         <mapping class="entity.Message" />  
+        <mapping class="entity.Group_table" />  
+        <mapping class="entity.Group_chat" />  
+        <mapping class="entity.Group_chat_read" />  
+        <mapping class="entity.Group_file" />  
+        <mapping class="entity.Group_member" />  
+        <mapping class="entity.Group_member_role" />  
+        <mapping class="entity.Group_message" />  
         <mapping class="entity.File" />  
+        <mapping class="entity.Status" />  
         
     </session-factory>
 </hibernate-configuration>

@@ -24,12 +24,12 @@ public class Group_member implements Serializable {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @JoinColumn(name = "group_table_id")
+    private Group_table group_table;
 
     @ManyToOne
     @JoinColumn(name = "group_member_role_id")
-    private Group group_member_role;
+    private Group_member_role group_member_role;
 
     public Group_member() {
     }
@@ -50,20 +50,20 @@ public class Group_member implements Serializable {
         this.user = user;
     }
 
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
-    public Group getGroup_member_role() {
+    public Group_member_role getGroup_member_role() {
         return group_member_role;
     }
 
-    public void setGroup_member_role(Group group_member_role) {
+    public void setGroup_member_role(Group_member_role group_member_role) {
         this.group_member_role = group_member_role;
+    }
+
+    public Group_table getGroup_table() {
+        return group_table;
+    }
+
+    public void setGroup_table(Group_table group_table) {
+        this.group_table = group_table;
     }
 
 }

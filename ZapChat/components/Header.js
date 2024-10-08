@@ -9,12 +9,13 @@ const search = require("../assets/images/search.svg")
 const backArrow = require("../assets/images/back-arrow.svg")
 const profileDefault = require("../assets/images/default.svg")
 
-export function Header({ searchTextFunc, categoryFunc ,img}) {
+export function Header({ searchTextFunc, setCategoryFunc ,img}) {
 
     // const [getImage, setImage] = useState(profileDefault)
     const [getStatus, setStatus] = useState(false)
     const [getText, setText] = useState("")
-    const [getCategory, setCategory] = useState("chat")
+    // const [getCategory, setCategory] = useState("chat")
+    // const [getCategory, setCategory] = useState("group")
 
     const searchButtonPress = (() => {
 
@@ -28,11 +29,11 @@ export function Header({ searchTextFunc, categoryFunc ,img}) {
     //     console.warn(getImage)
     // }, [getImage]);
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        categoryFunc(getCategory)
+    //     setCategoryFunc(getCategory)
 
-    }, [getCategory]);
+    // }, [getCategory]);
 
     useEffect(() => {
         const handleBackPress = () => {
@@ -79,7 +80,7 @@ export function Header({ searchTextFunc, categoryFunc ,img}) {
                             </Pressable>
                         </View>
                     </View>
-                    <Tab func={setCategory} />
+                    <Tab func={setCategoryFunc} />
                 </View>
             )}
         </>

@@ -9,8 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "group")
-public class Group implements Serializable{
+@Table(name = "group_table")
+public class Group_table implements Serializable{
     
     @Id
     @Column(name = "id")
@@ -23,7 +23,7 @@ public class Group implements Serializable{
     @Column(name = "image_path",nullable = false)
     private String image_path;
 
-    public Group() {
+    public Group_table() {
     }
 
     public int getId() {

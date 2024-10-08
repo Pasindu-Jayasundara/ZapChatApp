@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "../components/Header";
 import { ChatCard } from "../components/ChatCard";
@@ -9,6 +9,7 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
 import { GroupCard } from "../components/GroupCard";
+import { Image } from "expo-image";
 
 const profileDefault = require("../assets/images/default.svg")
 
@@ -16,10 +17,12 @@ export default function home() {
 
     const [getChatDataArr, setChatDataArr] = useState([])
     const [getGroupDataArr, setGroupDataArr] = useState([])
+    const [getStatusDataArr, setStatusDataArr] = useState([])
+
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
-    const [getCategory, setCategory] = useState("chat")
-    // const [getCategory, setCategory] = useState("group")
+    // const [getCategory, setCategory] = useState("chat")
+    const [getCategory, setCategory] = useState("status")
     const [getFirstTime, setFirstTime] = useState(true)
     const [getIsFound, setIsFound] = useState(false)
     const [getHeaderImage, setHeaderImage] = useState(profileDefault)
@@ -94,12 +97,13 @@ export default function home() {
                     let obj = await response.json()
                     if (obj.success) {
 
-                        if(getCategory=="chat"){
+                        if (getCategory == "chat") {
                             setChatDataArr(obj.data.data)
 
-                        }else if(getCategory=="group"){
+                        } else if (getCategory == "group") {
                             setGroupDataArr(obj.data.data)
-                        }else if(getCategory=="status"){
+                        } else if (getCategory == "status") {
+                            setStatusDataArr(obj.data.data)
 
                         }
                         setIsFound(obj.data.isFound)
@@ -140,7 +144,7 @@ export default function home() {
 
     }, [getSearchText, getCategory])
 
-    
+
     return (
         <SafeAreaView style={styles.safearea}>
             <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} getCategoryFunc={getCategory} img={getHeaderImage} />
@@ -170,7 +174,7 @@ export default function home() {
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={getChatDataArr}
+                        data={getStatusDataArr}
                         renderItem={({ item }) => <StatusCard data={item} />}
                         keyExtractor={item => item.chatId}
                         estimatedItemSize={200}
@@ -180,10 +184,12 @@ export default function home() {
 
             ) : (
 
-                <View style={styles.noView}>
-                    <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
-                </View>
+                <StatusCard/>
+                // <View style={styles.noView}>
+                //     <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
+                // </View>
 
+               
             )}
 
             <FloatingAction

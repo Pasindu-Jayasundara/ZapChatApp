@@ -20,7 +20,7 @@ public class Status implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "text", length = 150, nullable = false)
+    @Column(name = "text", length = 150, nullable = true)
     private String text;
 
     @ManyToOne
@@ -29,6 +29,9 @@ public class Status implements Serializable {
     
     @Column(name = "datetime",nullable = false)
     private Date datetime;
+    
+    @Column(name = "file_path", nullable = true)
+    private String file_path;
 
     public Status() {
     }
@@ -63,6 +66,14 @@ public class Status implements Serializable {
 
     public void setDatetime(Date datetime) {
         this.datetime = datetime;
+    }
+
+    public String getFile_path() {
+        return file_path;
+    }
+
+    public void setFile_path(String file_path) {
+        this.file_path = file_path;
     }
     
 }

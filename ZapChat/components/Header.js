@@ -9,7 +9,7 @@ const search = require("../assets/images/search.svg")
 const backArrow = require("../assets/images/back-arrow.svg")
 const profileDefault = require("../assets/images/default.svg")
 
-export function Header({ searchTextFunc, setCategoryFunc ,img}) {
+export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc,img}) {
 
     // const [getImage, setImage] = useState(profileDefault)
     const [getStatus, setStatus] = useState(false)
@@ -80,7 +80,7 @@ export function Header({ searchTextFunc, setCategoryFunc ,img}) {
                             </Pressable>
                         </View>
                     </View>
-                    <Tab func={setCategoryFunc} />
+                    <Tab setFunc={setCategoryFunc} getFunc={getCategoryFunc}/>
                 </View>
             )}
         </>

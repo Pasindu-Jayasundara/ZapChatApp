@@ -33,7 +33,7 @@ public class SendGroupMessageFilter implements Filter{
 
         if (httpServletRequest.getSession().getAttribute("user") != null) {
 
-            if (!fromJson.has("otherUserId")) {
+            if (!fromJson.has("groupId")) {
                 message = "Missing Id";
 
             } else if (!fromJson.has("contentType")) {
@@ -44,18 +44,18 @@ public class SendGroupMessageFilter implements Filter{
 
             } else {
 
-                String otherUserId = fromJson.get("otherUserId").getAsString();
+                String groupId = fromJson.get("groupId").getAsString();
                 String contentType = fromJson.get("contentType").getAsString();
                 String content = fromJson.get("content").getAsString();
 
-                if (!Validation.isInteger(otherUserId)) {
+                if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
 
                 } else if (!Validation.isValidName(contentType)) {
                     message = "Invalid Content Type Type";
 
                 } else if (!contentType.equals("Message") && !contentType.equals("File")) {
-                    message = "Invalid Contnt Type";
+                    message = "Invalid Content Type";
 
                 } else {
 
@@ -68,14 +68,14 @@ public class SendGroupMessageFilter implements Filter{
 
                     if (isOk) {
 
-                        int id = Integer.parseInt(otherUserId);
+                        int id = Integer.parseInt(groupId);
                         if (id < 1) {
                             message = "Invalid Id Range";
                         } else {
 
                             isSuccess = true;
 
-                            request.setAttribute("otherUserId", id);
+                            request.setAttribute("groupId", id);
                             request.setAttribute("contentType", contentType);
                             request.setAttribute("content", content);
 

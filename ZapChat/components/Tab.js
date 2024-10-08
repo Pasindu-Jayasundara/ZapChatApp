@@ -1,32 +1,32 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useEffect, useState } from "react";
 
-export function Tab({ func }) {
+export function Tab({ setFunc,getFunc }) {
 
     // const [getCategory, setCategory] = useState("chat")
-    const [getCategory, setCategory] = useState("group")
+    // const [getCategory, setCategory] = useState("group")
 
     // const pressCategory = (category) => {
     //     func(category)
     //     setCategory(category)
     // }
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        func(getCategory)
+    //     func(getCategory)
 
-    }, [getCategory])
+    // }, [getCategory])
 
     return (
         <View style={styles.container}>
-            <Pressable onPress={() => { setCategory("chat") }} style={styles.button} >
-                <Text style={getCategory=="chat"?styles.active:""}>Chat</Text>
+            <Pressable onPress={() => { setFunc("chat") }} style={styles.button} >
+                <Text style={getFunc=="chat"?styles.active:""}>Chat</Text>
             </Pressable>
-            <Pressable onPress={() => { setCategory("group") }} style={styles.button}>
-                <Text style={getCategory=="group"?styles.active:""}>Group</Text>
+            <Pressable onPress={() => { setFunc("group") }} style={styles.button}>
+                <Text style={getFunc=="group"?styles.active:""}>Group</Text>
             </Pressable>
-            <Pressable onPress={() => { setCategory("status") }} style={styles.button}>
-                <Text style={getCategory=="status"?styles.active:""}>Status</Text>
+            <Pressable onPress={() => { setFunc("status") }} style={styles.button}>
+                <Text style={getFunc=="status"?styles.active:""}>Status</Text>
             </Pressable>
         </View>
     )

@@ -12,7 +12,7 @@ const attachIcon = require("../assets/images/attach.svg")
 const emojiIcon = require("../assets/images/emoji.svg")
 const sendIcon = require("../assets/images/send-fill.svg")
 
-export function ChatFooter({ data, func}) {
+export function GroupChatFooter({ data, func}) {
 
     const [getInputFieldHeight, setInputFieldHeight] = useState(40)
     const [getModalStatus, setModalStatus] = useState({ display: "none" })
@@ -20,14 +20,6 @@ export function ChatFooter({ data, func}) {
     const [getUser, setUser] = useState("")
     const [getEmojiModal, setEmojiModal] = useState(false)
     const [getImage, setImage] = useState("")
-
-    // const modal = () => {
-    //     if (getModalStatus == '{display:"flex"}') {
-    //         setModalStatus({ display: "none" })
-    //     } else {
-    //         setModalStatus({ display: "flex" })
-    //     }
-    // }
 
     const send = async () => {
         setEmojiModal(false)
@@ -47,10 +39,10 @@ export function ChatFooter({ data, func}) {
                 }
             } else {
 
-                let url = process.env.EXPO_PUBLIC_URL + "/SendMessage"
+                let url = process.env.EXPO_PUBLIC_URL + "/SendGroupMessage"
 
                 let obj = {
-                    otherUserId: data.userId,
+                    groupId: data.groupId,
                     contentType: "Message",
                     content: getText
                 }

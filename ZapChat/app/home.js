@@ -15,10 +15,11 @@ const profileDefault = require("../assets/images/default.svg")
 export default function home() {
 
     const [getChatDataArr, setChatDataArr] = useState([])
+    const [getGroupDataArr, setGroupDataArr] = useState([])
     const [getSearchText, setSearchText] = useState("")
     const [getUser, setUser] = useState("")
-    // const [getCategory, setCategory] = useState("chat")
-    const [getCategory, setCategory] = useState("group")
+    const [getCategory, setCategory] = useState("chat")
+    // const [getCategory, setCategory] = useState("group")
     const [getFirstTime, setFirstTime] = useState(true)
     const [getIsFound, setIsFound] = useState(false)
     const [getHeaderImage, setHeaderImage] = useState(profileDefault)
@@ -93,8 +94,14 @@ export default function home() {
                     let obj = await response.json()
                     if (obj.success) {
 
-                        setChatDataArr(obj.data.data)
+                        if(getCategory=="chat"){
+                            setChatDataArr(obj.data.data)
 
+                        }else if(getCategory=="group"){
+                            setGroupDataArr(obj.data.data)
+                        }else if(getCategory=="status"){
+
+                        }
                         setIsFound(obj.data.isFound)
 
                         if (getFirstTime) {
@@ -133,9 +140,10 @@ export default function home() {
 
     }, [getSearchText, getCategory])
 
+    
     return (
         <SafeAreaView style={styles.safearea}>
-            <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} img={getHeaderImage} />
+            <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} getCategoryFunc={getCategory} img={getHeaderImage} />
 
             {getIsFound ? (
                 getCategory == "chat" ? (
@@ -152,7 +160,7 @@ export default function home() {
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={getChatDataArr}
+                        data={getGroupDataArr}
                         renderItem={({ item }) => <GroupCard data={item} />}
                         keyExtractor={item => item.groupId}
                         estimatedItemSize={200}

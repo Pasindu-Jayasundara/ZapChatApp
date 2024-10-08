@@ -23,8 +23,8 @@ export function GroupHeader({ data }) {
         }
         setName(data.name)
         setMembers(data.members + " members")
-        setIsNew(data.isNew)
-        if(data.isNew){
+        setIsNew(data.isNew==true)
+        if(data.isNew ==true){
             setNewStyle(styles.space)
         }else{
             setNewStyle(null)

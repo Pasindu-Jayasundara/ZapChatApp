@@ -1,5 +1,5 @@
 import { registerRootComponent } from "expo";
-import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatHeader } from "../components/ChatHeader";
 import { StatusBar } from "expo-status-bar";
@@ -11,6 +11,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { GroupHeader } from "../components/GroupHeader";
+import { GroupChatFooter } from "../components/GroupChatFooter";
 
 export default function singleGroup() {
 
@@ -23,7 +24,6 @@ export default function singleGroup() {
 
     useEffect(() => {
         (async () => {
-
             let verified = await AsyncStorage.getItem("verified");
             let user = await AsyncStorage.getItem("user");
 
@@ -124,13 +124,27 @@ export default function singleGroup() {
                 />
             </View>
 
-
-            <ChatFooter data={data} func={setChat} />
+            {data.isNew ==true ? (
+                <View style={styles.newView}>
+                    <Text style={styles.newText}>Join Now to Send Messages</Text>
+                </View>
+            ) : (
+                <GroupChatFooter data={data} func={setChat} />
+            )}
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+    newText:{
+        color:"#ff5b6b",
+    },
+    newView:{
+        width:"100%",
+        justifyContent:"center",
+        alignItems:"center",
+        paddingVertical:15
+    },
     body: {
         flexGrow: 1,
         backgroundColor: "rgb(235, 235, 235)"

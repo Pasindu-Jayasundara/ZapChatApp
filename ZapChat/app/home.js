@@ -10,10 +10,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
 import { GroupCard } from "../components/GroupCard";
 import { Image } from "expo-image";
+// import io  from "socket.io-client";
 
 const profileDefault = require("../assets/images/default.svg")
+// const ws = new WebSocket(process.env.EXPO_PUBLIC_URL+"/HomeS");
 
 export default function home() {
+    // const socket = io(process.env.EXPO_PUBLIC_URL+"/HomeS");
 
     const [getChatDataArr, setChatDataArr] = useState([])
     const [getGroupDataArr, setGroupDataArr] = useState([])
@@ -49,6 +52,30 @@ export default function home() {
             position: 3,
         }
     ]
+
+    // useEffect(()=>{
+
+    //     ws.onopen = function(e) {
+    //         console.log("[WebSocket] Connection established");
+    //         ws.send("chat"); // Send the message (category) to the WebSocket server
+    //       };
+        
+    //       ws.onmessage = function(event) {
+    //         console.log(`[WebSocket] Data received from server: ${event.data}`);
+    //       };
+          
+    //       ws.onclose = function(event) {
+    //         if (event.wasClean) {
+    //           console.log(`[WebSocket] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    //         } else {
+    //           console.error("[WebSocket] Connection died");
+    //         }
+    //       };
+          
+    //       ws.onerror = function(error) {
+    //         console.error(`[WebSocket] Error: ${error.message}`);
+    //       };
+    // },[])
 
     useEffect(() => {
         (async () => {

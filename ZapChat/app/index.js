@@ -4,10 +4,13 @@ import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import * as SplashScreen from 'expo-splash-screen';
 
 const logoIcon = require("../assets/images/logo.gif");
+
+// const ws = new WebSocket(process.env.EXPO_PUBLIC_URL+"/WebSocket");
+// export const socket = createContext(ws)
 
 SplashScreen.preventAutoHideAsync();
 

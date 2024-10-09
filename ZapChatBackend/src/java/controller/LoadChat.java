@@ -64,7 +64,7 @@ public class LoadChat extends HttpServlet {
                                 Restrictions.eq("to_user", user)
                         )
                 ));
-                chatCriteria.addOrder(Order.desc("id"));
+                chatCriteria.addOrder(Order.desc("datetime"));
                 chatCriteria.setMaxResults(1);
                 Single_chat lastChat = (Single_chat) chatCriteria.uniqueResult();
 

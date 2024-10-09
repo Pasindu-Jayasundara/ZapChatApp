@@ -8,6 +8,8 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
+
 export default function profileSetUp() {
 
     const [getAbout, setAbout] = useState("")
@@ -74,7 +76,7 @@ export default function profileSetUp() {
             } else if (getImageResult.assets[0].type != "image") {
                 Alert.alert("Not a Image")
 
-            } if (!imageTypeArr.includes(getImageResult.assets[0].uri.slice(getImageResult.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
+            }else if (!imageTypeArr.includes(getImageResult.assets[0].uri.slice(getImageResult.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
                 Alert.alert("Invalid Image Type")
 
             }
@@ -160,7 +162,7 @@ export default function profileSetUp() {
             <Text style={styles.title}>My Profile</Text>
             <View style={styles.scrolView}>
 
-                <Profile getFunc={getImageResult} setFunc={setImageResult} />
+                <Profile getFunc={getImageResult} setFunc={setImageResult} icon={defaultProfileImage} text={"Profile Picture"} style={{}}/>
 
                 <View style={styles.inputFields}>
                     <InputField params={{ lableText: "About", maxLength: 45, func: setAbout, getFunc: getAbout }} />

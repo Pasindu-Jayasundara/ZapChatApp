@@ -49,8 +49,6 @@ public class Profile extends HttpServlet {
 
             if (isNewImage) {
                 
-                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
                 String applicationPath = request.getServletContext().getRealPath("");
                 String newApplicationPath = applicationPath.replace("build" + File.separator + "web", "web");
 

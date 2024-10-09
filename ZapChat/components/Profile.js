@@ -9,11 +9,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
 
-export function Profile({ getFunc, setFunc }) {
+export function Profile({ getFunc, setFunc,icon,text ,style}) {
 
-    const [getImage, setImage] = useState(defaultProfileImage)
-    const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select Profile Picture")
-
+    // const [getImage, setImage] = useState(defaultProfileImage)
+    const [getImage, setImage] = useState(icon)
+    const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select "+text)
+// "Select Profile Picture"
     useEffect(() => {
 
         if (typeof getFunc === 'object') {
@@ -48,7 +49,7 @@ export function Profile({ getFunc, setFunc }) {
 
         if (!result.canceled) {
 
-            setImageSelectBtnText("Change Profile Picture")
+            setImageSelectBtnText("Change "+text)
             setFunc(result)
         }
     };
@@ -56,7 +57,7 @@ export function Profile({ getFunc, setFunc }) {
     return (
         <View style={styles.container}>
             <Image
-                style={styles.image}
+                style={[styles.image,style]}
                 source={getImage}
                 contentFit="cover"
                 transition={1000}

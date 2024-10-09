@@ -25,7 +25,7 @@ export default function newGroup() {
     const [getUser, setUser] = useState("")
     const [getIsFound, setIsFound] = useState(false)
     const [getNewGroupModalStatus, setNewGroupModalStatus] = useState(false)
-    const [getGroupImage, setGroupImage] = useState(newGroupIcon)
+    const [getGroupImage, setGroupImage] = useState("../assets/images/team.png")
 
 
     useEffect(() => {
@@ -154,6 +154,114 @@ export default function newGroup() {
 
     const addNewGroup = async () => {
 
+        try {
+
+            if (getUser == "") {
+                let sessionId = await AsyncStorage.getItem("user")
+                if (sessionId == null) {
+
+                    await AsyncStorage.removeItem("verified");
+                    await AsyncStorage.removeItem("user");
+
+                    router.replace("/")
+                } else {
+                    setUser(sessionId)
+                }
+            }
+
+            if (getGroupImage.assets != null) {
+
+                let imageTypeArr = [".png", ".jpg", ".jpeg"]
+
+                if (getGroupImage.assets[0].uri.trim() == "") {
+                    Alert.alert("Missing Image")
+
+                } else if (getGroupImage.assets[0].type != "image") {
+                    Alert.alert("Not a Image")
+
+                } else if (!imageTypeArr.includes(getGroupImage.assets[0].uri.slice(getGroupImage.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
+                    Alert.alert("Invalid Image Type")
+
+                } else if (getNewGroupName.trim() == "") {
+                    Alert.alert("1: Missing Group Name")
+
+                } else if (getNewGroupName.length > 45) {
+                    Alert.alert("Group Name Too Long")
+
+                } else if (getGroupImage.assets == null) {
+                    Alert.alert("Missing Assests")
+                } else {
+
+                    let extention;
+                    let invalid = false;
+
+                    if (getGroupImage.assets[0].mimeType == "image/jpeg") {
+                        extention = ".jpeg"
+
+                    } else if (getGroupImage.assets[0].mimeType == "image/jpg") {
+                        extention = ".jpg"
+
+                    } else if (getGroupImage.assets[0].mimeType == "image/png") {
+                        extention = ".png"
+
+                    } else {
+                        Alert.alert("Invalid Extention")
+                        invalid = true
+                    }
+
+                    if (!invalid) {
+
+                        let sessionId = getUser
+                        let url = process.env.EXPO_PUBLIC_URL + "/AddNewGroup"
+
+                        let formData = new FormData()
+                        formData.append("groupName", getNewGroupName)
+                        formData.append("image", {
+                            name: "profileImage" + extention,
+                            type: getGroupImage.assets[0].mimeType,
+                            uri: getGroupImage.assets[0].uri,
+                        })
+                        formData.append("extention", extention)
+                        console.log("h: " + getNewGroupName)
+
+
+                        let response = await fetch(url, {
+                            method: "POST",
+                            body: formData,
+                            headers: {
+                                'Cookie': `JSESSIONID=${sessionId}`
+                            }
+                        })
+                        if (response.ok) {
+
+                            let obj = await response.json()
+                            if (obj.success) {
+
+
+                                // console.log("obj: "+JSON.stringify(obj))
+                                // console.log("obj data: "+JSON.stringify(obj.data))
+                                // console.log("obj data data: "+JSON.stringify(obj.data.data))
+                                // await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data))
+                                // await AsyncStorage.setItem("profileAbout", JSON.stringify(getAbout))
+                                router.push({ pathname: "/singleGroup", params: obj.data })
+                                // Alert.alert("Profile Update Success");
+
+                            } else {
+                                Alert.alert(obj.data);
+                                console.log(obj.data)
+                            }
+
+                        } else {
+                            Alert.alert("Please Try Again Later");
+                            console.log(response)
+                        }
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -176,16 +284,19 @@ export default function newGroup() {
 
             <Modal
                 isVisible={getNewGroupModalStatus}
+                // isVisible={true}
                 onBackButtonPress={() => { setNewGroupModalStatus(false) }}
                 onBackdropPress={() => { setNewGroupModalStatus(false) }}
+                style={styles.modal}
             >
 
                 <View style={styles.modalView}>
-                    <Profile getFunc={getGroupImage} setFunc={setGroupImage} />
-                    <InputField params={{ lableText: "Group Name", secureTextEntry: false, inputMode: "text", maxLength: 45, func: setNewGroupName, getFunc: getNewGroupName }} />
-
-                    <Button text={"Create +"} style={[styles.newButton, styles.create]} func={addNewGroup} />
-
+                    <Text style={styles.title}>Create New group</Text>
+                    <Profile getFunc={getGroupImage} setFunc={setGroupImage} icon={newGroupIcon} text={"Group icon"} style={styles.profileview} />
+                    <View style={styles.bottom}>
+                        <InputField params={{ lableText: "Group Name", secureTextEntry: false, inputMode: "text", maxLength: 45, func: setNewGroupName, getFunc: getNewGroupName }} />
+                        <Button text={"Create +"} style={[styles.newButton, styles.create]} func={addNewGroup} />
+                    </View>
                 </View>
 
 
@@ -196,15 +307,15 @@ export default function newGroup() {
             )}
 
             {getIsFound ? (
-
-                <FlashList
-                    renderItem={({ item }) => <GroupCard data={item} />}
-                    data={getDataArray}
-                    keyExtractor={item => item.groupId}
-                    contentContainerStyle={styles.list}
-                    estimatedItemSize={200}
-                />
-
+                <View style={styles.listView}>
+                    <FlashList
+                        renderItem={({ item }) => <GroupCard data={item} />}
+                        data={getDataArray}
+                        keyExtractor={item => item.groupId}
+                        // contentContainerStyle={styles.list}
+                        estimatedItemSize={200}
+                    />
+                </View>
             ) : (
                 <View style={styles.noView}>
                     <Text style={styles.noText}>No Groups !</Text>
@@ -216,12 +327,46 @@ export default function newGroup() {
 }
 
 const styles = StyleSheet.create({
+    listView: {
+        flexGrow: 1,
+        // backgroundColor: "rgb(245, 245, 245)"
+    },
+    profileview: {
+        borderColor: "#d1d1d1",
+        borderWidth: 3,
+        borderStyle: "solid"
+    },
+    title: {
+        color: "#ff5b6b",
+        fontWeight: "bold",
+        fontSize: 20,
+        letterSpacing: 1.5,
+        alignSelf: "flex-start",
+        justifyContent: "flex-start",
+        // backgroundColor:"green",
+        marginTop: -100,
+        marginBottom: 50
+    },
+    bottom: {
+        marginTop: 60,
+        width: "100%"
+    },
+    modal: {
+        backgroundColor: "white",
+        margin: 0,
+        justifyContent: "center",
+        alignItems: "center"
+    },
     create: {
-        marginTop: 30
+        marginTop: 30,
+        width: "100%"
     },
     modalView: {
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        width: "80%",
+        // backgroundColor:"red",
+        flex: 1
     },
     newButton: {
         alignSelf: "center",
@@ -239,7 +384,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         flex: 1,
         justifyContent: "center",
-        backgroundColor: "rgb(235, 235, 235)"
+        backgroundColor: "rgb(235, 235, 235)",
     },
     icon: {
         width: 22,

@@ -51,6 +51,7 @@ public class LoadGroup extends HttpServlet {
         ArrayList<Group_member> searchGroupArray = new ArrayList<>();
 
         boolean isFound = false;
+        Gson gson = new Gson();
 
         JsonArray jsonArray = new JsonArray();
 
@@ -82,74 +83,78 @@ public class LoadGroup extends HttpServlet {
             }
             for (Group_member groupMember : searchFrom) {
 
-                if (!isFound) {
-                    isFound = true;
-                }
-
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("groupId", groupMember.getGroup_table().getId());
-                jsonObject.addProperty("name", groupMember.getGroup_table().getName());
-                jsonObject.addProperty("image", groupMember.getGroup_table().getImage_path());
-
                 Criteria groupChatCriteria = hibernateSession.createCriteria(Group_chat.class);
                 groupChatCriteria.add(Restrictions.eq("group_member", groupMember));
                 groupChatCriteria.addOrder(Order.desc("id"));
                 groupChatCriteria.setMaxResults(1);
                 Group_chat groupChat = (Group_chat) groupChatCriteria.uniqueResult();
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                SimpleDateFormat time = new SimpleDateFormat("HH:mm");
-                SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+                if (groupChat != null) {
 
-                boolean equal = date.format(new Date()).equals(date.format(groupChat.getDatetime()));
-                if (equal) {
-                    //same day
-                    jsonObject.addProperty("datetime", time.format(groupChat.getDatetime()));
+                    if (!isFound) {
+                        isFound = true;
+                    }
 
-                } else {
-                    jsonObject.addProperty("datetime", date.format(groupChat.getDatetime()));
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("groupId", groupMember.getGroup_table().getId());
+                    jsonObject.addProperty("name", groupMember.getGroup_table().getName());
+                    jsonObject.addProperty("image", groupMember.getGroup_table().getImage_path());
 
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+                    SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+
+                    System.out.println(gson.toJson(groupChat));
+                    System.out.println(gson.toJson(groupMember));
+
+                    boolean equal = date.format(new Date()).equals(date.format(groupChat.getDatetime()));
+                    if (equal) {
+                        //same day
+                        jsonObject.addProperty("datetime", time.format(groupChat.getDatetime()));
+
+                    } else {
+                        jsonObject.addProperty("datetime", date.format(groupChat.getDatetime()));
+
+                    }
+
+                    if (groupChat.getMessage_content_type().getType().equals("Message")) {
+
+                        Criteria msgCriteria = hibernateSession.createCriteria(Group_message.class);
+                        msgCriteria.add(Restrictions.eq("group_chat", groupChat));
+
+                        Group_message msg = (Group_message) msgCriteria.uniqueResult();
+
+                        jsonObject.addProperty("lastMessage", msg.getMessage());
+
+                    } else {
+                        jsonObject.addProperty("lastMessage", "File Content");
+                    }
+
+                    Criteria memberCountCriteria = hibernateSession.createCriteria(Group_member.class);
+                    memberCountCriteria.add(Restrictions.eq("group_table", groupMember.getGroup_table()));
+                    memberCountCriteria.setProjection(Projections.count("id"));
+                    Long count = (Long) memberCountCriteria.uniqueResult();
+
+                    jsonObject.addProperty("members", count);
+
+                    Criteria isNewCriteria = hibernateSession.createCriteria(Group_member.class);
+                    isNewCriteria.add(Restrictions.and(
+                            Restrictions.eq("user", user),
+                            Restrictions.eq("group_table", groupMember.getGroup_table())
+                    ));
+                    Group_member isNew = (Group_member) isNewCriteria.uniqueResult();
+
+                    if (isNew != null) {
+                        jsonObject.addProperty("isNew", false);
+                    } else {
+                        jsonObject.addProperty("isNew", true);
+                    }
+
+                    jsonArray.add(jsonObject);
                 }
-
-                if (groupChat.getMessage_content_type().getType().equals("Message")) {
-
-                    Criteria msgCriteria = hibernateSession.createCriteria(Group_message.class);
-                    msgCriteria.add(Restrictions.eq("group_chat", groupChat));
-
-                    Group_message msg = (Group_message) msgCriteria.uniqueResult();
-
-                    jsonObject.addProperty("lastMessage", msg.getMessage());
-
-                } else {
-                    jsonObject.addProperty("lastMessage", "File Content");
-                }
-
-                Criteria memberCountCriteria = hibernateSession.createCriteria(Group_member.class);
-                memberCountCriteria.add(Restrictions.eq("group_table", groupMember.getGroup_table()));
-                memberCountCriteria.setProjection(Projections.count("id"));
-                Long count = (Long) memberCountCriteria.uniqueResult();
-
-                jsonObject.addProperty("members", count);
-
-                Criteria isNewCriteria = hibernateSession.createCriteria(Group_member.class);
-                isNewCriteria.add(Restrictions.and(
-                        Restrictions.eq("user", user),
-                        Restrictions.eq("group_table", groupMember.getGroup_table())
-                ));
-                Group_member isNew = (Group_member) isNewCriteria.uniqueResult();
-
-                if (isNew != null) {
-                    jsonObject.addProperty("isNew", false);
-                } else {
-                    jsonObject.addProperty("isNew", true);
-                }
-
-                jsonArray.add(jsonObject);
             }
 
         }
-
-        Gson gson = new Gson();
 
         JsonObject jo = new JsonObject();
         jo.addProperty("isFound", isFound);

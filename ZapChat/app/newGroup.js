@@ -217,7 +217,7 @@ export default function newGroup() {
                         let formData = new FormData()
                         formData.append("groupName", getNewGroupName)
                         formData.append("image", {
-                            name: "profileImage" + extention,
+                            name: "groupImage" + extention,
                             type: getGroupImage.assets[0].mimeType,
                             uri: getGroupImage.assets[0].uri,
                         })

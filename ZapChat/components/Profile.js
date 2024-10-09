@@ -8,11 +8,13 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
+const defStatus = require("../assets/images/pencil.png")
 
 export function Profile({ getFunc, setFunc,icon,text ,style}) {
 
     // const [getImage, setImage] = useState(defaultProfileImage)
     const [getImage, setImage] = useState(icon)
+    const [getFit, setfit] = useState("cover")
     const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select "+text)
 // "Select Profile Picture"
     useEffect(() => {
@@ -21,14 +23,22 @@ export function Profile({ getFunc, setFunc,icon,text ,style}) {
             setImage(getFunc.assets[0].uri)
         } else {
 
+            console.log("g : "+getFunc)
             if (getFunc == "../assets/images/default.svg") {
                 setImage(getFunc)
 
-            } else if (getFunc.startsWith("/profile-images/")) {
+            } else if(getFunc == "../assets/images/pencil.png"){
+                setImage(defStatus)
+
+            }else if ({getFunc}.startsWith("/profile-images/")) {
 
                 const imagePath = process.env.EXPO_PUBLIC_URL + getFunc;
                 setImage({ uri: imagePath });
 
+            }
+
+            if(text=="Status Image"){
+                setfit("contain")
             }
         }
 
@@ -39,7 +49,7 @@ export function Profile({ getFunc, setFunc,icon,text ,style}) {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
-            aspect: [4, 3],
+            aspect: [1,1],
             quality: 1,
         });
 
@@ -59,7 +69,7 @@ export function Profile({ getFunc, setFunc,icon,text ,style}) {
             <Image
                 style={[styles.image,style]}
                 source={getImage}
-                contentFit="cover"
+                contentFit={getFit}
                 transition={1000}
                 contentPosition={"center"}
             />

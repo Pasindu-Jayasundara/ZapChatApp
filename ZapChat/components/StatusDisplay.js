@@ -17,6 +17,8 @@ export function StatusDisplay({ data, func }) {
             func(true)
         }
 
+        console.log("l: "+data.image)
+
     }, [getImageLoad, getTextLoad])
 
     return (
@@ -26,7 +28,7 @@ export function StatusDisplay({ data, func }) {
 
                 {data.isImage == true ? (
                     <Image
-                        source={data.image}
+                        source={{uri:process.env.EXPO_PUBLIC_URL+data.image}}
                         style={[styles.image, { width: windowWidth }]}
                         onLoadStart={() => { setImageLoad(true) }}
                         onLoadEnd={() => { setImageLoad(false) }}

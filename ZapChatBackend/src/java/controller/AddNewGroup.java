@@ -61,7 +61,9 @@ public class AddNewGroup extends HttpServlet {
             folder.mkdirs();
         }
         
-        File file = new File(folder, user.getId() + extention);
+        String fname = System.currentTimeMillis()+extention;
+        
+        File file = new File(folder,  fname);
         try (InputStream inputStream = image.getInputStream()) {
             Files.copy(inputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
@@ -73,8 +75,8 @@ public class AddNewGroup extends HttpServlet {
         Gson gson = new Gson();
         Response_DTO response_DTO;
         if (isSuccess) {
-            String imgPath = "/group-images/" + user.getId() + extention;
-            user.setProfile_image(imgPath);
+            String imgPath = "/group-images/" + fname;
+//            user.setProfile_image(imgPath);
 
 //            message = imgPath;
             Session openSession = HibernateUtil.getSessionFactory().openSession();

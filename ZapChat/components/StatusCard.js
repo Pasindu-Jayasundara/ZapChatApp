@@ -32,6 +32,7 @@ export function StatusCard({ data }) {
         if (data.image != "../assets/images/default.svg") {
             setImage({ uri: process.env.EXPO_PUBLIC_URL + data.image })
         }
+ 
         setName(data.name)
         setTime(data.datetime)
 

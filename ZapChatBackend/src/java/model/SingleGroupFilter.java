@@ -26,16 +26,18 @@ public class SingleGroupFilter implements Filter{
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         boolean isSuccess = false;
         String message = "";
 
-        if (httpServletRequest.getSession().getAttribute("user") != null) {
+        if (fromJson.has("user")) {
 
             if (fromJson.has("groupId")) {
 
                 String groupId = fromJson.get("groupId").getAsString();
+                JsonObject user =  fromJson.get("user").getAsJsonObject();
+                
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
                 } else {
@@ -46,6 +48,7 @@ public class SingleGroupFilter implements Filter{
                     } else {
                         isSuccess = true;
 
+                        request.setAttribute("user", user);
                         request.setAttribute("groupId", id);
                         chain.doFilter(request, response);
                     }

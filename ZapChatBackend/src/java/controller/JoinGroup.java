@@ -24,9 +24,10 @@ public class JoinGroup extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        Gson gson = new Gson();
         int groupId = (int) request.getAttribute("groupId");
-        User user = (User) request.getSession().getAttribute("user");
+//        User user = (User) request.getSession().getAttribute("user");
+                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
@@ -71,7 +72,7 @@ public class JoinGroup extends HttpServlet {
 
         hibernateSession.close();
 
-        Gson gson = new Gson();
+
         Response_DTO response_DTO = new Response_DTO(isJoined, message);
 
         response.setContentType("application/json");

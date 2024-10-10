@@ -98,7 +98,7 @@ export default function newStatus() {
                 }
             }
 
-            let sessionId = getUser
+            // let sessionId = getUser
             let url = process.env.EXPO_PUBLIC_URL + "/AddNewStatus"
 
             let formData = new FormData()
@@ -118,15 +118,13 @@ export default function newStatus() {
                     uri: getStatusImage.assets[0].uri,
                 })
                 formData.append("extention", extention)
+                formData.append("user", getUser)
             }
 
             if (isImage || isText) {
                 let response = await fetch(url, {
                     method: "POST",
                     body: formData,
-                    headers: {
-                        'Cookie': `JSESSIONID=${sessionId}`
-                    }
                 })
                 if (response.ok) {
 

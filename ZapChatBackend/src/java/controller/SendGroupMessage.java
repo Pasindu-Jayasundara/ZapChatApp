@@ -1,5 +1,6 @@
 package controller;
 
+import com.google.gson.Gson;
 import entity.File;
 import entity.Group_chat;
 import entity.Group_file;
@@ -30,6 +31,7 @@ public class SendGroupMessage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
         int groupId = (int) request.getAttribute("groupId");
         String contentType = (String) request.getAttribute("contentType");
         String content = (String) request.getAttribute("content");
@@ -37,7 +39,8 @@ public class SendGroupMessage extends HttpServlet {
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
         Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
-        User user = (User) request.getSession().getAttribute("user");
+//        User user = (User) request.getSession().getAttribute("user");
+                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
 
         Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
         groupMemberCriteria.add(Restrictions.and(

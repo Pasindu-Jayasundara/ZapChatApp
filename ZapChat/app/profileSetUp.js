@@ -46,15 +46,15 @@ export default function profileSetUp() {
     async function request() {
 
         if (getUser == "") {
-            let sessionId = await AsyncStorage.getItem("user")
-            if (sessionId == null) {
+            let user = await AsyncStorage.getItem("user")
+            if (user == null) {
 
                 await AsyncStorage.removeItem("verified");
                 await AsyncStorage.removeItem("user");
 
                 router.replace("/")
             } else {
-                setUser(sessionId)
+                setUser(user)
             }
         }
 
@@ -90,12 +90,13 @@ export default function profileSetUp() {
 
         } else {
 
-            let sessionId = getUser
+            // let sessionId = getUser
             let url = process.env.EXPO_PUBLIC_URL + "/Profile"
 
             let formData = new FormData()
             formData.append("about", getAbout)
             formData.append("isNewImage", getImageResult.assets!=null)
+            formData.append("user", getUser)
 
             if (getImageResult.assets!=null) {
 
@@ -129,9 +130,6 @@ export default function profileSetUp() {
             let response = await fetch(url, {
                 method: "POST",
                 body: formData,
-                headers: {
-                    'Cookie': `JSESSIONID=${sessionId}`
-                }
             })
             if (response.ok) {
 

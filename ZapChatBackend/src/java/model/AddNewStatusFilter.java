@@ -2,6 +2,7 @@ package model;
 
 import com.google.gson.Gson;
 import dto.Response_DTO;
+import entity.User;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -29,8 +30,8 @@ public class AddNewStatusFilter implements Filter {
         String message = "";
 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-
-        if (httpServletRequest.getSession().getAttribute("user") == null) {
+        String user = httpServletRequest.getParameter("user");
+        if (user == null) {
             isInvalid = true;
             message = "Please Logedin First";
 
@@ -89,6 +90,7 @@ public class AddNewStatusFilter implements Filter {
 
                 request.setAttribute("isImage", isImage);
                 request.setAttribute("isText", isText);
+                request.setAttribute("user", user);
                 
                 chain.doFilter(request, response);
             }else{

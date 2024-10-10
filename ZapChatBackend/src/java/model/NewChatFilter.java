@@ -25,16 +25,16 @@ public class NewChatFilter implements Filter{
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest hsr = (HttpServletRequest) request;
-        User user = (User) hsr.getSession().getAttribute("user");
+//        User user = (User) hsr.getSession().getAttribute("user");
 
         boolean isInvalid = false;
         String message = "";
 
         Gson gson = new Gson();
-
-        if (user != null) {
-
             JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
+
+        if (fromJson.has("user")) {
+
 
             if (!fromJson.has("mobile")) {
                 isInvalid = true;
@@ -43,6 +43,7 @@ public class NewChatFilter implements Filter{
             } else {
 
                 String mobile = fromJson.get("mobile").getAsString();
+                String user = fromJson.get("user").getAsString();
 
                 if (mobile.trim().equals("")) {
                     isInvalid = true;
@@ -60,6 +61,7 @@ public class NewChatFilter implements Filter{
 
                     isInvalid = false;
                     
+                    request.setAttribute("user", mobile);
                     request.setAttribute("mobile", mobile);
                     chain.doFilter(request, response);
 

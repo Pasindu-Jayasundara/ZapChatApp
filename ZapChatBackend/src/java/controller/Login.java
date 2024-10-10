@@ -44,7 +44,7 @@ public class Login extends HttpServlet {
 
             } else {
                 //verified
-                request.getSession().setAttribute("user", user);
+//                request.getSession().setAttribute("user", user);
 
                 message = "Login Success";
                 isSuccess = true;
@@ -55,10 +55,14 @@ public class Login extends HttpServlet {
 
         String sessionId = "";
         JsonObject jo = new JsonObject();
+        Gson gson = new Gson();
 
         if (isSuccess) {
-            sessionId = request.getSession().getId();
-            jo.addProperty("sessionId", sessionId);
+//            sessionId = request.getSession().getId();
+//            jo.addProperty("sessionId", sessionId);
+
+
+            jo.add("user", gson.toJsonTree(user));
             
             jo.addProperty("profileImage", user.getProfile_image());
             jo.addProperty("profileAbout", user.getAbout());
@@ -68,7 +72,6 @@ public class Login extends HttpServlet {
 
         hibernateSession.close();
 
-        Gson gson = new Gson();
         Response_DTO response_DTO = new Response_DTO(isSuccess, gson.toJsonTree(jo));
 
         response.setContentType("application/json");

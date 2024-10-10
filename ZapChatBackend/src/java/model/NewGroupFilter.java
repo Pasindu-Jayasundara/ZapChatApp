@@ -25,16 +25,16 @@ public class NewGroupFilter implements Filter{
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest hsr = (HttpServletRequest) request;
-        User user = (User) hsr.getSession().getAttribute("user");
+//        User user = (User) hsr.getSession().getAttribute("user");
 
         boolean isInvalid = false;
         String message = "";
 
         Gson gson = new Gson();
-
-        if (user != null) {
-
             JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
+
+        if (fromJson.has("user")) {
+
 
             if (!fromJson.has("name")) {
                 isInvalid = true;
@@ -43,6 +43,7 @@ public class NewGroupFilter implements Filter{
             } else {
 
                 String groupName = fromJson.get("name").getAsString();
+                String user = fromJson.get("user").getAsString();
 
                 if (groupName.trim().equals("")) {
                     isInvalid = true;
@@ -56,6 +57,7 @@ public class NewGroupFilter implements Filter{
 
                     isInvalid = false;
                     
+                    request.setAttribute("user", user);
                     request.setAttribute("name", groupName);
                     chain.doFilter(request, response);
 

@@ -26,16 +26,18 @@ public class SingleChatFilter implements Filter {
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         boolean isSuccess = false;
         String message = "";
 
-        if (httpServletRequest.getSession().getAttribute("user") != null) {
+        if (fromJson.has("user")) {
 
             if (fromJson.has("otherUserId")) {
 
                 String otherUserId = fromJson.get("otherUserId").getAsString();
+                JsonObject user =  fromJson.get("user").getAsJsonObject();
+                
                 if (!Validation.isInteger(otherUserId)) {
                     message = "Invalid Id Type";
                 } else {
@@ -46,6 +48,7 @@ public class SingleChatFilter implements Filter {
                     } else {
                         isSuccess = true;
 
+                        request.setAttribute("user", user);
                         request.setAttribute("otherUserId", id);
                         chain.doFilter(request, response);
                     }

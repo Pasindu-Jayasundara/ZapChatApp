@@ -55,14 +55,14 @@ export default function newGroup() {
 
                 let obj = {
                     searchText: "",
-                    category: "group"
+                    category: "group",
+                    user:getUser
                 }
                 let response = await fetch(url, {
                     method: "POST",
                     body: JSON.stringify(obj),
                     headers: {
                         "Content-Type": "application/json",
-                        'Cookie': `JSESSIONID=${getUser}`
                     }
                 })
 
@@ -104,13 +104,13 @@ export default function newGroup() {
 
             let obj = {
                 name: getSearchGroupName,
+                user:getUser
             }
             let response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(obj),
                 headers: {
                     "Content-Type": "application/json",
-                    'Cookie': `JSESSIONID=${getUser}`
                 }
             })
 
@@ -157,15 +157,15 @@ export default function newGroup() {
         try {
 
             if (getUser == "") {
-                let sessionId = await AsyncStorage.getItem("user")
-                if (sessionId == null) {
+                let user = await AsyncStorage.getItem("user")
+                if (user == null) {
 
                     await AsyncStorage.removeItem("verified");
                     await AsyncStorage.removeItem("user");
 
                     router.replace("/")
                 } else {
-                    setUser(sessionId)
+                    setUser(user)
                 }
             }
 
@@ -211,7 +211,7 @@ export default function newGroup() {
 
                     if (!invalid) {
 
-                        let sessionId = getUser
+                        // let sessionId = getUser
                         let url = process.env.EXPO_PUBLIC_URL + "/AddNewGroup"
 
                         let formData = new FormData()
@@ -222,15 +222,13 @@ export default function newGroup() {
                             uri: getGroupImage.assets[0].uri,
                         })
                         formData.append("extention", extention)
+                        formData.append("user", getUser)
                         console.log("h: " + getNewGroupName)
 
 
                         let response = await fetch(url, {
                             method: "POST",
                             body: formData,
-                            headers: {
-                                'Cookie': `JSESSIONID=${sessionId}`
-                            }
                         })
                         if (response.ok) {
 

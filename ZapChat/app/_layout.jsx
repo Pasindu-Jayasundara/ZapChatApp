@@ -5,6 +5,7 @@ const RootLayout = () => {
     return (
         <WebSocketProvider>
             <Stack screenOptions={{ animation: 'fade_from_bottom', headerShown: false }}>
+                <Stack.Screen name="index"/>
                 <Stack.Screen name="home"/>
                 <Stack.Screen name="singleChat" />
                 <Stack.Screen name="singleGroup" />

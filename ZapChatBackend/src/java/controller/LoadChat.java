@@ -31,11 +31,15 @@ public class LoadChat extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
+
         boolean isSearch = (boolean) request.getAttribute("isSearch");
         String searchText = (String) request.getAttribute("searchText");
-        User user = (User) request.getSession().getAttribute("user");
+        JsonObject jsonuser = (JsonObject) request.getAttribute("user");
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+        User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
+
 
         Criteria userCriteria = hibernateSession.createCriteria(User.class);
         userCriteria.add(Restrictions.ne("id", user.getId()));
@@ -129,6 +133,7 @@ public class LoadChat extends HttpServlet {
 
                     jsonObject.addProperty("onlineStatus", single_chat.getTo_user().getUser_online_status().getStatus());
                     jsonObject.addProperty("about", single_chat.getTo_user().getAbout());
+                    jsonObject.addProperty("showTick", true);
 
                 } else {
                     //received message
@@ -146,6 +151,8 @@ public class LoadChat extends HttpServlet {
 
                     jsonObject.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());
                     jsonObject.addProperty("about", single_chat.getFrom_user().getAbout());
+                                        jsonObject.addProperty("showTick", false);
+
 
                 }
                 jsonObject.addProperty("messageStatus", single_chat.getMessage_status().getStatus());
@@ -181,8 +188,6 @@ public class LoadChat extends HttpServlet {
             }
 
         }
-
-        Gson gson = new Gson();
 
         JsonObject jo = new JsonObject();
         jo.addProperty("profile", user.getProfile_image());

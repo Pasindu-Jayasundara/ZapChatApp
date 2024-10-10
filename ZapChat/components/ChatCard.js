@@ -34,6 +34,16 @@ export function ChatCard({ data }) {
 
     }, [data])
 
+    function toBoolean(value) {
+        if (typeof value === 'boolean') {
+            return value; 
+        }
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true'; 
+        }
+        return !!value; 
+    }
+
     return (
         <Pressable style={styles.container} onPress={() => { router.push({ pathname: "/singleChat", params: data }) }}>
             <Image source={getImage} style={styles.image}  contentFit="cover"/>
@@ -44,7 +54,9 @@ export function ChatCard({ data }) {
                 </View>
                 <View style={styles.view1}>
                     <Text style={styles.message} numberOfLines={1}>{getLastMsg}</Text>
+                    {toBoolean(data.showTick)?(
                     <Image source={getMessageStatus} style={[styles.msgStatus]} />
+                    ):null}
                 </View>
 
             </View>

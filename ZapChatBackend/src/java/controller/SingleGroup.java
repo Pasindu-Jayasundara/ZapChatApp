@@ -36,10 +36,13 @@ public class SingleGroup extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
         int groupId = (int) request.getAttribute("groupId");
-        User user = (User) request.getSession().getAttribute("user");
+
+        JsonObject jsonuser = (JsonObject) request.getAttribute("user");
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+        User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
 
         Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
         JsonArray jsonArray = new JsonArray();
@@ -138,9 +141,8 @@ public class SingleGroup extends HttpServlet {
 
         }
 
-        Gson gson = new Gson();
         Response_DTO response_DTO = new Response_DTO(true, gson.toJsonTree(jsonArray));
-        
+
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
 

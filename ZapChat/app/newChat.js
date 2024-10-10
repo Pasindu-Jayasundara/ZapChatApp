@@ -42,13 +42,13 @@ export default function newChat() {
 
             let obj = {
                 mobile: getMobile,
+                user:getUser
             }
             let response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(obj),
                 headers: {
                     "Content-Type": "application/json",
-                    'Cookie': `JSESSIONID=${getUser}`
                 }
             })
 

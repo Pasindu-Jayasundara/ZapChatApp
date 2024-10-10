@@ -2,61 +2,128 @@ package model.socket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import dto.Response_DTO;
 import javax.websocket.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint("/WebSocket")
 public class WebSocket {
 
-    private static final Set<Session> clients = new CopyOnWriteArraySet<>();
-    
-    private static final String SINGLE_CHAT = "single_chat_send";
-    private static final String GROUP_CHAT = "group_chat_send";
-    private static final String STATUS = "status_uploaded";
-    private static final String HOME = "status_uploaded";
-    private static final String PROFILE = "status_uploaded";
+    private static Map<String, Session> clients = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session) {
-        clients.add(session);
         System.out.println("New WebSocket connection: " + session.getId());
     }
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         System.out.println("WebSocket received message: " + message);
-        
+
         Gson gson = new Gson();
-        String action = gson.fromJson( message, JsonObject.class).get("action").getAsString();
-        
-        for (Session clientSession : clients) {
-            
-            switch (action) {
-                case SINGLE_CHAT:
-                    break;
-                case GROUP_CHAT:
-                    break;
-                case STATUS:
-                    break;
-                default:
-                    break;
-            }
+        JsonObject object = gson.fromJson(message, JsonObject.class);
+        String type = object.get("location").getAsString();
+
+        SocketOperations operations = new SocketOperations();
+        Response_DTO response_DTO = null;
+
+        switch (type) {
+            case "home":
+
+                String otherUserId1 = object.get("otherUserId").getAsString();
+                JsonObject loadHome = operations.loadHome(object);
+
+                if (loadHome.get("isFound").getAsBoolean()) {
+
+                    response_DTO = new Response_DTO(true, loadHome);
+                } else {
+
+                    response_DTO = new Response_DTO(false, loadHome);
+                }
+
+                session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+                if (clients.containsKey(otherUserId1)) {
+                    
+                    object.remove("userId");
+                    object.addProperty("userId", otherUserId1);
+                JsonObject loadHome2 = operations.loadHome(object);
+
+                    JsonObject jo = new JsonObject();
+                    jo.addProperty("success", loadHome.get("isFound").getAsBoolean());
+                    jo.add("data", loadHome2);
+
+                    System.out.println("jo "+jo);
+                    clients.get(otherUserId1).getBasicRemote().sendText(gson.toJson(jo));
+                }
+
+                break;
+            case "send_chat":
+
+                //single chat
+                String otherUserId = object.get("otherUserId").getAsString();
+
+                JsonObject saveChat = operations.saveChat(object);
+                JsonObject otherUserSaveChat = saveChat;
+
+                if (saveChat.get("isSuccess").getAsBoolean()) {
+                    saveChat.addProperty("side", "right");
+                    saveChat.addProperty("otherUserId", otherUserId);
+                    saveChat.addProperty("fromUserId", object.get("fromUserId").getAsInt());
+                    response_DTO = new Response_DTO(true, saveChat);
+                } else {
+                    response_DTO = new Response_DTO(false, saveChat);
+                }
+
+                session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+                if (clients.containsKey(otherUserId)) {
+                    otherUserSaveChat.addProperty("side", "left");
+
+                    JsonObject jo = new JsonObject();
+                    jo.addProperty("success", otherUserSaveChat.get("isSuccess").getAsBoolean());
+                    jo.addProperty("otherUserId", otherUserId);
+                    jo.addProperty("fromUserId", object.get("fromUserId").getAsInt());
+                    jo.add("data", otherUserSaveChat);
+
+                    clients.get(otherUserId).getBasicRemote().sendText(gson.toJson(jo));
+                }
+
+                break;
+
+            case "login":
+
+                JsonObject login = operations.login(object);
+
+                if (login.get("success").getAsBoolean()) {
+
+                    String id = login.get("user").getAsJsonObject().get("id").getAsString();
+                    if (!clients.containsKey(id)) {
+                        clients.put(id, session);
+                    }
+                    response_DTO = new Response_DTO(true, login);
+
+                } else {
+                    response_DTO = new Response_DTO(false, login);
+                }
+
+                session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+                break;
+            default:
+                break;
         }
     }
 
     @OnClose
     public void onClose(Session session) {
-        clients.remove(session);
+//        clients.remove(session);
         System.out.println("WebSocket connection closed: " + session.getId());
     }
 
@@ -64,5 +131,5 @@ public class WebSocket {
     public void onError(Session session, Throwable throwable) {
         System.out.println("WebSocket error occurred: " + throwable.getMessage());
     }
-    
+
 }

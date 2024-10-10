@@ -31,11 +31,12 @@ public class JoinGroupFilter implements Filter{
         boolean isSuccess = false;
         String message = "";
 
-        if (httpServletRequest.getSession().getAttribute("user") != null) {
+        if (fromJson.has("user")) {
 
             if (fromJson.has("groupId")) {
 
                 String groupId = fromJson.get("groupId").getAsString();
+                String user = fromJson.get("user").getAsString();
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
                 } else {
@@ -46,6 +47,7 @@ public class JoinGroupFilter implements Filter{
                     } else {
                         isSuccess = true;
 
+                        request.setAttribute("user", id);
                         request.setAttribute("groupId", id);
                         chain.doFilter(request, response);
                     }

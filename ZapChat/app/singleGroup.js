@@ -33,59 +33,58 @@ export default function singleGroup() {
         return !!value; 
     }
 
-    useEffect(() => {
-        (async () => {
-            let verified = await AsyncStorage.getItem("verified");
-            let user = await AsyncStorage.getItem("user");
+    // useEffect(() => {
+    //     (async () => {
+    //         let verified = await AsyncStorage.getItem("verified");
+    //         let user = await AsyncStorage.getItem("user");
 
-            if (verified == null || verified != "true" || user == null) {
+    //         if (verified == null || verified != "true" || user == null) {
 
-                await AsyncStorage.removeItem("verified")
-                await AsyncStorage.removeItem("user")
+    //             await AsyncStorage.removeItem("verified")
+    //             await AsyncStorage.removeItem("user")
 
-                router.replace("/")
-            }
+    //             router.replace("/")
+    //         }
 
-            // if((typeof data.isNew)=="string"){
-                setIsNew(toBoolean(data.isNew))
+    //         // if((typeof data.isNew)=="string"){
+    //             setIsNew(toBoolean(data.isNew))
     
-            // }else{
-            //     setIsNew(data.isNew==true)
+    //         // }else{
+    //         //     setIsNew(data.isNew==true)
     
-            // }
-        })()
-    }, [])
+    //         // }
+    //     })()
+    // }, [])
 
     useEffect(() => {
 
         (async () => {
-            if (getUser == "") {
+            setIsNew(toBoolean(data.isNew))
 
-                let sessionId = await AsyncStorage.getItem("user")
-                if (sessionId == null) {
+            try {
+                
+                let parsedUser;
 
-                    await AsyncStorage.removeItem("verified");
-                    await AsyncStorage.removeItem("user");
+                if (getUser == null) {
+                    let user = await AsyncStorage.getItem("user");
 
-                    router.replace("/")
+                    parsedUser = JSON.parse(user); // Parse the JSON string to an object
+                    setUser(parsedUser); // Set the parsed object in the state
 
                 } else {
-                    setUser(sessionId)
-
+                    parsedUser = getUser
                 }
-            }
-
             let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
             let obj = {
-                groupId: data.groupId
+                groupId: data.groupId,
+                user:parsedUser
             }
             let response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(obj),
                 headers: {
                     "Content-Type": "application/json",
-                    'Cookie': `JSESSIONID=${getUser}`
                 }
             })
 
@@ -115,6 +114,9 @@ export default function singleGroup() {
                 console.log(response)
             }
 
+        } catch (error) {
+            console.log(error)
+        }
         })()
 
     }, [])

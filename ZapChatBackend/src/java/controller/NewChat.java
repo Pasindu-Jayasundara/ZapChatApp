@@ -30,8 +30,10 @@ public class NewChat extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
         String mobile = (String) request.getAttribute("mobile");
-        User user = (User) request.getSession().getAttribute("user");
+//        User user = (User) request.getSession().getAttribute("user");
+                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
@@ -154,8 +156,6 @@ public class NewChat extends HttpServlet {
         } else {
             message = "Cannot FInd Registered User";
         }
-
-        Gson gson = new Gson();
 
         JsonObject jo = new JsonObject();
         jo.addProperty("isFound", isFound);

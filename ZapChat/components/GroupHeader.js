@@ -56,15 +56,15 @@ export function GroupHeader({ data }) {
 
         try {
             if (getUser == "") {
-                let sessionId = await AsyncStorage.getItem("user")
-                if (sessionId == null) {
+                let user = await AsyncStorage.getItem("user")
+                if (user == null) {
 
                     await AsyncStorage.removeItem("verified");
                     await AsyncStorage.removeItem("user");
 
                     router.replace("/")
                 } else {
-                    setUser(sessionId)
+                    setUser(user)
                 }
             }
 
@@ -72,13 +72,13 @@ export function GroupHeader({ data }) {
 
             let obj = {
                 groupId: data.groupId,
+                user:getUser
             }
             let response = await fetch(url, {
                 method: "POST",
                 body: JSON.stringify(obj),
                 headers: {
                     "Content-Type": "application/json",
-                    'Cookie': `JSESSIONID=${getUser}`
                 }
             })
 

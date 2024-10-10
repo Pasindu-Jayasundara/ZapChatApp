@@ -33,6 +33,7 @@ public class AddNewStatus extends HttpServlet {
 
         boolean isSuccess = true;
         String message = "";
+        Gson gson = new Gson();
 
         boolean isImage = (boolean) request.getAttribute("isImage");
         boolean isText = (boolean) request.getAttribute("isText");
@@ -58,7 +59,9 @@ public class AddNewStatus extends HttpServlet {
 
         if (isSuccess) {
 
-            User user = (User) request.getSession().getAttribute("user");
+                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+
+//            User user = (User) request.getSession().getAttribute("user");
             Session openSession = HibernateUtil.getSessionFactory().openSession();
 
             boolean isImageSuccess = false;
@@ -126,7 +129,6 @@ public class AddNewStatus extends HttpServlet {
         }
 
         Response_DTO response_DTO = new Response_DTO(isSuccess, message);
-        Gson gson = new Gson();
         response.setContentType("application/json");
         response.getWriter().write(gson.toJson(response_DTO));
 

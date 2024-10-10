@@ -46,12 +46,15 @@ public class AddNewGroup extends HttpServlet {
         boolean isSuccess = true;
         String message = "";
         
+        Gson gson = new Gson();
+        
         String groupName = (String) request.getAttribute("groupName");
         
         String extention = (String) request.getAttribute("extention");
+        User user = gson.fromJson((String) request.getAttribute("user"),User.class);
         Part image = (Part) request.getAttribute("image");
         
-        User user = (User) request.getSession().getAttribute("user");
+//        User user = (User) request.getSession().getAttribute("user");
         
         String applicationPath = request.getServletContext().getRealPath("");
         String newApplicationPath = applicationPath.replace("build" + File.separator + "web", "web");
@@ -72,7 +75,6 @@ public class AddNewGroup extends HttpServlet {
             message = "Image Upload Failed";
         }
         
-        Gson gson = new Gson();
         Response_DTO response_DTO;
         if (isSuccess) {
             String imgPath = "/group-images/" + fname;

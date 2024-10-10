@@ -27,6 +27,7 @@ public class SendMessage extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
         int otherUserId = (int) request.getAttribute("otherUserId");
         String contentType = (String) request.getAttribute("contentType");
         String content = (String) request.getAttribute("content");
@@ -34,7 +35,8 @@ public class SendMessage extends HttpServlet {
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
         
         User otherUser = (User) hibernateSession.get(User.class, otherUserId);
-        User user = (User) request.getSession().getAttribute("user");
+//        User user = (User) request.getSession().getAttribute("user");
+                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
 
         Criteria messageStatusCriteria = hibernateSession.createCriteria(Message_status.class);
         messageStatusCriteria.add(Restrictions.eq("status", "Send"));

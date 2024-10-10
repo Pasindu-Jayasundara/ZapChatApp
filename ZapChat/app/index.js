@@ -6,18 +6,18 @@ import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SplashScreen from 'expo-splash-screen';
+import { WebSocketContext } from "./WebSocketProvider";
 
 const logoIcon = require("../assets/images/logo.gif");
-
-// const ws = new WebSocket(process.env.EXPO_PUBLIC_URL+"/WebSocket");
-// export const socket = createContext(ws)
 
 SplashScreen.preventAutoHideAsync();
 
 export default function index() {
+    const { socket } = useContext(WebSocketContext)
 
     const [getMobile, setMobile] = useState("")
     const [getPassword, setPassword] = useState("")
+    const [getButtonText, setButtonText] = useState("Let's Go")
 
     useEffect(() => {
 
@@ -28,14 +28,14 @@ export default function index() {
                 if (user != null) {
 
                     let verified = await AsyncStorage.getItem("verified");
-                    
+
                     if (verified != null && verified == "true") {
                         router.replace("/home")
                     } else {
                         await AsyncStorage.removeItem("verified");
                         await AsyncStorage.removeItem("user");
                     }
-                }else{ 
+                } else {
                     SplashScreen.hideAsync();
                 }
 
@@ -51,47 +51,67 @@ export default function index() {
         if (getMobile.trim().length == 10) {
             if (getPassword.trim().length >= 8) {
 
-                let url = process.env.EXPO_PUBLIC_URL+"/Login"
-                let data = {
-                    mobile: getMobile,
-                    password: getPassword
-                }
+                setButtonText("Wait ...")
 
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                })
-                if (response.ok) {
+                if (socket && socket.readyState == socket.OPEN) {
 
-                    let obj = await response.json()
-                    if (obj.success) {
-
-                        try {
-
-                            await AsyncStorage.setItem("user", JSON.stringify(obj.data.sessionId))
-                            await AsyncStorage.setItem("verified", "true")
-                            await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage))
-                            await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout))
-
-                            router.replace("/home")
-
-                        } catch (error) {
-                            Alert.alert("Something Went Wrong")
-                            console.log(error)
-                        }
-
-                    } else {
-                        Alert.alert(obj.data.msg);
-                        console.log(obj.data.msg)
+                    console.log("obj")
+                    let obj = {
+                        location: "login",
+                        mobile: getMobile,
+                        password: getPassword
                     }
 
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
+                    socket.send(JSON.stringify(obj))
+
                 }
+
+                // let url = process.env.EXPO_PUBLIC_URL + "/Login"
+                // let data = {
+                //     mobile: getMobile,
+                //     password: getPassword
+                // }
+
+                // let response = await fetch(url, {
+                //     method: "POST",
+                //     body: JSON.stringify(data),
+                //     headers: {
+                //         "Content-Type": "application/json"
+                //     }
+                // })
+                // if (response.ok) {
+
+                //     let obj = await response.json()
+                //     if (obj.success) {
+
+                //         try {
+                //             console.log("u: " + JSON.stringify(obj.data.user))
+                //             console.log("u2: " + obj.data.user)
+
+                //             // await AsyncStorage.setItem("user", JSON.stringify(obj.data.sessionId))
+                //             await AsyncStorage.setItem("user", JSON.stringify(obj.data.user))
+                //             // await AsyncStorage.setItem("verified", "true")
+                //             await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage))
+                //             await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout))
+
+                //             router.replace("/home")
+
+                //         } catch (error) {
+                //             Alert.alert("Something Went Wrong")
+                //             console.log(error)
+                //         }
+
+                //     } else {
+                //         Alert.alert(obj.data.msg);
+                //         console.log(obj.data.msg)
+                //     }
+
+                // } else {
+                //     Alert.alert("Please Try Again Later");
+                //     console.log(response)
+                // }
+
+                setButtonText("Let's Go")
             } else {
                 Alert.alert("Password must be between 8-20 letters")
             }
@@ -120,7 +140,7 @@ export default function index() {
                         <View style={styles.fields}>
                             <InputField params={{ lableText: "Mobile", inputMode: "tel", secureTextEntry: false, func: setMobile }} />
                             <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: setPassword }} />
-                            <Button text={"Let's Go"} style={{ marginTop: 18 }} func={request} />
+                            <Button text={getButtonText} style={{ marginTop: 18 }} func={request} />
                             <Text style={styles.linkText}>
                                 New to ZapChat?
                                 <Link href={"/register"} style={styles.link}> Register Now</Link>

@@ -34,9 +34,10 @@ public class AddNewGroupFilter implements Filter {
 
         String groupName = httpServletRequest.getParameter("groupName");
         String extention = httpServletRequest.getParameter("extention");
+        String user = httpServletRequest.getParameter("user");
         Part img1 = httpServletRequest.getPart("image");
 
-        if (httpServletRequest.getSession().getAttribute("user") == null) {
+        if (user == null) {
             isInvalid = true;
             message = "Please Logedin First";
 
@@ -82,6 +83,7 @@ public class AddNewGroupFilter implements Filter {
             }
 
             if (!isInvalid) {
+                request.setAttribute("user", user);
                 request.setAttribute("image", img1);
                 request.setAttribute("extention", extention);
                 request.setAttribute("groupName", groupName);

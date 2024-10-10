@@ -38,8 +38,11 @@ public class NewGroup extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
+        
         String groupName = (String) request.getAttribute("name");
-        User user = (User) request.getSession().getAttribute("user");
+//        User user = (User) request.getSession().getAttribute("user");
+                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
@@ -136,8 +139,6 @@ public class NewGroup extends HttpServlet {
         } else {
             message = "Cannot Find a Relavant Group";
         }
-
-        Gson gson = new Gson();
 
         JsonObject jo = new JsonObject();
         jo.addProperty("isFound", isFound);

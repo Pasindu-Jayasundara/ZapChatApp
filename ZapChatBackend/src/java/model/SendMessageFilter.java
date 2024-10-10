@@ -31,7 +31,7 @@ public class SendMessageFilter implements Filter {
         boolean isSuccess = false;
         String message = "";
 
-        if (httpServletRequest.getSession().getAttribute("user") != null) {
+        if (fromJson.has("user")) {
 
             if (!fromJson.has("otherUserId")) {
                 message = "Missing Id";
@@ -47,6 +47,7 @@ public class SendMessageFilter implements Filter {
                 String otherUserId = fromJson.get("otherUserId").getAsString();
                 String contentType = fromJson.get("contentType").getAsString();
                 String content = fromJson.get("content").getAsString();
+                String user = fromJson.get("user").getAsString();
 
                 if (!Validation.isInteger(otherUserId)) {
                     message = "Invalid Id Type";
@@ -78,6 +79,7 @@ public class SendMessageFilter implements Filter {
                             request.setAttribute("otherUserId", id);
                             request.setAttribute("contentType", contentType);
                             request.setAttribute("content", content);
+                            request.setAttribute("user", user);
 
                             chain.doFilter(request, response);
                         }

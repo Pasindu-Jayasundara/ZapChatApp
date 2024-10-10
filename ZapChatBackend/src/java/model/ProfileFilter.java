@@ -44,7 +44,8 @@ public class ProfileFilter implements Filter {
             img1 = httpServletRequest.getPart("image");
         }
 
-        if (httpServletRequest.getSession().getAttribute("user") == null) {
+        String user = httpServletRequest.getParameter("user");
+        if (user == null) {
             isInvalid = true;
             message = "Please Logedin First";
 
@@ -88,6 +89,7 @@ public class ProfileFilter implements Filter {
 
                 request.setAttribute("about", about);
                 request.setAttribute("isNewImage", isNewImage);
+                request.setAttribute("user", user);
 
                 chain.doFilter(request, response);
             }

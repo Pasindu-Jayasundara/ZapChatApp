@@ -31,7 +31,7 @@ public class SendGroupMessageFilter implements Filter{
         boolean isSuccess = false;
         String message = "";
 
-        if (httpServletRequest.getSession().getAttribute("user") != null) {
+        if (fromJson.has("user")) {
 
             if (!fromJson.has("groupId")) {
                 message = "Missing Id";
@@ -47,6 +47,7 @@ public class SendGroupMessageFilter implements Filter{
                 String groupId = fromJson.get("groupId").getAsString();
                 String contentType = fromJson.get("contentType").getAsString();
                 String content = fromJson.get("content").getAsString();
+                String user = fromJson.get("user").getAsString();
 
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
@@ -78,6 +79,7 @@ public class SendGroupMessageFilter implements Filter{
                             request.setAttribute("groupId", id);
                             request.setAttribute("contentType", contentType);
                             request.setAttribute("content", content);
+                            request.setAttribute("user", content);
 
                             chain.doFilter(request, response);
                         }

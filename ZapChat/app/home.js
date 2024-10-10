@@ -4,31 +4,37 @@ import { Header } from "../components/Header";
 import { ChatCard } from "../components/ChatCard";
 import { FloatingAction } from "react-native-floating-action";
 import { FlashList } from "@shopify/flash-list";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { router, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
 import { GroupCard } from "../components/GroupCard";
-import { Image } from "expo-image";
-// import io  from "socket.io-client";
+import { WebSocketContext } from "./WebSocketProvider";
 
-const profileDefault = require("../assets/images/default.svg")
-// const ws = new WebSocket(process.env.EXPO_PUBLIC_URL+"/HomeS");
+// const profileDefault = require("../assets/images/default.svg")`
 
 export default function home() {
-    // const socket = io(process.env.EXPO_PUBLIC_URL+"/HomeS");
 
-    const [getChatDataArr, setChatDataArr] = useState([])
-    const [getGroupDataArr, setGroupDataArr] = useState([])
-    const [getStatusDataArr, setStatusDataArr] = useState([])
+    const {
+        socket,
+        getChatDataArr, setChatDataArr,
+        getGroupDataArr, setGroupDataArr,
+        getStatusDataArr, setStatusDataArr,
+        getHeaderImage, setHeaderImage,
+        getSearchText, setSearchText,
+        getCategory, setCategory
+    } = useContext(WebSocketContext)
 
-    const [getSearchText, setSearchText] = useState("")
-    const [getUser, setUser] = useState("")
-    const [getCategory, setCategory] = useState("chat")
-    // const [getCategory, setCategory] = useState("status")
+    // const [getChatDataArr, setChatDataArr] = useState([])
+    // const [getGroupDataArr, setGroupDataArr] = useState([])
+    // const [getStatusDataArr, setStatusDataArr] = useState([])
+    // const [getHeaderImage, setHeaderImage] = useState(profileDefault)
+
+    // const [getSearchText, setSearchText] = useState("")
+    const [getUser, setUser] = useState(null)
+    // const [getCategory, setCategory] = useState("chat")
     const [getFirstTime, setFirstTime] = useState(true)
     const [getIsFound, setIsFound] = useState(false)
-    const [getHeaderImage, setHeaderImage] = useState(profileDefault)
 
     const navigation = useNavigation();
 
@@ -53,76 +59,87 @@ export default function home() {
         }
     ]
 
-    // useEffect(()=>{
+    // const send = async () => {
+    //     setEmojiModal(false)
 
-    //     ws.onopen = function(e) {
-    //         console.log("[WebSocket] Connection established");
-    //         ws.send("chat"); // Send the message (category) to the WebSocket server
-    //       };
-        
-    //       ws.onmessage = function(event) {
-    //         console.log(`[WebSocket] Data received from server: ${event.data}`);
-    //       };
-          
-    //       ws.onclose = function(event) {
-    //         if (event.wasClean) {
-    //           console.log(`[WebSocket] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    //     try {
+    //         let parsedUser;
+
+    //         if (getUser == null) {
+    //             let user = await AsyncStorage.getItem("user");
+
+    //             parsedUser = JSON.parse(user); // Parse the JSON string to an object
+    //             setUser(parsedUser); // Set the parsed object in the state
+
     //         } else {
-    //           console.error("[WebSocket] Connection died");
+    //             parsedUser = getUser
     //         }
-    //       };
-          
-    //       ws.onerror = function(error) {
-    //         console.error(`[WebSocket] Error: ${error.message}`);
-    //       };
-    // },[])
 
-    useEffect(() => {
-        (async () => {
+    //         console.log("send")
+    //         if (socket && socket.readyState == socket.OPEN) {
 
-            let verified = await AsyncStorage.getItem("verified");
-            let user = await AsyncStorage.getItem("user");
+    //             console.log("obj")
+    //             let obj = {
+    //                 location:"home",
+    //                 searchText: getSearchText,
+    //                 category: getCategory,
+    //                 user: parsedUser
+    //             }
 
-            if (verified == null || verified != "true" || user == null) {
+    //             socket.send(JSON.stringify(obj))
 
-                await AsyncStorage.removeItem("verified")
-                await AsyncStorage.removeItem("user")
+    //         }
 
-                router.replace("/")
-            }
-        })()
-    }, [])
+    //     } catch (error) {
+    //         console.error(error)
+    //     }
+
+    // }
+    // useEffect(() => {
+    //     (async () => {
+
+    //         let verified = await AsyncStorage.getItem("verified");
+    //         let user = await AsyncStorage.getItem("user");
+
+    //         if (verified == null || verified != "true" || user == null) {
+
+    //             await AsyncStorage.removeItem("verified")
+    //             await AsyncStorage.removeItem("user")
+
+    //             router.replace("/")
+    //         }
+    //     })()
+    // }, [])
 
     useEffect(() => {
 
         (async () => {
 
             try {
-                if (getUser == "") {
-                    let sessionId = await AsyncStorage.getItem("user")
-                    if (sessionId == null) {
+                let parsedUser;
 
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
+                if (getUser == null) {
+                    let user = await AsyncStorage.getItem("user");
 
-                        router.replace("/")
-                    } else {
-                        setUser(sessionId)
-                    }
+                    parsedUser = JSON.parse(user); // Parse the JSON string to an object
+                    setUser(parsedUser); // Set the parsed object in the state
+
+                }else{
+                    parsedUser = getUser
                 }
 
                 let url = process.env.EXPO_PUBLIC_URL + "/Home"
 
                 let obj = {
                     searchText: getSearchText,
-                    category: getCategory
+                    category: getCategory,
+                    user: parsedUser
                 }
                 let response = await fetch(url, {
                     method: "POST",
                     body: JSON.stringify(obj),
                     headers: {
                         "Content-Type": "application/json",
-                        'Cookie': `JSESSIONID=${getUser}`
                     }
                 })
 
@@ -221,7 +238,7 @@ export default function home() {
                 <View style={styles.noView}>
                     <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
                 </View>
-               
+
             )}
 
             <FloatingAction
@@ -233,7 +250,7 @@ export default function home() {
                         // router.push({pathname:"/newGroup",params:getGroupDataArr})
                     } else if (name == 2) {
                         router.push("/newChat")
-                    }else if (name == 3) {
+                    } else if (name == 3) {
                         router.push("/newStatus")
                     }
                 }}

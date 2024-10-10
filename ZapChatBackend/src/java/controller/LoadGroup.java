@@ -35,11 +35,14 @@ public class LoadGroup extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        Gson gson = new Gson();
         boolean isSearch = (boolean) request.getAttribute("isSearch");
         String searchText = (String) request.getAttribute("searchText");
-        User user = (User) request.getSession().getAttribute("user");
+
+        JsonObject jsonuser = (JsonObject) request.getAttribute("user");
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+        User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
 
         Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
         groupMemberCriteria.add(Restrictions.eq("user", user));
@@ -51,7 +54,6 @@ public class LoadGroup extends HttpServlet {
         ArrayList<Group_member> searchGroupArray = new ArrayList<>();
 
         boolean isFound = false;
-        Gson gson = new Gson();
 
         JsonArray jsonArray = new JsonArray();
 

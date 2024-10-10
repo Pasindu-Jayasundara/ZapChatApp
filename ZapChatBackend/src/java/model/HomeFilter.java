@@ -24,17 +24,17 @@ public class HomeFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest hsr = (HttpServletRequest) request;
-        User user = (User) hsr.getSession().getAttribute("user");
+//        HttpServletRequest hsr = (HttpServletRequest) request;
+//        User user = (User) hsr.getSession().getAttribute("user");
 
         boolean isInvalid = false;
         String message = "";
 
         Gson gson = new Gson();
-
-        if (user != null) {
-
             JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
+
+        if (fromJson.has("user")) {
+
 
             if (!fromJson.has("searchText")) {
                 isInvalid = true;
@@ -48,6 +48,7 @@ public class HomeFilter implements Filter {
 
                 String category = fromJson.get("category").getAsString();
                 String searchText = fromJson.get("searchText").getAsString();
+                JsonObject user =  fromJson.get("user").getAsJsonObject();
 
                 if (category.trim().equals("")) {
                     isInvalid = true;
@@ -64,6 +65,7 @@ public class HomeFilter implements Filter {
 
                     }
                     request.setAttribute("category", category);
+                    request.setAttribute("user", user);
 
                     chain.doFilter(request, response);
 

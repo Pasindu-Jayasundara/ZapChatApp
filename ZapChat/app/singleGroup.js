@@ -6,18 +6,22 @@ import { StatusBar } from "expo-status-bar";
 import { GroupChatBuble } from "../components/GroupChatBuble";
 import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { GroupHeader } from "../components/GroupHeader";
 import { GroupChatFooter } from "../components/GroupChatFooter";
+import { WebSocketContext } from "./WebSocketProvider";
 
 export default function singleGroup() {
 
     const data = useLocalSearchParams();
+    const { socket, getChat, setChat } = useContext(WebSocketContext)
+
+
     const [getUser, setUser] = useState("")
-    const [getChat, setChat] = useState([])
+    // const [getChat, setChat] = useState([])
     const [getIsNew, setIsNew] = useState(false)
 
     let date;

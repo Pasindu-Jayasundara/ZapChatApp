@@ -1,12 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Alert, BackHandler, Pressable, TextInput } from "react-native";
 import { StyleSheet, View } from "react-native";
 import EmojiModal from 'react-native-emoji-modal-goldin';
 import Modal from "react-native-modal";
 import * as ImagePicker from 'expo-image-picker';
+import { WebSocketContext } from "../app/WebSocketProvider";
 
 const attachIcon = require("../assets/images/attach.svg")
 const emojiIcon = require("../assets/images/emoji.svg")
@@ -14,9 +15,11 @@ const sendIcon = require("../assets/images/send-fill.svg")
 
 export function GroupChatFooter({ data, func}) {
 
+    const { socket, getText, setText } = useContext(WebSocketContext)
+
     const [getInputFieldHeight, setInputFieldHeight] = useState(40)
     const [getModalStatus, setModalStatus] = useState({ display: "none" })
-    const [getText, setText] = useState("")
+    // const [getText, setText] = useState("")
     const [getUser, setUser] = useState("")
     const [getEmojiModal, setEmojiModal] = useState(false)
     const [getImage, setImage] = useState("")
@@ -37,47 +40,62 @@ export function GroupChatFooter({ data, func}) {
                 parsedUser = getUser
             }
 
-                let url = process.env.EXPO_PUBLIC_URL + "/SendGroupMessage"
+            if (socket && socket.readyState == socket.OPEN) {
 
+                console.log("obj")
                 let obj = {
+                    location: "send_group_chat",
                     groupId: data.groupId,
                     contentType: "Message",
                     content: getText,
-                    user:parsedUser.id
+                    user:parsedUser
                 }
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(obj),
-                    headers: {
-                        "Content-Type": "application/json",
-                    }
-                })
 
-                if (response.ok) {
+                socket.send(JSON.stringify(obj))
 
-                    let obj = await response.json()
-                    if (obj.success) {
+            }
 
-                        func(obj.data)
-                        setText("")
+                // let url = process.env.EXPO_PUBLIC_URL + "/SendGroupMessage"
 
-                    } else {
-                        if (obj.data == "Please LogIn") {
+                // let obj = {
+                //     groupId: data.groupId,
+                //     contentType: "Message",
+                //     content: getText,
+                //     user:parsedUser.id
+                // }
+                // let response = await fetch(url, {
+                //     method: "POST",
+                //     body: JSON.stringify(obj),
+                //     headers: {
+                //         "Content-Type": "application/json",
+                //     }
+                // })
 
-                            await AsyncStorage.removeItem("verified");
-                            await AsyncStorage.removeItem("user");
+                // if (response.ok) {
 
-                            router.replace("/")
-                        } else {
-                            Alert.alert(obj.data);
-                        }
-                        console.log(obj.data)
-                    }
+                //     let obj = await response.json()
+                //     if (obj.success) {
 
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
-                }
+                //         func(obj.data)
+                //         setText("")
+
+                //     } else {
+                //         if (obj.data == "Please LogIn") {
+
+                //             await AsyncStorage.removeItem("verified");
+                //             await AsyncStorage.removeItem("user");
+
+                //             router.replace("/")
+                //         } else {
+                //             Alert.alert(obj.data);
+                //         }
+                //         console.log(obj.data)
+                //     }
+
+                // } else {
+                //     Alert.alert("Please Try Again Later");
+                //     console.log(response)
+                // }
 
             
 

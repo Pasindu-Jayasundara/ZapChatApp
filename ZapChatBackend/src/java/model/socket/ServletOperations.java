@@ -6,8 +6,10 @@ import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.File;
 import entity.Group_chat;
+import entity.Group_file;
 import entity.Group_member;
 import entity.Group_message;
+import entity.Group_table;
 import entity.Message;
 import entity.Message_content_type;
 import entity.Message_status;
@@ -27,6 +29,112 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 public class ServletOperations {
+
+    public JsonObject SendGroupMessage(JsonObject jsonObject) {
+
+        int groupId = jsonObject.get("groupId").getAsInt();
+        String contentType = jsonObject.get("contentType").getAsString();
+        String content = jsonObject.get("content").getAsString();
+
+        Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+
+        Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
+
+        JsonObject jsonuser = jsonObject.get("user").getAsJsonObject();
+        User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
+
+        Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
+        groupMemberCriteria.add(Restrictions.and(
+                Restrictions.eq("user", user),
+                Restrictions.eq("group_table", group)
+        ));
+        Group_member group_member = (Group_member) groupMemberCriteria.uniqueResult();
+
+        Criteria messageStatusCriteria = hibernateSession.createCriteria(Message_status.class);
+        messageStatusCriteria.add(Restrictions.eq("status", "Send"));
+        Message_status sendStatus = (Message_status) messageStatusCriteria.uniqueResult();
+
+        Criteria messageContentTypeCriteria = hibernateSession.createCriteria(Message_content_type.class);
+        messageContentTypeCriteria.add(Restrictions.eq("type", contentType));
+        Message_content_type contentTypeResult = (Message_content_type) messageContentTypeCriteria.uniqueResult();
+
+        SimpleDateFormat dateSdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm");
+
+        Date newDate = new Date();
+
+        // new group chat
+        Group_chat groupChat = new Group_chat();
+        groupChat.setGroup_member(group_member);
+        groupChat.setDatetime(newDate);
+        groupChat.setMessage_status(sendStatus);
+        groupChat.setMessage_content_type(contentTypeResult);
+        groupChat.setGroup_table(group);
+
+        int groupChatId = (int) hibernateSession.save(groupChat);
+
+        //if content type is message -> add to message
+        //if content type is file -> add to file
+        Group_chat savedGroupChat = (Group_chat) hibernateSession.get(Group_chat.class, groupChatId);
+        int messageId = 0;
+        int fileId = 0;
+        if (contentType.equals("Message")) {
+
+            Group_message message = new Group_message();
+            message.setMessage(content);
+            message.setGroup_chat(savedGroupChat);
+
+            messageId = (int) hibernateSession.save(message);
+
+        } else if (contentType.equals("File")) {
+
+            Group_file file = new Group_file();
+            file.setPath(content);
+            file.setGroup_chat(savedGroupChat);
+
+            fileId = (int) hibernateSession.save(file);
+
+        }
+
+        String side = "right";
+//        if (groupChat.getGroup_member().getUser().getId() != user.getId()) {
+//            //received message
+//            side = "left";
+//
+//            jsonObject.addProperty("senderName", groupChat.getGroup_member().getUser().getFirst_name() + " " + groupChat.getGroup_member().getUser().getLast_name());
+//            jsonObject.addProperty("senderImg", groupChat.getGroup_member().getUser().getProfile_image());
+//        } else {
+//            //send message
+//            side = "right";
+//        }
+//        jsonObject.addProperty("side", side);
+
+        hibernateSession.beginTransaction().commit();
+        hibernateSession.close();
+
+//        request.getRequestDispatcher("/SingleGroup").include(request, response);
+        JsonObject jo = new JsonObject();
+        jo.addProperty("type", contentType);
+        if (contentType.equals("Message")) {
+            jo.addProperty("messageId", messageId);
+            jo.addProperty("message", content);
+        } else {
+            jo.addProperty("fileId", fileId);
+            jo.addProperty("path", content);
+        }
+        jo.addProperty("time", timeSdf.format(newDate));
+        jo.addProperty("date", dateSdf.format(newDate));
+        jo.addProperty("messageStatus", sendStatus.getStatus());
+        jo.addProperty("isSuccess", true);
+        jo.addProperty("location", "send_group_chat");
+        jo.addProperty("side", side);
+        jo.addProperty("senderName", user.getFirst_name() + "...");
+        jo.addProperty("senderImg", user.getProfile_image());
+        jo.addProperty("groupId", groupId);
+
+        return jo;
+
+    }
 
     public JsonObject LoadHome(JsonObject jsonObject) {
 
@@ -511,7 +619,7 @@ public class ServletOperations {
 
         JsonObject jo = new JsonObject();
         jo.addProperty("isFound", isFound);
-                jo.addProperty("location", "status");
+        jo.addProperty("location", "status");
 
         jo.add("data", gson.toJsonTree(userArray));
 

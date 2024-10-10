@@ -7,6 +7,82 @@ import javax.servlet.http.HttpServletRequest;
 import model.Validation;
 
 public class FilterOperations {
+    
+    public JsonObject SendGroupMessageFilter(JsonObject jsonObject){
+        
+//        Gson gson = new Gson();
+//        JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
+
+//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+
+        boolean isSuccess = false;
+        String message = "";
+
+        if (jsonObject.has("user")) {
+
+            if (!jsonObject.has("groupId")) {
+                message = "Missing Id";
+
+            } else if (!jsonObject.has("contentType")) {
+                message = "Missing Content Type";
+
+            } else if (!jsonObject.has("content")) {
+                message = "Missing Content";
+
+            } else {
+
+                String groupId = jsonObject.get("groupId").getAsString();
+                String contentType = jsonObject.get("contentType").getAsString();
+                String content = jsonObject.get("content").getAsString();
+//                String user = jsonObject.get("user").getAsString();
+
+                if (!Validation.isInteger(groupId)) {
+                    message = "Invalid Id Type";
+
+                } else if (!Validation.isValidName(contentType)) {
+                    message = "Invalid Content Type Type";
+
+                } else if (!contentType.equals("Message") && !contentType.equals("File")) {
+                    message = "Invalid Content Type";
+
+                } else {
+
+                    boolean isOk = false;
+                    if (contentType.equals("Message")) {
+                        isOk = true;
+                    } else if (contentType.equals("File")) {
+                        isOk = true;
+                    }
+
+                    if (isOk) {
+
+                        int id = Integer.parseInt(groupId);
+                        if (id < 1) {
+                            message = "Invalid Id Range";
+                        } else {
+
+                            isSuccess = true;
+                        }
+
+                    } else {
+                        message = "Invalid Content";
+                    }
+
+                }
+            }
+
+        } else {
+            message = "Please LogIn";
+        }
+
+        JsonObject returnObject = new JsonObject();
+        returnObject.addProperty("isSuccess", isSuccess);
+        returnObject.addProperty("message", message);
+        returnObject.addProperty("location", "send_group_chat");
+        
+        return returnObject;
+        
+    }
 
     public JsonObject LoadHomeFilter(JsonObject jsonObject) {
 

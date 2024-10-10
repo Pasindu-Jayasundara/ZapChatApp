@@ -28,23 +28,23 @@ export default function newStatus() {
     const [getStatusImage, setStatusImage] = useState("../assets/images/pencil.png")
 
 
-    useEffect(() => {
-        (async () => {
+    // useEffect(() => {
+    //     (async () => {
 
-            let verified = await AsyncStorage.getItem("verified");
-            let user = await AsyncStorage.getItem("user");
+    //         let verified = await AsyncStorage.getItem("verified");
+    //         let user = await AsyncStorage.getItem("user");
 
-            if (verified == null || verified != "true" || user == null) {
+    //         if (verified == null || verified != "true" || user == null) {
 
-                await AsyncStorage.removeItem("verified")
-                await AsyncStorage.removeItem("user")
+    //             await AsyncStorage.removeItem("verified")
+    //             await AsyncStorage.removeItem("user")
 
-                router.replace("/")
-            } else {
-                setUser(user)
-            }
-        })()
-    }, [])
+    //             router.replace("/")
+    //         } else {
+    //             setUser(user)
+    //         }
+    //     })()
+    // }, [])
 
     const addNewStatus = async () => {
 
@@ -98,6 +98,18 @@ export default function newStatus() {
                 }
             }
 
+            let parsedUser;
+
+            if (getUser == null) {
+                let user = await AsyncStorage.getItem("user");
+
+                parsedUser = JSON.parse(user); // Parse the JSON string to an object
+                setUser(parsedUser); // Set the parsed object in the state
+
+            } else {
+                parsedUser = getUser
+            }
+
             // let sessionId = getUser
             let url = process.env.EXPO_PUBLIC_URL + "/AddNewStatus"
 
@@ -118,7 +130,7 @@ export default function newStatus() {
                     uri: getStatusImage.assets[0].uri,
                 })
                 formData.append("extention", extention)
-                formData.append("user", getUser)
+                formData.append("user", parsedUser)
             }
 
             if (isImage || isText) {

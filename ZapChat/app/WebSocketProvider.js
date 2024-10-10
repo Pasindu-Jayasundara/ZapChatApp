@@ -60,36 +60,44 @@ export const WebSocketProvider = ({ children }) => {
 
         ws.onmessage = (event) => {
 
-            console.log("e1: "+event.data);
+            console.log("e1: " + event.data);
             const dto_obj = JSON.parse(event.data);
 
             if (dto_obj.success) {
                 // switch (data.content.type) {
                 switch (dto_obj.data.location) {
+                    case 'send_group_chat':
+
+                        setChat([...chatRef.current, dto_obj.data])
+
+                        setGroupDataArr([dto_obj.data,...getGroupDataArrRef.current])
+
+                        break;
                     case 'home':
 
-                    console.log("homedata:" + dto_obj.data)
-                        getCategory=="chat"?(
+                        console.log("homedata:" + dto_obj.data)
+                        getCategory == "chat" ? (
                             setChatDataArr(dto_obj.data.data)
-                        ):getCategory=="group"?(
+                        ) : getCategory == "group" ? (
                             setGroupDataArr(dto_obj.data.data)
-                        ):getCategory=="status"?(
+                        ) : getCategory == "status" ? (
                             setStatusDataArr(dto_obj.data.data)
-                        ):null
+                        ) : null
 
                         break;
                     case 'send_chat':
                         setChat([...chatRef.current, dto_obj.data])
 
-                        let obj = {
-                            location:"home",
-                            searchText: getSearchText,
-                            category: getCategory,
-                            userId: dto_obj.fromUserId,
-                            otherUserId: dto_obj.otherUserId,
-                        }
-                        console.log("to home:"+JSON.stringify(obj))
-                        ws.send(JSON.stringify(obj))
+                        setChatDataArr([dto_obj.data,...getChatDataArrRef.current])
+                        // let obj = {
+                        //     location: "home",
+                        //     searchText: getSearchText,
+                        //     category: getCategory,
+                        //     userId: dto_obj.fromUserId,
+                        //     otherUserId: dto_obj.otherUserId,
+                        // }
+                        // console.log("to home:" + JSON.stringify(obj))
+                        // ws.send(JSON.stringify(obj))
 
                         break;
                     case 'login':
@@ -126,7 +134,7 @@ export const WebSocketProvider = ({ children }) => {
                         console.log('Unknown message type', dto_obj.type);
                 }
             } else {
-                console.log("a : "+event.data)
+                console.log("a : " + event.data)
                 Alert.alert(dto_obj.data.msg)
             }
         };

@@ -15,8 +15,8 @@ import org.hibernate.criterion.Restrictions;
 
 public class SocketOperations {
 
-    public JsonObject loadHome(JsonObject object){
-        
+    public JsonObject loadHome(JsonObject object) {
+
         FilterOperations filter = new FilterOperations();
         JsonObject LoadHomeFilter = filter.LoadHomeFilter(object);
 
@@ -28,9 +28,26 @@ public class SocketOperations {
         } else {
             return LoadHomeFilter;
         }
-        
+
     }
-    
+
+    public JsonObject sendGroupChat(JsonObject object) {
+
+        FilterOperations filter = new FilterOperations();
+        JsonObject SendGroupMessageFilter = filter.SendGroupMessageFilter(object);
+
+        if (SendGroupMessageFilter.get("isSuccess").getAsBoolean()) {
+
+            ServletOperations servletOperations = new ServletOperations();
+            JsonObject SendGroupMessage = servletOperations.SendGroupMessage(object);
+
+            return SendGroupMessage;
+        } else {
+            return SendGroupMessageFilter;
+        }
+
+    }
+
     public JsonObject saveChat(JsonObject object) {
 
         FilterOperations filter = new FilterOperations();

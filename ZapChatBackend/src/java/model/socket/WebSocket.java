@@ -3,6 +3,9 @@ package model.socket;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
+import entity.Group_member;
+import entity.Group_table;
+import entity.User;
 import javax.websocket.*;
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +14,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.websocket.server.ServerEndpoint;
+import model.HibernateUtil;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 
 @ServerEndpoint("/WebSocket")
 public class WebSocket {
@@ -34,6 +40,63 @@ public class WebSocket {
         Response_DTO response_DTO = null;
 
         switch (type) {
+            case "send_group_chat":
+//                location: "send_group_chat",
+//                    groupId: data.groupId,
+//                    contentType: "Message",
+//                    content: getText,
+//                    user:parsedUser
+
+//                String otherUserId = object.get("otherUserId").getAsString();
+                JsonObject groupchat = operations.sendGroupChat(object);
+//                JsonObject otherUserSaveChat = saveChat;
+
+                if (groupchat.get("isSuccess").getAsBoolean()) {
+//                    groupchat.addProperty("otherUserId", otherUserId);
+//                    saveChat.addProperty("fromUserId", object.get("fromUserId").getAsInt());
+                    response_DTO = new Response_DTO(true, groupchat);
+                } else {
+                    response_DTO = new Response_DTO(false, groupchat);
+                }
+
+                session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+                //load group memebers to send message
+                org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+                int groupId = object.get("groupId").getAsInt();
+                Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
+
+                JsonObject jsonuser = object.get("user").getAsJsonObject();
+                User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
+
+                Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
+                groupMemberCriteria.add(Restrictions.and(
+                        Restrictions.ne("user", user),
+                        Restrictions.eq("group_table", group)
+                ));
+                List<Group_member> groupMemberList = groupMemberCriteria.list();
+
+                for (Group_member group_member : groupMemberList) {
+
+                    int id = group_member.getUser().getId();
+                    if (clients.containsKey(id)) {
+                        
+//                        otherUserSaveChat.addProperty("side", "left");
+
+                        JsonObject jo = new JsonObject();
+                        jo.addProperty("success", groupchat.get("isSuccess").getAsBoolean());
+//                        jo.addProperty("otherUserId", otherUserId);
+//                        jo.addProperty("fromUserId", object.get("fromUserId").getAsInt());
+                        jo.add("data", groupchat);
+
+                        clients.get(id).getBasicRemote().sendText(gson.toJson(jo));
+                    }
+
+                }
+                hibernateSession.close();
+
+                break;
+
             case "home":
 
                 String otherUserId1 = object.get("otherUserId").getAsString();
@@ -50,16 +113,16 @@ public class WebSocket {
                 session.getBasicRemote().sendText(gson.toJson(response_DTO));
 
                 if (clients.containsKey(otherUserId1)) {
-                    
+
                     object.remove("userId");
                     object.addProperty("userId", otherUserId1);
-                JsonObject loadHome2 = operations.loadHome(object);
+                    JsonObject loadHome2 = operations.loadHome(object);
 
                     JsonObject jo = new JsonObject();
                     jo.addProperty("success", loadHome.get("isFound").getAsBoolean());
                     jo.add("data", loadHome2);
 
-                    System.out.println("jo "+jo);
+                    System.out.println("jo " + jo);
                     clients.get(otherUserId1).getBasicRemote().sendText(gson.toJson(jo));
                 }
 

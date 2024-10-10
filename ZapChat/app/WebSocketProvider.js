@@ -66,6 +66,11 @@ export const WebSocketProvider = ({ children }) => {
             if (dto_obj.success) {
                 // switch (data.content.type) {
                 switch (dto_obj.data.location) {
+                    case 'status':
+
+                        setStatusDataArr([dto_obj.data,...getStatusDataArrRef.current])
+
+                        break;
                     case 'send_group_chat':
 
                         setChat([...chatRef.current, dto_obj.data])

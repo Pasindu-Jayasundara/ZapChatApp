@@ -30,6 +30,102 @@ import org.hibernate.criterion.Restrictions;
 
 public class ServletOperations {
 
+    public JsonObject LoadLastStatus(JsonObject jsonObject) {
+
+        Session openSession = HibernateUtil.getSessionFactory().openSession();
+        JsonObject jsonuser = jsonObject.get("user").getAsJsonObject();
+        User user = (User) openSession.get(User.class, jsonuser.get("id").getAsInt());
+
+        Criteria statusCriteria = openSession.createCriteria(Status.class);
+        statusCriteria.add(Restrictions.eq("user", user));
+        statusCriteria.addOrder(Order.desc("id"));
+        statusCriteria.setMaxResults(1);
+        Status status = (Status) statusCriteria.uniqueResult();
+
+        boolean isSuccess = true;
+        
+        JsonArray ja = new JsonArray();
+        JsonObject userObject = new JsonObject();
+
+        if (status != null) {
+
+            Criteria statusItemCriteria = openSession.createCriteria(Status_item.class);
+            statusItemCriteria.add(Restrictions.eq("status", status));
+            statusItemCriteria.addOrder(Order.desc("datetime"));
+            List<Status_item> list = statusItemCriteria.list();
+
+            if (!list.isEmpty()) {
+
+                userObject.addProperty("statusId", status.getId());
+                userObject.addProperty("name", user.getFirst_name() + " " + user.getLast_name());
+                userObject.addProperty("image", user.getProfile_image());
+
+                boolean isFirstTime = true;
+                JsonArray statusArray = new JsonArray();
+
+                for (Status_item statusItem : list) {
+
+                    if (isFirstTime) {
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                        SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+                        SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+
+                        boolean equal = date.format(new Date()).equals(date.format(statusItem.getDatetime()));
+                        if (equal) {
+                            //same day
+                            userObject.addProperty("datetime", time.format(statusItem.getDatetime()));
+
+                        } else {
+                            userObject.addProperty("datetime", date.format(statusItem.getDatetime()));
+
+                        }
+
+                        isFirstTime = false;
+                    }
+
+                    JsonObject statusObject = new JsonObject();
+                    statusObject.addProperty("statusItemId", statusItem.getId());
+
+                    boolean isText = false;
+                    boolean isImage = false;
+
+                    if (statusItem.getText() != null && !statusItem.getText().trim().equals("")) {
+
+                        isText = true;
+                        statusObject.addProperty("text", statusItem.getText());
+                    }
+
+                    if (statusItem.getFile_path() != null && !statusItem.getFile_path().trim().equals("")) {
+
+                        isImage = true;
+                        statusObject.addProperty("image", statusItem.getFile_path());
+                    }
+
+                    statusObject.addProperty("isText", isText);
+                    statusObject.addProperty("isImage", isImage);
+
+                    statusArray.add(statusObject);
+
+                }
+                userObject.add("status", statusArray);
+                ja.add(userObject);
+            } else {
+                isSuccess = false;
+            }
+
+        } else {
+            isSuccess = false;
+        }
+
+        JsonObject jo = new JsonObject();
+        jo.addProperty("success", isSuccess);
+        jo.addProperty("location", "status");
+        jo.add("data", ja);
+
+        return jo;
+    }
+
     public JsonObject SendGroupMessage(JsonObject jsonObject) {
 
         int groupId = jsonObject.get("groupId").getAsInt();

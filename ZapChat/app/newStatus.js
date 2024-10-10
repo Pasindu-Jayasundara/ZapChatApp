@@ -6,10 +6,11 @@ import { GroupCard } from "../components/GroupCard";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { InputField } from "../components/InputField";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
+import { WebSocketContext } from "./WebSocketProvider";
 
 
 const searchIcon = require("../assets/images/search.svg")
@@ -18,6 +19,7 @@ const newStatusIcon = require("../assets/images/pencil.png")
 export default function newStatus() {
 
     const { data } = useGlobalSearchParams()
+    const { socket, getText, setText } = useContext(WebSocketContext)
 
     const [getDataArray, setDataArray] = useState([])
     const [getSearchGroupName, setSearchGroupName] = useState("")
@@ -153,6 +155,18 @@ export default function newStatus() {
                         extention = undefined
 
                         Alert.alert("Status Posting Success");
+
+                        if (socket && socket.readyState == socket.OPEN) {
+
+                            console.log("obj")
+                            let obj = {
+                                location: "status",
+                                user: parsedUser
+                            }
+            
+                            socket.send(JSON.stringify(obj))
+            
+                        }
 
                     } else {
                         Alert.alert(obj.data);

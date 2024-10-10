@@ -40,6 +40,34 @@ public class WebSocket {
         Response_DTO response_DTO = null;
 
         switch (type) {
+            case "status":
+
+                ServletOperations so = new ServletOperations();
+                JsonObject jsonObject = so.LoadLastStatus(object);
+
+                response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), so);
+                session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+                //others
+                org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
+
+                Criteria userCriteria = hs.createCriteria(User.class);
+                List<User> userCriteriaList = userCriteria.list();
+
+                for (User user : userCriteriaList) {
+
+                    int id = user.getId();
+                    if (clients.containsKey(id)) {
+
+                        response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), so);
+//                        otherUserSaveChat.addProperty("side", "left");
+                        clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
+                    }
+
+                }
+                hs.close();
+
+                break;
             case "send_group_chat":
 //                location: "send_group_chat",
 //                    groupId: data.groupId,
@@ -80,9 +108,8 @@ public class WebSocket {
 
                     int id = group_member.getUser().getId();
                     if (clients.containsKey(id)) {
-                        
-//                        otherUserSaveChat.addProperty("side", "left");
 
+//                        otherUserSaveChat.addProperty("side", "left");
                         JsonObject jo = new JsonObject();
                         jo.addProperty("success", groupchat.get("isSuccess").getAsBoolean());
 //                        jo.addProperty("otherUserId", otherUserId);

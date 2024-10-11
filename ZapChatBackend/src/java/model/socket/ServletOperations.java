@@ -244,176 +244,257 @@ public class ServletOperations {
 
     public JsonObject LoadChat(JsonObject jsonObject) {
 
-        boolean isSearch = false;
-
-        String searchText = jsonObject.get("searchText").getAsString();
-        if (!searchText.trim().equals("")) {
-            isSearch = true;
-        }
-
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
-        int jsonuserId = jsonObject.get("userId").getAsInt();
-        User user = (User) hibernateSession.get(User.class, jsonuserId);
+        int fromjsonuserId = jsonObject.get("userId").getAsInt();
+        User fromuser = (User) hibernateSession.get(User.class, fromjsonuserId);//from
 
-        Criteria userCriteria = hibernateSession.createCriteria(User.class);
-        userCriteria.add(Restrictions.ne("id", user.getId()));
-        List<User> userList = userCriteria.list();
+        int tojsonuserId = jsonObject.get("otherUserId").getAsInt();
+        User touser = (User) hibernateSession.get(User.class, tojsonuserId);//from
 
-        ArrayList<Single_chat> chatArray = new ArrayList<>();
-        ArrayList<Single_chat> searchChatArray = new ArrayList<>();
+        Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
+        chatCriteria.add(Restrictions.and(
+                Restrictions.eq("from_user", fromuser),
+                Restrictions.eq("to_user", touser)
+        ));
+        chatCriteria.addOrder(Order.desc("datetime"));
+        chatCriteria.setMaxResults(1);
+        Single_chat lastChat = (Single_chat) chatCriteria.uniqueResult();
 
-        boolean isFound = false;
+        //    {
+        //        "chatId": 81,
+        //        "userId": 1,
+        //        "name": "Pasindu  Jayasundara ",
+        //        "image": "/profile-images/1.jpeg",
+        //        "onlineStatus": "Online",
+        //        "about": "Hi, how are you? Boy ",
+        //        "showTick": true,
+        //        "messageStatus": "Send",
+        //        "datetime": "02:02",
+        //        "lastMessage": "Hxbzbxjd"
+        //    }
+        JsonObject sendjo = new JsonObject();
+        boolean isFound = true;
+        
+        if (lastChat != null) {
+            sendjo.addProperty("chatId", lastChat.getId());
+            sendjo.addProperty("messageStatus", lastChat.getMessage_status().getStatus());
 
-        JsonArray jsonArray = new JsonArray();
+            SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
 
-        if (!userList.isEmpty()) {
-            //has more users
+            boolean equal = date.format(new Date()).equals(date.format(lastChat.getDatetime()));
+            if (equal) {
+                //same day
+                sendjo.addProperty("datetime", time.format(lastChat.getDatetime()));
 
-            for (User otherUser : userList) {
-
-                Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
-                chatCriteria.add(Restrictions.or(
-                        Restrictions.and(
-                                Restrictions.eq("from_user", user),
-                                Restrictions.eq("to_user", otherUser)
-                        ),
-                        Restrictions.and(
-                                Restrictions.eq("from_user", otherUser),
-                                Restrictions.eq("to_user", user)
-                        )
-                ));
-                chatCriteria.addOrder(Order.desc("datetime"));
-                chatCriteria.setMaxResults(1);
-                Single_chat lastChat = (Single_chat) chatCriteria.uniqueResult();
-
-                if (lastChat != null) {
-                    //has last chat
-
-                    chatArray.add(lastChat);
-                }
-
-            }
-
-            if (isSearch) {
-
-                String searchLower = searchText.toLowerCase();
-
-                for (Single_chat single_chat : chatArray) {
-
-                    String fromFirstName = single_chat.getFrom_user().getFirst_name().toLowerCase();
-                    String fromLastName = single_chat.getFrom_user().getLast_name().toLowerCase();
-                    String toFirstName = single_chat.getTo_user().getFirst_name().toLowerCase();
-                    String toLastName = single_chat.getTo_user().getLast_name().toLowerCase();
-
-                    if (fromFirstName.contains(searchLower)
-                            || fromLastName.contains(searchLower)
-                            || toFirstName.contains(searchLower)
-                            || toLastName.contains(searchLower)) {
-
-                        searchChatArray.add(single_chat);
-                    }
-
-                }
-            }
-
-            ArrayList<Single_chat> searchFrom;
-            if (isSearch) {
-                searchFrom = searchChatArray;
             } else {
-                searchFrom = chatArray;
+                sendjo.addProperty("datetime", date.format(lastChat.getDatetime()));
+
             }
-            for (Single_chat single_chat : searchFrom) {
 
-                if (!isFound) {
-                    isFound = true;
-                }
+            if (lastChat.getMessage_content_type().getType().equals("Message")) {
 
-                JsonObject jsonObject2 = new JsonObject();
-                jsonObject2.addProperty("chatId", single_chat.getId());
+                Criteria msgCriteria = hibernateSession.createCriteria(Message.class);
+                msgCriteria.add(Restrictions.eq("single_chat", lastChat));
 
-                if (user.getId() == single_chat.getFrom_user().getId()) {
-                    //i have send this message
-                    //need to get to user details
+                Message msg = (Message) msgCriteria.uniqueResult();
 
-                    jsonObject2.addProperty("userId", single_chat.getTo_user().getId());
-                    jsonObject2.addProperty("name", single_chat.getTo_user().getFirst_name() + " " + single_chat.getTo_user().getLast_name());
+                sendjo.addProperty("lastMessage", msg.getMessage());
 
-                    if (single_chat.getTo_user().getProfile_image().equals("../assets/images/default.svg")) {
-                        jsonObject2.addProperty("image", "../assets/images/person-square.svg");
-
-                    } else {
-                        jsonObject2.addProperty("image", single_chat.getTo_user().getProfile_image());
-                    }
-
-                    jsonObject2.addProperty("onlineStatus", single_chat.getTo_user().getUser_online_status().getStatus());
-                    jsonObject2.addProperty("about", single_chat.getTo_user().getAbout());
-                    jsonObject2.addProperty("showTick", true);
-
-                } else {
-                    //received message
-                    //need to get from user details
-
-                    jsonObject2.addProperty("userId", single_chat.getFrom_user().getId());
-                    jsonObject2.addProperty("name", single_chat.getFrom_user().getFirst_name() + " " + single_chat.getFrom_user().getLast_name());
-
-                    if (single_chat.getFrom_user().getProfile_image().equals("../assets/images/default.svg")) {
-                        jsonObject2.addProperty("image", "../assets/images/person-square.svg");
-
-                    } else {
-                        jsonObject2.addProperty("image", single_chat.getFrom_user().getProfile_image());
-                    }
-
-                    jsonObject2.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());
-                    jsonObject2.addProperty("about", single_chat.getFrom_user().getAbout());
-                    jsonObject2.addProperty("showTick", false);
-
-                }
-                jsonObject2.addProperty("messageStatus", single_chat.getMessage_status().getStatus());
-
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                SimpleDateFormat time = new SimpleDateFormat("HH:mm");
-                SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
-
-                boolean equal = date.format(new Date()).equals(date.format(single_chat.getDatetime()));
-                if (equal) {
-                    //same day
-                    jsonObject2.addProperty("datetime", time.format(single_chat.getDatetime()));
-
-                } else {
-                    jsonObject2.addProperty("datetime", date.format(single_chat.getDatetime()));
-
-                }
-
-                if (single_chat.getMessage_content_type().getType().equals("Message")) {
-
-                    Criteria msgCriteria = hibernateSession.createCriteria(Message.class);
-                    msgCriteria.add(Restrictions.eq("single_chat", single_chat));
-
-                    Message msg = (Message) msgCriteria.uniqueResult();
-
-                    jsonObject2.addProperty("lastMessage", msg.getMessage());
-
-                } else {
-                    jsonObject2.addProperty("lastMessage", "File Content");
-
-                }
-                jsonArray.add(jsonObject2);
+            } else {
+                sendjo.addProperty("lastMessage", "File Content");
             }
+        } else {
+            isFound=false;
+            
+            sendjo.addProperty("chatId", System.currentTimeMillis());
+            sendjo.addProperty("messageStatus", "");
+            sendjo.addProperty("datetime", "");
+            sendjo.addProperty("lastMessage", "");
 
         }
-
         Gson gson = new Gson();
         JsonObject jo = new JsonObject();
-        jo.addProperty("profile", user.getProfile_image());
         jo.addProperty("isFound", isFound);
         jo.addProperty("location", "home");
-        jo.add("data", gson.toJsonTree(jsonArray));
+        jo.add("data", gson.toJsonTree(sendjo));
 
         return jo;
 
     }
 
+//    public JsonObject LoadChat(JsonObject jsonObject) {
+//
+//        boolean isSearch = false;
+//
+//        String searchText = jsonObject.get("searchText").getAsString();
+//        if (!searchText.trim().equals("")) {
+//            isSearch = true;
+//        }
+//
+//        Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+//
+//        int jsonuserId = jsonObject.get("userId").getAsInt();
+//        User user = (User) hibernateSession.get(User.class, jsonuserId);//from
+//
+//        Criteria userCriteria = hibernateSession.createCriteria(User.class);
+//        userCriteria.add(Restrictions.ne("id", user.getId()));
+//        List<User> userList = userCriteria.list();
+//
+//        ArrayList<Single_chat> chatArray = new ArrayList<>();
+//        ArrayList<Single_chat> searchChatArray = new ArrayList<>();
+//
+//        boolean isFound = false;
+//
+//        JsonArray jsonArray = new JsonArray();
+//
+//        if (!userList.isEmpty()) {
+//            //has more users
+//
+//            for (User otherUser : userList) {
+//
+//                Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
+//                chatCriteria.add(Restrictions.or(
+//                        Restrictions.and(
+//                                Restrictions.eq("from_user", user),
+//                                Restrictions.eq("to_user", otherUser)
+//                        ),
+//                        Restrictions.and(
+//                                Restrictions.eq("from_user", otherUser),
+//                                Restrictions.eq("to_user", user)
+//                        )
+//                ));
+//                chatCriteria.addOrder(Order.desc("datetime"));
+//                chatCriteria.setMaxResults(1);
+//                Single_chat lastChat = (Single_chat) chatCriteria.uniqueResult();
+//
+//                if (lastChat != null) {
+//                    //has last chat
+//
+//                    chatArray.add(lastChat);
+//                }
+//
+//            }
+//
+//            if (isSearch) {
+//
+//                String searchLower = searchText.toLowerCase();
+//
+//                for (Single_chat single_chat : chatArray) {
+//
+//                    String fromFirstName = single_chat.getFrom_user().getFirst_name().toLowerCase();
+//                    String fromLastName = single_chat.getFrom_user().getLast_name().toLowerCase();
+//                    String toFirstName = single_chat.getTo_user().getFirst_name().toLowerCase();
+//                    String toLastName = single_chat.getTo_user().getLast_name().toLowerCase();
+//
+//                    if (fromFirstName.contains(searchLower)
+//                            || fromLastName.contains(searchLower)
+//                            || toFirstName.contains(searchLower)
+//                            || toLastName.contains(searchLower)) {
+//
+//                        searchChatArray.add(single_chat);
+//                    }
+//
+//                }
+//            }
+//
+//            ArrayList<Single_chat> searchFrom;
+//            if (isSearch) {
+//                searchFrom = searchChatArray;
+//            } else {
+//                searchFrom = chatArray;
+//            }
+//            for (Single_chat single_chat : searchFrom) {
+//
+//                if (!isFound) {
+//                    isFound = true;
+//                }
+//
+//                JsonObject jsonObject2 = new JsonObject();
+//                jsonObject2.addProperty("chatId", single_chat.getId());
+//
+//                if (user.getId() == single_chat.getFrom_user().getId()) {
+//                    //i have send this message
+//                    //need to get to user details
+//
+//                    jsonObject2.addProperty("userId", single_chat.getTo_user().getId());
+//                    jsonObject2.addProperty("name", single_chat.getTo_user().getFirst_name() + " " + single_chat.getTo_user().getLast_name());
+//
+//                    if (single_chat.getTo_user().getProfile_image().equals("../assets/images/default.svg")) {
+//                        jsonObject2.addProperty("image", "../assets/images/person-square.svg");
+//
+//                    } else {
+//                        jsonObject2.addProperty("image", single_chat.getTo_user().getProfile_image());
+//                    }
+//
+//                    jsonObject2.addProperty("onlineStatus", single_chat.getTo_user().getUser_online_status().getStatus());
+//                    jsonObject2.addProperty("about", single_chat.getTo_user().getAbout());
+//                    jsonObject2.addProperty("showTick", true);
+//
+//                } else {
+//                    //received message
+//                    //need to get from user details
+//
+//                    jsonObject2.addProperty("userId", single_chat.getFrom_user().getId());
+//                    jsonObject2.addProperty("name", single_chat.getFrom_user().getFirst_name() + " " + single_chat.getFrom_user().getLast_name());
+//
+//                    if (single_chat.getFrom_user().getProfile_image().equals("../assets/images/default.svg")) {
+//                        jsonObject2.addProperty("image", "../assets/images/person-square.svg");
+//
+//                    } else {
+//                        jsonObject2.addProperty("image", single_chat.getFrom_user().getProfile_image());
+//                    }
+//
+//                    jsonObject2.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());
+//                    jsonObject2.addProperty("about", single_chat.getFrom_user().getAbout());
+//                    jsonObject2.addProperty("showTick", false);
+//
+//                }
+//                jsonObject2.addProperty("messageStatus", single_chat.getMessage_status().getStatus());
+//
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//                SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+//                SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
+//
+//                boolean equal = date.format(new Date()).equals(date.format(single_chat.getDatetime()));
+//                if (equal) {
+//                    //same day
+//                    jsonObject2.addProperty("datetime", time.format(single_chat.getDatetime()));
+//
+//                } else {
+//                    jsonObject2.addProperty("datetime", date.format(single_chat.getDatetime()));
+//
+//                }
+//
+//                if (single_chat.getMessage_content_type().getType().equals("Message")) {
+//
+//                    Criteria msgCriteria = hibernateSession.createCriteria(Message.class);
+//                    msgCriteria.add(Restrictions.eq("single_chat", single_chat));
+//
+//                    Message msg = (Message) msgCriteria.uniqueResult();
+//
+//                    jsonObject2.addProperty("lastMessage", msg.getMessage());
+//
+//                } else {
+//                    jsonObject2.addProperty("lastMessage", "File Content");
+//
+//                }
+//                jsonArray.add(jsonObject2);
+//            }
+//
+//        }
+//
+//        Gson gson = new Gson();
+//        JsonObject jo = new JsonObject();
+//        jo.addProperty("profile", user.getProfile_image());
+//        jo.addProperty("isFound", isFound);
+//        jo.addProperty("location", "home");
+//        jo.add("data", gson.toJsonTree(jsonArray));
+//
+//        return jo;
+//
+//    }
     public JsonObject LoadGroup(JsonObject jsonObject) {
 
         Gson gson = new Gson();
@@ -772,7 +853,7 @@ public class ServletOperations {
 
         JsonObject jo = new JsonObject();
         jo.addProperty("type", contentType);
-        jo.addProperty("messageId", messageId);
+        jo.addProperty("chatId", messageId);
         jo.addProperty("message", content);
         jo.addProperty("fileId", fileId);
         jo.addProperty("path", content);

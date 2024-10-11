@@ -72,7 +72,8 @@ public class SingleChat extends HttpServlet {
 
                 Message message = (Message) hibernateSession.get(Message.class, singleChatId);
 
-                jsonObject.addProperty("messageId", message.getId());
+                jsonObject.addProperty("chatId", message.getId());
+//                jsonObject.addProperty("messageId", message.getId());
                 jsonObject.addProperty("message", message.getMessage());
 
             } else if (single_chat.getMessage_content_type().getType().equals("File")) {

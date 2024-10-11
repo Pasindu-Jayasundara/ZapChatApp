@@ -1,10 +1,10 @@
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Animated, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "../components/Header";
 import { ChatCard } from "../components/ChatCard";
 import { FloatingAction } from "react-native-floating-action";
 import { FlashList } from "@shopify/flash-list";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { router, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
@@ -12,17 +12,18 @@ import { GroupCard } from "../components/GroupCard";
 import { WebSocketContext } from "./WebSocketProvider";
 import useStateRef from "react-usestateref";
 
+const defImg =  require("../assets/images/default.svg")
+
 export default function home() {
 
     const {
         socket,
-        getChatDataArr, setChatDataArr, chatRef,
+        getChatDataArr, setChatDataArr, chatRef,getChatDataArrRef,
         getGroupDataArr, setGroupDataArr,
         getStatusDataArr, setStatusDataArr,
-        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage,getSearchText, setSearchText
     } = useContext(WebSocketContext)
 
-    const [getSearchText, setSearchText] = useState("")
     const [getIsFound, setIsFound] = useState(false)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
@@ -47,7 +48,6 @@ export default function home() {
             position: 3,
         }
     ]
-
 
     const loadHome = (async () => {
         try {
@@ -76,7 +76,7 @@ export default function home() {
                     if (obj.success) {
 
                         if (getCategory == "chat") {
-                            chatRef.current = obj.data.data
+                            setChatDataArr(obj.data.data)
                         } else if (getCategory == "group") {
                             setGroupDataArr(obj.data.data)
                         } else if (getCategory == "status") {
@@ -85,12 +85,13 @@ export default function home() {
                         }
                         setIsFound(obj.data.isFound)
 
-                        if (obj.data.profile != "../assets/images/default.svg") {
-                            setUserImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
-                            console.log("obj.data.profil1" + JSON.stringify(ref.current))
-                        } else {
-                            ref.current = obj.data.profile
-                            console.log("obj.data.profil2" + JSON.stringify(ref.current))
+                        if(getHeaderImage==null){
+
+                            if ((obj.data.profile != "../assets/images/default.svg") && (obj.data.profile != getHeaderImage)) {
+                                setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
+                            }else {
+                                setHeaderImage(defImg)
+                            }
 
                         }
 
@@ -137,12 +138,10 @@ export default function home() {
     })
 
     useEffect(() => {
-
         loadHome()
-
     }, [getCategory])
 
-
+    console.log("home: "+JSON.stringify(getChatDataArrRef.current))
     return (
         <SafeAreaView style={styles.safearea}>
             <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} getCategoryFunc={getCategory} img={getHeaderImage} loadHome={loadHome} />
@@ -152,9 +151,11 @@ export default function home() {
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={chatRef.current}
+                        data={getChatDataArrRef.current}
                         renderItem={({ item }) => <ChatCard data={item} />}
-                        keyExtractor={item => item.chatId}
+                        // keyExtractor={item => item.chatId.toString()}
+                        // keyExtractor={(item) => (item.chatId ? item.chatId.toString() : Math.random().toString())}  // Add fallback key
+ 
                         estimatedItemSize={200}
                     />
 
@@ -164,7 +165,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={getGroupDataArr}
                         renderItem={({ item }) => <GroupCard data={item} />}
-                        keyExtractor={item => item.groupId}
+                        keyExtractor={item => item.groupId.toString()}
                         estimatedItemSize={200}
                     />
 
@@ -174,7 +175,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={getStatusDataArr}
                         renderItem={({ item }) => <StatusCard data={item} />}
-                        keyExtractor={item => item.statusId}
+                        keyExtractor={item => item.statusId.toString()}
                         estimatedItemSize={200}
                     />
 

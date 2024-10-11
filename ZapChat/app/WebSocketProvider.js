@@ -18,6 +18,7 @@ export const WebSocketProvider = ({ children }) => {
     const [getCategory, setCategory] = useState("chat")
     const [getUser, setUser] = useState(null)
     const [getHeaderImage, setHeaderImage] = useState(null)
+    const [getSearchText, setSearchText] = useState("")
 
     //single chat
     const chatRef = useRef(getChat);
@@ -78,8 +79,11 @@ export const WebSocketProvider = ({ children }) => {
                     case 'home':
 
                         console.log("homedata:" + dto_obj.data)
+                        // console.log(JSON.stringify([dto_obj.data.data,...getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)]))
+
+                        const rest = getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)
                         getCategory == "chat" ? (
-                            setChatDataArr(dto_obj.data.data)
+                            setChatDataArr([dto_obj.data.data,...rest])
                         ) : getCategory == "group" ? (
                             setGroupDataArr(dto_obj.data.data)
                         ) : getCategory == "status" ? (
@@ -88,18 +92,18 @@ export const WebSocketProvider = ({ children }) => {
 
                         break;
                     case 'send_chat':
+                        
                         setChat([...chatRef.current, dto_obj.data])
 
-                        setChatDataArr([dto_obj.data, ...getChatDataArrRef.current])
-                        // let obj = {
-                        //     location: "home",
-                        //     searchText: getSearchText,
-                        //     category: getCategory,
-                        //     userId: dto_obj.fromUserId,
-                        //     otherUserId: dto_obj.otherUserId,
-                        // }
-                        // console.log("to home:" + JSON.stringify(obj))
-                        // ws.send(JSON.stringify(obj))
+                        let obj = {
+                            location: "home",
+                            searchText: getSearchText,
+                            category: getCategory,
+                            userId: dto_obj.data.fromUserId,
+                            otherUserId: dto_obj.data.otherUserId,
+                        }
+                        console.log("to home:" + JSON.stringify(obj))
+                        ws.send(JSON.stringify(obj))
 
                         break;
                     case 'login':
@@ -119,7 +123,11 @@ export const WebSocketProvider = ({ children }) => {
                                     await AsyncStorage.setItem("profileAbout", jsonab)
 
                                     setUser(dto_obj.data.user)
-                                    setHeaderImage(dto_obj.data.user.profile_image)
+                                    if (getHeaderImage != "../assets/images/default.svg") {
+                                        setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + dto_obj.data.user.profile_image })
+                                    }else {
+                                        setHeaderImage(defImg)
+                                    }
 
                                     router.replace("/home")
                                 } else {
@@ -162,13 +170,13 @@ export const WebSocketProvider = ({ children }) => {
         <WebSocketContext.Provider value={{
             socket,
             getChatDataArr, setChatDataArr,chatRef,
-            getGroupDataArr, setGroupDataArr,
+            getGroupDataArr, setGroupDataArr,getChatDataArrRef,
             getStatusDataArr, setStatusDataArr,
             getChat, setChat,
-            getText, setText,
             getCategory, setCategory,
             getUser, setUser,
-            getHeaderImage, setHeaderImage
+            getHeaderImage, setHeaderImage,
+            getSearchText, setSearchText
         }}>
             {children}
         </WebSocketContext.Provider>

@@ -21,6 +21,7 @@ export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc, img, 
         setStatus(newStatus)
     })
 
+    console.log(img)
     useEffect(() => {
         const handleBackPress = () => {
             searchTextFunc("")

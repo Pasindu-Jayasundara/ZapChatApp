@@ -24,37 +24,13 @@ export default function index() {
 
 
     const check = async () => {
-        try {
 
-            if (getUser != null) {
-                setTryCount(0)
-
-                router.replace("/home")
-            } else {
-
-                console.log("Trying... " + tryCountRef.current)
-
-                if (tryCountRef.current < 3) {
-                    setTryCount(tryCountRef.current++)
-
-                    let user = await AsyncStorage.getItem("user");
-                    let parsedUser = await JSON.parse(user);
-                    setUser(parsedUser);
-
-                    check()
-
-                } else {
-                    router.replace("/")
-                }
-            }
-        } catch (error) {
-            console.error(error)
+        if (getUser != null) {
+            router.replace("/home")
         }
     }
     useEffect(() => {
-
         check()
-
     }, [])
 
     function request() {
@@ -63,7 +39,6 @@ export default function index() {
 
         if (getMobile.trim().length == 10) {
             if (getPassword.trim().length >= 8) {
-
 
                 if (socket && socket.readyState == socket.OPEN) {
 
@@ -75,9 +50,7 @@ export default function index() {
                     }
 
                     socket.send(JSON.stringify(obj))
-
                 }
-
 
             } else {
                 Alert.alert("Password must be between 8-20 letters")

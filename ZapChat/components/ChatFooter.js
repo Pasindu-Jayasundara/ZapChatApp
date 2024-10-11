@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
-import { router } from "expo-router";
 import { useContext, useEffect, useState } from "react";
 import { Alert, BackHandler, Pressable, TextInput } from "react-native";
 import { StyleSheet, View } from "react-native";
@@ -8,98 +7,61 @@ import EmojiModal from 'react-native-emoji-modal-goldin';
 import Modal from "react-native-modal";
 import * as ImagePicker from 'expo-image-picker';
 import { WebSocketContext } from "../app/WebSocketProvider";
+import useStateRef from "react-usestateref";
+import { router } from "expo-router";
 
 const attachIcon = require("../assets/images/attach.svg")
 const emojiIcon = require("../assets/images/emoji.svg")
 const sendIcon = require("../assets/images/send-fill.svg")
 
-export function ChatFooter({ data, func }) {
+export function ChatFooter({ data }) {
 
-    const { socket, getText, setText } = useContext(WebSocketContext)
+    const { socket, getUser, setUser } = useContext(WebSocketContext)
 
     const [getInputFieldHeight, setInputFieldHeight] = useState(40)
-    const [getModalStatus, setModalStatus] = useState({ display: "none" })
-    // const [getText, setText] = useState("")
-    const [getUser, setUser] = useState(null)
+    const [getText, setText] = useState("")
     const [getEmojiModal, setEmojiModal] = useState(false)
     const [getImage, setImage] = useState("")
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     const send = async () => {
         setEmojiModal(false)
 
         try {
-            let parsedUser;
 
-            if (getUser == null) {
-                let user = await AsyncStorage.getItem("user");
+            if (getUser != null) {
+                setTryCount(0)
 
-                parsedUser = JSON.parse(user); // Parse the JSON string to an object
-                setUser(parsedUser); // Set the parsed object in the state
+                if (socket && socket.readyState == socket.OPEN) {
 
-            } else {
-                parsedUser = getUser
-            }
+                    let obj = {
+                        location: "send_chat",
+                        otherUserId: data.userId,
+                        fromUserId: getUser.id,
+                        contentType: "Message",
+                        content: getText
+                    }
 
-            console.log("send")
-            if (socket && socket.readyState == socket.OPEN) {
+                    socket.send(JSON.stringify(obj))
 
-                console.log("obj")
-                let obj = {
-                    location: "send_chat",
-                    otherUserId: data.userId,
-                    fromUserId: parsedUser.id,
-                    contentType: "Message",
-                    content: getText
                 }
+            } else {
 
-                socket.send(JSON.stringify(obj))
+                console.log("Trying... " + tryCountRef.current)
 
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    loadHome()
+
+                } else {
+                    router.replace("/")
+                }
             }
-
-            // let url = process.env.EXPO_PUBLIC_URL + "/SendMessage"
-
-            // let obj = {
-            //     otherUserId: data.userId,
-            //     contentType: "Message",
-            //     content: getText
-            // }
-            // let response = await fetch(url, {
-            //     method: "POST",
-            //     body: JSON.stringify(obj),
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //         'Cookie': `JSESSIONID=${getUser}`
-            //     }
-            // })
-
-            // if (response.ok) {
-
-            //     let obj = await response.json()
-            //     if (obj.success) {
-
-            //         func(obj.data)
-            //         setText("")
-
-            //     } else {
-            //         if (obj.data == "Please LogIn") {
-
-            //             await AsyncStorage.removeItem("verified");
-            //             await AsyncStorage.removeItem("user");
-
-            //             router.replace("/")
-            //         } else {
-            //             Alert.alert(obj.data);
-            //         }
-            //         console.log(obj.data)
-            //     }
-
-            // } else {
-            //     Alert.alert("Please Try Again Later");
-            //     console.log(response)
-            // }
-
-
-
         } catch (error) {
             console.error(error)
         }

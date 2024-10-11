@@ -44,6 +44,8 @@ export function ChatCard({ data }) {
         return !!value; 
     }
 
+    // console.log("chat card: "+data)
+    // console.log("chat card: "+JSON.stringify(data))
     return (
         <Pressable style={styles.container} onPress={() => { router.push({ pathname: "/singleChat", params: data }) }}>
             <Image source={getImage} style={styles.image}  contentFit="cover"/>

@@ -1,11 +1,6 @@
-import { registerRootComponent } from "expo";
 import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChatHeader } from "../components/ChatHeader";
-import { StatusBar } from "expo-status-bar";
 import { GroupChatBuble } from "../components/GroupChatBuble";
-import { Date } from "../components/Date";
-import { ChatFooter } from "../components/ChatFooter";
 import { useContext, useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -13,115 +8,102 @@ import { FlashList } from "@shopify/flash-list";
 import { GroupHeader } from "../components/GroupHeader";
 import { GroupChatFooter } from "../components/GroupChatFooter";
 import { WebSocketContext } from "./WebSocketProvider";
+import useStateRef from "react-usestateref";
 
 export default function singleGroup() {
 
     const data = useLocalSearchParams();
-    const { socket, getChat, setChat } = useContext(WebSocketContext)
+    const { socket, getChat, setChat, getUser, setUser } = useContext(WebSocketContext)
 
-
-    const [getUser, setUser] = useState("")
-    // const [getChat, setChat] = useState([])
     const [getIsNew, setIsNew] = useState(false)
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     let date;
     let time;
 
     function toBoolean(value) {
         if (typeof value === 'boolean') {
-            return value; 
+            return value;
         }
         if (typeof value === 'string') {
-            return value.toLowerCase() === 'true'; 
+            return value.toLowerCase() === 'true';
         }
-        return !!value; 
+        return !!value;
     }
 
-    // useEffect(() => {
-    //     (async () => {
-    //         let verified = await AsyncStorage.getItem("verified");
-    //         let user = await AsyncStorage.getItem("user");
+    const loadgroup = (async () => {
+        setIsNew(toBoolean(data.isNew))
 
-    //         if (verified == null || verified != "true" || user == null) {
+        try {
+            if (getUser != null) {
+                setTryCount(0)
+                let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
-    //             await AsyncStorage.removeItem("verified")
-    //             await AsyncStorage.removeItem("user")
-
-    //             router.replace("/")
-    //         }
-
-    //         // if((typeof data.isNew)=="string"){
-    //             setIsNew(toBoolean(data.isNew))
-    
-    //         // }else{
-    //         //     setIsNew(data.isNew==true)
-    
-    //         // }
-    //     })()
-    // }, [])
-
-    useEffect(() => {
-
-        (async () => {
-            setIsNew(toBoolean(data.isNew))
-
-            try {
-                
-                let parsedUser;
-
-                if (getUser == null) {
-                    let user = await AsyncStorage.getItem("user");
-
-                    parsedUser = JSON.parse(user); // Parse the JSON string to an object
-                    setUser(parsedUser); // Set the parsed object in the state
-
-                } else {
-                    parsedUser = getUser
+                let obj = {
+                    groupId: data.groupId,
+                    user: getUser
                 }
-            let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
-            let obj = {
-                groupId: data.groupId,
-                user:parsedUser
-            }
-            let response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(obj),
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
+                console.log("parsedUser: " + parsedUser)
 
-            if (response.ok) {
-
-                let obj = await response.json()
-                if (obj.success) {
-
-                    setChat(obj.data)
-
-                } else {
-
-                    if (obj.data == "Please LogIn") {
-
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
-
-                        router.replace("/")
-                    } else {
-                        Alert.alert(obj.data);
+                let response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(obj),
+                    headers: {
+                        "Content-Type": "application/json",
                     }
-                    console.log("c: " + obj.data)
+                })
+
+                if (response.ok) {
+
+                    let obj = await response.json()
+                    if (obj.success) {
+
+                        setChat(obj.data)
+
+                    } else {
+
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            setUser(null)
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                    }
+
+                } else {
+                    Alert.alert("Please Try Again Later");
+                    console.log(response)
                 }
-
             } else {
-                Alert.alert("Please Try Again Later");
-                console.log(response)
-            }
 
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    loadgroup()
+
+                } else {
+                    router.replace("/")
+                }
+            }
         } catch (error) {
             console.log(error)
         }
-        })()
+    })
+
+    useEffect(() => {
+
+        loadgroup()
 
     }, [])
 
@@ -161,14 +143,14 @@ export default function singleGroup() {
 }
 
 const styles = StyleSheet.create({
-    newText:{
-        color:"#ff5b6b",
+    newText: {
+        color: "#ff5b6b",
     },
-    newView:{
-        width:"100%",
-        justifyContent:"center",
-        alignItems:"center",
-        paddingVertical:15
+    newView: {
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 15
     },
     body: {
         flexGrow: 1,

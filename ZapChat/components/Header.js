@@ -1,42 +1,30 @@
 import { Image } from "expo-image"
 import { BackHandler, Pressable, StyleSheet, Text, TextInput, TouchableWithoutFeedback } from "react-native"
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { Tab } from "./Tab";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import useStateRef from "react-usestateref";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const search = require("../assets/images/search.svg")
 const backArrow = require("../assets/images/back-arrow.svg")
-const profileDefault = require("../assets/images/default.svg")
 
-export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc,img}) {
+export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc, img, loadHome }) {
 
-    // const [getImage, setImage] = useState(profileDefault)
     const [getStatus, setStatus] = useState(false)
     const [getText, setText] = useState("")
-    // const [getCategory, setCategory] = useState("chat")
-    // const [getCategory, setCategory] = useState("group")
 
     const searchButtonPress = (() => {
 
         let newStatus = getStatus ? false : true
         setStatus(newStatus)
     })
-    // useEffect(() => {
-    //     if(img!="../assets/images/default.svg"){
-    //         // setImage({uri:process.env.EXPO_PUBLIC_URL+img})
-    //     }
-    //     console.warn(getImage)
-    // }, [getImage]);
-
-    // useEffect(() => {
-
-    //     setCategoryFunc(getCategory)
-
-    // }, [getCategory]);
 
     useEffect(() => {
         const handleBackPress = () => {
+            searchTextFunc("")
+            loadHome()
             if (getStatus) {
                 setStatus(false);
                 return true;
@@ -51,12 +39,10 @@ export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc,img}) 
 
     function searchText(text) {
         setText(text)
-        if (getText.length > 5) {
-            searchTextFunc(text)
-        } else {
-            searchTextFunc("")
-        }
+        searchTextFunc(text)
     }
+
+
 
     return (
         <>
@@ -65,7 +51,10 @@ export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc,img}) 
                     <Pressable onPress={searchButtonPress}>
                         <Image source={backArrow} style={styles.icon} />
                     </Pressable>
-                    <TextInput style={styles.input} placeholder="Search ...." onChangeText={text => searchText(text)} />
+                    <TextInput value={getText} style={styles.input} placeholder={"Search " + getCategoryFunc + " by name...."} onChangeText={text => searchText(text)} />
+                    <Pressable onPress={loadHome}>
+                        <Image source={search} style={styles.icon} />
+                    </Pressable>
                 </View>
             ) : (
                 <View style={styles.container}>
@@ -75,12 +64,12 @@ export function Header({ searchTextFunc, setCategoryFunc, getCategoryFunc,img}) 
                             <Pressable onPress={searchButtonPress}>
                                 <Image source={search} style={styles.icon} />
                             </Pressable>
-                            <Pressable onPress={()=>{router.push("/profileSetUp")}}>
+                            <Pressable onPress={() => { router.push("/profileSetUp") }}>
                                 <Image source={img} style={[styles.icon, styles.icon2]} />
                             </Pressable>
                         </View>
                     </View>
-                    <Tab setFunc={setCategoryFunc} getFunc={getCategoryFunc}/>
+                    <Tab setFunc={setCategoryFunc} getFunc={getCategoryFunc} />
                 </View>
             )}
         </>
@@ -91,7 +80,6 @@ const styles = StyleSheet.create({
     icon2: {
         width: 22,
         height: 22,
-        // backgroundColor:"red"
     },
     backView: {
         justifyContent: "center",
@@ -99,7 +87,7 @@ const styles = StyleSheet.create({
         paddingVertical: 20
     },
     input: {
-        width: '80%',
+        width: '70%',
         backgroundColor: "#e3e3e3",
         borderRadius: 5,
         height: 40,
@@ -118,8 +106,8 @@ const styles = StyleSheet.create({
     },
     iconView: {
         flexDirection: "row",
-        alignItems:"center",
-        columnGap: 15
+        alignItems: "center",
+        columnGap: 15,
     },
     container2: {
         width: "100%",
@@ -129,9 +117,6 @@ const styles = StyleSheet.create({
         paddingRight: 20,
         paddingVertical: 20,
         paddingLeft: 10
-        // borderBottomColor: "#e3e3e3",
-        // borderBottomWidth: 1
-        // backgroundColor: "#f5be87"
     },
     container: {
         width: "100%",
@@ -139,6 +124,5 @@ const styles = StyleSheet.create({
         borderBottomColor: "#e3e3e3",
         borderBottomWidth: 1,
         paddingBottom: 8
-        // backgroundColor: "#f5be87"
     }
 })

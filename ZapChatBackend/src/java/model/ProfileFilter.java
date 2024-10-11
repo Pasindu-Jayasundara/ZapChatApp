@@ -44,7 +44,9 @@ public class ProfileFilter implements Filter {
             img1 = httpServletRequest.getPart("image");
         }
 
+        System.out.println("u1:" +httpServletRequest.getParameter("user"));
         String user = httpServletRequest.getParameter("user");
+        System.out.println("u2:"+user);
         if (user == null) {
             isInvalid = true;
             message = "Please Logedin First";

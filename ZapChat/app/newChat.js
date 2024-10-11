@@ -3,92 +3,106 @@ import { Image } from "expo-image";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatCard } from "../components/ChatCard";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WebSocketContext } from "./WebSocketProvider";
+import useStateRef from "react-usestateref";
 
 const searchIcon = require("../assets/images/search.svg")
 
 export default function newChat() {
 
+    const {
+        socket,
+        getChatDataArr, setChatDataArr, chatRef,
+        getGroupDataArr, setGroupDataArr,
+        getStatusDataArr, setStatusDataArr,
+        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+    } = useContext(WebSocketContext)
+
     const [getDataArray, setDataArray] = useState([])
     const [getMobile, setMobile] = useState("")
-    const [getUser, setUser] = useState("")
     const [getIsFound, setIsFound] = useState(false)
-
-    useEffect(() => {
-        (async () => {
-
-            let verified = await AsyncStorage.getItem("verified");
-            let user = await AsyncStorage.getItem("user");
-
-            if (verified == null || verified != "true" || user == null) {
-
-                await AsyncStorage.removeItem("verified")
-                await AsyncStorage.removeItem("user")
-
-                router.replace("/")
-            } else {
-                setUser(user)
-            }
-        })()
-    }, [])
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     const search = async () => {
 
-        let url = process.env.EXPO_PUBLIC_URL + "/NewChat"
+        try {
 
-        if (getMobile.length == 10) {
+            if (getUser != null) {
+                let url = process.env.EXPO_PUBLIC_URL + "/NewChat"
 
-            let obj = {
-                mobile: getMobile,
-                user:getUser
-            }
-            let response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(obj),
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
+                if (getMobile.length == 10) {
 
-            if (response.ok) {
+                    let obj = {
+                        mobile: getMobile,
+                        user: getUser
+                    }
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
 
-                let obj = await response.json()
-                if (obj.success) {
+                    if (response.ok) {
 
-                    if (obj.data.isFound) {
-                        //registered user
+                        let obj = await response.json()
+                        if (obj.success) {
 
-                        setIsFound(true)
-                        setDataArray(obj.data.data)
+                            if (obj.data.isFound) {
+                                //registered user
+
+                                setIsFound(true)
+                                setDataArray(obj.data.data)
+
+                            } else {
+                                // not registered
+                                setDataArray([])
+                            }
+
+                        } else {
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                setUser(null)
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                        }
 
                     } else {
-                        // not registered
-                        setDataArray([])
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
                     }
+                } else {
+                    Alert.alert("Invalid Mobile Number");
+                }
+            } else {
+
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    search()
 
                 } else {
-                    if (obj.data == "Please LogIn") {
-
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
-
-                        router.replace("/")
-                    } else {
-                        Alert.alert(obj.data);
-                    }
-                    console.log(obj.data)
+                    router.replace("/")
                 }
-
-            } else {
-                Alert.alert("Please Try Again Later");
-                console.log(response)
             }
-        } else {
-            Alert.alert("Invalid Mobile Number");
+        } catch (error) {
+            console.error(error)
         }
-
     }
 
 
@@ -106,7 +120,7 @@ export default function newChat() {
                 />
 
                 <Pressable onPress={search}>
-                    <Image source={searchIcon} style={styles.icon}/>
+                    <Image source={searchIcon} style={styles.icon} />
                 </Pressable>
             </View>
 
@@ -133,16 +147,16 @@ export default function newChat() {
 }
 
 const styles = StyleSheet.create({
-    noText:{
-        fontSize:20,
-        fontWeight:"bold",
-        color:"#919190"
+    noText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#919190"
     },
-    noView:{
-        width:"100%",
-        alignItems:"center",
-        flex:1,
-        justifyContent:"center",
+    noView: {
+        width: "100%",
+        alignItems: "center",
+        flex: 1,
+        justifyContent: "center",
     },
     icon: {
         width: 22,
@@ -151,9 +165,9 @@ const styles = StyleSheet.create({
     head: {
         flexDirection: "row",
         columnGap: 15,
-        justifyContent:"center",
-        alignItems:"center",
-        marginBottom:20
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 20
     },
     input: {
         backgroundColor: "#e3e3e3",

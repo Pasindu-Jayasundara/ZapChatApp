@@ -6,257 +6,296 @@ import { GroupCard } from "../components/GroupCard";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { InputField } from "../components/InputField";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { router, useGlobalSearchParams, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Modal from "react-native-modal";
-
+import { WebSocketContext } from "./WebSocketProvider";
+import useStateRef from "react-usestateref";
 
 const searchIcon = require("../assets/images/search.svg")
 const newGroupIcon = require("../assets/images/team.png")
 
 export default function newGroup() {
 
+    const {
+        socket,
+        getChatDataArr, setChatDataArr, chatRef,
+        getGroupDataArr, setGroupDataArr,
+        getStatusDataArr, setStatusDataArr,
+        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+    } = useContext(WebSocketContext)
+
     const { data } = useGlobalSearchParams()
 
     const [getDataArray, setDataArray] = useState([])
     const [getSearchGroupName, setSearchGroupName] = useState("")
     const [getNewGroupName, setNewGroupName] = useState("")
-    const [getUser, setUser] = useState("")
     const [getIsFound, setIsFound] = useState(false)
     const [getNewGroupModalStatus, setNewGroupModalStatus] = useState(false)
     const [getGroupImage, setGroupImage] = useState("../assets/images/team.png")
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
+    const home = async () => {
 
-    useEffect(() => {
-        (async () => {
+        try {
 
-            let verified = await AsyncStorage.getItem("verified");
-            let user = await AsyncStorage.getItem("user");
+            if (getUser != null) {
+                let dataObj = JSON.parse(data)
 
-            if (verified == null || verified != "true" || user == null) {
+                setDataArray(dataObj)
+                if (dataObj.length > 0) {
+                    setIsFound(true)
+                } else {
 
-                await AsyncStorage.removeItem("verified")
-                await AsyncStorage.removeItem("user")
+                    let url = process.env.EXPO_PUBLIC_URL + "/Home"
 
-                router.replace("/")
-            } else {
-                setUser(user)
-            }
-
-            let dataObj = JSON.parse(data)
-
-            setDataArray(dataObj)
-            if (dataObj.length > 0) {
-                setIsFound(true)
-            } else {
-
-                let url = process.env.EXPO_PUBLIC_URL + "/Home"
-
-                let obj = {
-                    searchText: "",
-                    category: "group",
-                    user:getUser
-                }
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(obj),
-                    headers: {
-                        "Content-Type": "application/json",
+                    let obj = {
+                        searchText: "",
+                        category: "group",
+                        user: getUser
                     }
-                })
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
 
-                if (response.ok) {
+                    if (response.ok) {
 
-                    let obj = await response.json()
-                    if (obj.success) {
+                        let obj = await response.json()
+                        if (obj.success) {
 
-                        setDataArray(obj.data.data)
-                        setIsFound(obj.data.isFound)
+                            setDataArray(obj.data.data)
+                            setIsFound(obj.data.isFound)
+
+                        } else {
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                setUser(null)
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                            console.log(obj.data)
+                        }
 
                     } else {
-                        if (obj.data == "Please LogIn") {
-
-                            await AsyncStorage.removeItem("verified");
-                            await AsyncStorage.removeItem("user");
-
-                            router.replace("/")
-                        } else {
-                            Alert.alert(obj.data);
-                        }
-                        console.log(obj.data)
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
                     }
 
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
                 }
+            } else {
 
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    home()
+
+                } else {
+                    router.replace("/")
+                }
             }
-        })()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
+        home()
     }, [])
 
     const search = async () => {
 
-        let url = process.env.EXPO_PUBLIC_URL + "/NewGroup"
+        try {
 
-        if (getSearchGroupName.length < 45) {
+            if (getUser != null) {
+                let url = process.env.EXPO_PUBLIC_URL + "/NewGroup"
 
-            let obj = {
-                name: getSearchGroupName,
-                user:getUser
-            }
-            let response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(obj),
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
+                if (getSearchGroupName.length < 45) {
 
-            if (response.ok) {
+                    let obj = {
+                        name: getSearchGroupName,
+                        user: getUser
+                    }
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
 
-                let obj = await response.json()
-                console.log(obj)
-                if (obj.success) {
+                    if (response.ok) {
 
-                    if (obj.data.isFound) {
+                        let obj = await response.json()
+                        console.log(obj)
+                        if (obj.success) {
 
-                        setIsFound(true)
-                        setDataArray(obj.data.data)
+                            if (obj.data.isFound) {
+
+                                setIsFound(true)
+                                setDataArray(obj.data.data)
+
+                            } else {
+                                setDataArray([])
+                            }
+
+                        } else {
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                setUser(null)
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                            console.log(obj.data)
+                        }
 
                     } else {
-                        setDataArray([])
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
                     }
+                } else {
+                    Alert.alert("Group Name Too Long");
+                }
+            } else {
+
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    search()
 
                 } else {
-                    if (obj.data == "Please LogIn") {
-
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
-
-                        router.replace("/")
-                    } else {
-                        Alert.alert(obj.data);
-                    }
-                    console.log(obj.data)
+                    router.replace("/")
                 }
-
-            } else {
-                Alert.alert("Please Try Again Later");
-                console.log(response)
             }
-        } else {
-            Alert.alert("Group Name Too Long");
+        } catch (error) {
+            console.error(error)
         }
-
     }
 
     const addNewGroup = async () => {
 
         try {
+            if (getUser != null) {
+                if (getGroupImage.assets != null) {
 
-            if (getUser == "") {
-                let user = await AsyncStorage.getItem("user")
-                if (user == null) {
+                    let imageTypeArr = [".png", ".jpg", ".jpeg"]
 
-                    await AsyncStorage.removeItem("verified");
-                    await AsyncStorage.removeItem("user");
+                    if (getGroupImage.assets[0].uri.trim() == "") {
+                        Alert.alert("Missing Image")
 
-                    router.replace("/")
-                } else {
-                    setUser(user)
-                }
-            }
+                    } else if (getGroupImage.assets[0].type != "image") {
+                        Alert.alert("Not a Image")
 
-            if (getGroupImage.assets != null) {
+                    } else if (!imageTypeArr.includes(getGroupImage.assets[0].uri.slice(getGroupImage.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
+                        Alert.alert("Invalid Image Type")
 
-                let imageTypeArr = [".png", ".jpg", ".jpeg"]
+                    } else if (getNewGroupName.trim() == "") {
+                        Alert.alert("1: Missing Group Name")
 
-                if (getGroupImage.assets[0].uri.trim() == "") {
-                    Alert.alert("Missing Image")
+                    } else if (getNewGroupName.length > 45) {
+                        Alert.alert("Group Name Too Long")
 
-                } else if (getGroupImage.assets[0].type != "image") {
-                    Alert.alert("Not a Image")
-
-                } else if (!imageTypeArr.includes(getGroupImage.assets[0].uri.slice(getGroupImage.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
-                    Alert.alert("Invalid Image Type")
-
-                } else if (getNewGroupName.trim() == "") {
-                    Alert.alert("1: Missing Group Name")
-
-                } else if (getNewGroupName.length > 45) {
-                    Alert.alert("Group Name Too Long")
-
-                } else if (getGroupImage.assets == null) {
-                    Alert.alert("Missing Assests")
-                } else {
-
-                    let extention;
-                    let invalid = false;
-
-                    if (getGroupImage.assets[0].mimeType == "image/jpeg") {
-                        extention = ".jpeg"
-
-                    } else if (getGroupImage.assets[0].mimeType == "image/jpg") {
-                        extention = ".jpg"
-
-                    } else if (getGroupImage.assets[0].mimeType == "image/png") {
-                        extention = ".png"
-
+                    } else if (getGroupImage.assets == null) {
+                        Alert.alert("Missing Assests")
                     } else {
-                        Alert.alert("Invalid Extention")
-                        invalid = true
-                    }
 
-                    if (!invalid) {
+                        let extention;
+                        let invalid = false;
 
-                        // let sessionId = getUser
-                        let url = process.env.EXPO_PUBLIC_URL + "/AddNewGroup"
+                        if (getGroupImage.assets[0].mimeType == "image/jpeg") {
+                            extention = ".jpeg"
 
-                        let formData = new FormData()
-                        formData.append("groupName", getNewGroupName)
-                        formData.append("image", {
-                            name: "groupImage" + extention,
-                            type: getGroupImage.assets[0].mimeType,
-                            uri: getGroupImage.assets[0].uri,
-                        })
-                        formData.append("extention", extention)
-                        formData.append("user", getUser)
-                        console.log("h: " + getNewGroupName)
+                        } else if (getGroupImage.assets[0].mimeType == "image/jpg") {
+                            extention = ".jpg"
 
-
-                        let response = await fetch(url, {
-                            method: "POST",
-                            body: formData,
-                        })
-                        if (response.ok) {
-
-                            let obj = await response.json()
-                            if (obj.success) {
-
-
-                                // console.log("obj: "+JSON.stringify(obj))
-                                // console.log("obj data: "+JSON.stringify(obj.data))
-                                // console.log("obj data data: "+JSON.stringify(obj.data.data))
-                                // await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data))
-                                // await AsyncStorage.setItem("profileAbout", JSON.stringify(getAbout))
-                                router.push({ pathname: "/singleGroup", params: obj.data })
-                                // Alert.alert("Profile Update Success");
-
-                            } else {
-                                Alert.alert(obj.data);
-                                console.log(obj.data)
-                            }
+                        } else if (getGroupImage.assets[0].mimeType == "image/png") {
+                            extention = ".png"
 
                         } else {
-                            Alert.alert("Please Try Again Later");
-                            console.log(response)
+                            Alert.alert("Invalid Extention")
+                            invalid = true
+                        }
+
+                        if (!invalid) {
+
+                            let url = process.env.EXPO_PUBLIC_URL + "/AddNewGroup"
+
+                            let formData = new FormData()
+                            formData.append("groupName", getNewGroupName)
+                            formData.append("image", {
+                                name: "groupImage" + extention,
+                                type: getGroupImage.assets[0].mimeType,
+                                uri: getGroupImage.assets[0].uri,
+                            })
+                            formData.append("extention", extention)
+                            formData.append("user", getUser)
+                            console.log("h: " + getNewGroupName)
+
+
+                            let response = await fetch(url, {
+                                method: "POST",
+                                body: formData,
+                            })
+                            if (response.ok) {
+
+                                let obj = await response.json()
+                                if (obj.success) {
+
+                                    router.push({ pathname: "/singleGroup", params: obj.data })
+
+                                } else {
+                                    Alert.alert(obj.data);
+                                    console.log(obj.data)
+                                }
+
+                            } else {
+                                Alert.alert("Please Try Again Later");
+                                console.log(response)
+                            }
                         }
                     }
                 }
-            }
+            } else {
 
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    addNewGroup()
+
+                } else {
+                    router.replace("/")
+                }
+            }
         } catch (error) {
             console.log(error)
         }

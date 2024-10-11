@@ -3,55 +3,67 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Link, router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SplashScreen from 'expo-splash-screen';
 import { WebSocketContext } from "./WebSocketProvider";
+import useStateRef from "react-usestateref";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const logoIcon = require("../assets/images/logo.gif");
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
+// SplashScreen.hideAsync();
 
 export default function index() {
-    const { socket } = useContext(WebSocketContext)
+    const { socket, getUser, setUser } = useContext(WebSocketContext)
 
     const [getMobile, setMobile] = useState("")
     const [getPassword, setPassword] = useState("")
-    const [getButtonText, setButtonText] = useState("Let's Go")
+    const [getButtonText, setButtonText, ref] = useStateRef("Let's Go")
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
+
+    const check = async () => {
+        try {
+
+            if (getUser != null) {
+                setTryCount(0)
+
+                router.replace("/home")
+            } else {
+
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    check()
+
+                } else {
+                    router.replace("/")
+                }
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
     useEffect(() => {
 
-        (async () => {
-            try {
-
-                let user = await AsyncStorage.getItem("user")
-                if (user != null) {
-
-                    let verified = await AsyncStorage.getItem("verified");
-
-                    if (verified != null && verified == "true") {
-                        router.replace("/home")
-                    } else {
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
-                    }
-                } else {
-                    SplashScreen.hideAsync();
-                }
-
-            } catch (error) {
-                console.log(error)
-            }
-        })()
+        check()
 
     }, [])
 
-    async function request() {
+    function request() {
+
+        setButtonText("Wait ...")
 
         if (getMobile.trim().length == 10) {
             if (getPassword.trim().length >= 8) {
 
-                setButtonText("Wait ...")
 
                 if (socket && socket.readyState == socket.OPEN) {
 
@@ -66,57 +78,16 @@ export default function index() {
 
                 }
 
-                // let url = process.env.EXPO_PUBLIC_URL + "/Login"
-                // let data = {
-                //     mobile: getMobile,
-                //     password: getPassword
-                // }
 
-                // let response = await fetch(url, {
-                //     method: "POST",
-                //     body: JSON.stringify(data),
-                //     headers: {
-                //         "Content-Type": "application/json"
-                //     }
-                // })
-                // if (response.ok) {
-
-                //     let obj = await response.json()
-                //     if (obj.success) {
-
-                //         try {
-                //             console.log("u: " + JSON.stringify(obj.data.user))
-                //             console.log("u2: " + obj.data.user)
-
-                //             // await AsyncStorage.setItem("user", JSON.stringify(obj.data.sessionId))
-                //             await AsyncStorage.setItem("user", JSON.stringify(obj.data.user))
-                //             // await AsyncStorage.setItem("verified", "true")
-                //             await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data.profileImage))
-                //             await AsyncStorage.setItem("profileAbout", JSON.stringify(obj.data.profileAbout))
-
-                //             router.replace("/home")
-
-                //         } catch (error) {
-                //             Alert.alert("Something Went Wrong")
-                //             console.log(error)
-                //         }
-
-                //     } else {
-                //         Alert.alert(obj.data.msg);
-                //         console.log(obj.data.msg)
-                //     }
-
-                // } else {
-                //     Alert.alert("Please Try Again Later");
-                //     console.log(response)
-                // }
-
-                setButtonText("Let's Go")
             } else {
                 Alert.alert("Password must be between 8-20 letters")
+                setButtonText("Let's Go")
+
             }
         } else {
             Alert.alert("Mobile number must have 10 numbers")
+            setButtonText("Let's Go")
+
         }
 
     }
@@ -140,7 +111,7 @@ export default function index() {
                         <View style={styles.fields}>
                             <InputField params={{ lableText: "Mobile", inputMode: "tel", secureTextEntry: false, func: setMobile }} />
                             <InputField params={{ lableText: "Password", inputMode: "text", secureTextEntry: true, func: setPassword }} />
-                            <Button text={getButtonText} style={{ marginTop: 18 }} func={request} />
+                            <Button text={ref.current} style={{ marginTop: 18 }} func={request} />
                             <Text style={styles.linkText}>
                                 New to ZapChat?
                                 <Link href={"/register"} style={styles.link}> Register Now</Link>
@@ -174,7 +145,6 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        // backgroundColor: "red",
     },
     logo: {
         width: 150,
@@ -206,13 +176,11 @@ const styles = StyleSheet.create({
     firstView: {
         flex: 1,
         justifyContent: "flex-end",
-        // backgroundColor: "blue",
         alignItems: "center",
     },
     secondView: {
         flex: 1,
         marginTop: 60,
-        // backgroundColor: "green",
         alignItems: "center"
     }
 });

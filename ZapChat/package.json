@@ -40,6 +40,7 @@
     "react-native-swiper-flatlist": "^3.2.5",
     "react-native-vector-icons": "^10.2.0",
     "react-native-zoom-reanimated": "^1.4.8",
+    "react-usestateref": "^1.0.9",
     "rn-emoji-picker": "^1.1.6",
     "socket.io-client": "^4.8.0",
     "undefined": "\\"

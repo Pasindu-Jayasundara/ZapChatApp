@@ -10,34 +10,23 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusCard } from "../components/StatusCard";
 import { GroupCard } from "../components/GroupCard";
 import { WebSocketContext } from "./WebSocketProvider";
-
-// const profileDefault = require("../assets/images/default.svg")`
+import useStateRef from "react-usestateref";
 
 export default function home() {
 
     const {
         socket,
-        getChatDataArr, setChatDataArr,
+        getChatDataArr, setChatDataArr, chatRef,
         getGroupDataArr, setGroupDataArr,
         getStatusDataArr, setStatusDataArr,
-        getHeaderImage, setHeaderImage,
-        getSearchText, setSearchText,
-        getCategory, setCategory
+        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
     } = useContext(WebSocketContext)
 
-    // const [getChatDataArr, setChatDataArr] = useState([])
-    // const [getGroupDataArr, setGroupDataArr] = useState([])
-    // const [getStatusDataArr, setStatusDataArr] = useState([])
-    // const [getHeaderImage, setHeaderImage] = useState(profileDefault)
-
-    // const [getSearchText, setSearchText] = useState("")
-    const [getUser, setUser] = useState(null)
-    // const [getCategory, setCategory] = useState("chat")
-    const [getFirstTime, setFirstTime] = useState(true)
+    const [getSearchText, setSearchText] = useState("")
     const [getIsFound, setIsFound] = useState(false)
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     const navigation = useNavigation();
-
     const actions = [
         {
             text: "New Group",
@@ -59,81 +48,19 @@ export default function home() {
         }
     ]
 
-    // const send = async () => {
-    //     setEmojiModal(false)
 
-    //     try {
-    //         let parsedUser;
+    const loadHome = (async () => {
+        try {
 
-    //         if (getUser == null) {
-    //             let user = await AsyncStorage.getItem("user");
-
-    //             parsedUser = JSON.parse(user); // Parse the JSON string to an object
-    //             setUser(parsedUser); // Set the parsed object in the state
-
-    //         } else {
-    //             parsedUser = getUser
-    //         }
-
-    //         console.log("send")
-    //         if (socket && socket.readyState == socket.OPEN) {
-
-    //             console.log("obj")
-    //             let obj = {
-    //                 location:"home",
-    //                 searchText: getSearchText,
-    //                 category: getCategory,
-    //                 user: parsedUser
-    //             }
-
-    //             socket.send(JSON.stringify(obj))
-
-    //         }
-
-    //     } catch (error) {
-    //         console.error(error)
-    //     }
-
-    // }
-    // useEffect(() => {
-    //     (async () => {
-
-    //         let verified = await AsyncStorage.getItem("verified");
-    //         let user = await AsyncStorage.getItem("user");
-
-    //         if (verified == null || verified != "true" || user == null) {
-
-    //             await AsyncStorage.removeItem("verified")
-    //             await AsyncStorage.removeItem("user")
-
-    //             router.replace("/")
-    //         }
-    //     })()
-    // }, [])
-
-    useEffect(() => {
-
-        (async () => {
-
-            try {
-                let parsedUser;
-
-                if (getUser == null) {
-                    let user = await AsyncStorage.getItem("user");
-
-                    parsedUser = JSON.parse(user); // Parse the JSON string to an object
-                    setUser(parsedUser); // Set the parsed object in the state
-
-                }else{
-                    parsedUser = getUser
-                }
+            if (getUser != null) {
+                setTryCount(0)
 
                 let url = process.env.EXPO_PUBLIC_URL + "/Home"
 
                 let obj = {
                     searchText: getSearchText,
                     category: getCategory,
-                    user: parsedUser
+                    user: getUser
                 }
                 let response = await fetch(url, {
                     method: "POST",
@@ -149,8 +76,7 @@ export default function home() {
                     if (obj.success) {
 
                         if (getCategory == "chat") {
-                            setChatDataArr(obj.data.data)
-
+                            chatRef.current = obj.data.data
                         } else if (getCategory == "group") {
                             setGroupDataArr(obj.data.data)
                         } else if (getCategory == "status") {
@@ -159,14 +85,13 @@ export default function home() {
                         }
                         setIsFound(obj.data.isFound)
 
-                        if (getFirstTime) {
+                        if (obj.data.profile != "../assets/images/default.svg") {
+                            setUserImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
+                            console.log("obj.data.profil1" + JSON.stringify(ref.current))
+                        } else {
+                            ref.current = obj.data.profile
+                            console.log("obj.data.profil2" + JSON.stringify(ref.current))
 
-                            if (obj.data.profile != "../assets/images/default.svg") {
-                                setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
-                            } else {
-                                setHeaderImage(obj.data.profile)
-                            }
-                            setFirstTime(false)
                         }
 
                     } else {
@@ -175,6 +100,7 @@ export default function home() {
                             await AsyncStorage.removeItem("verified");
                             await AsyncStorage.removeItem("user");
 
+                            setUser(null)
                             router.replace("/")
                         } else {
                             Alert.alert(obj.data);
@@ -187,25 +113,46 @@ export default function home() {
                     console.log(response)
                 }
 
-            } catch (error) {
-                console.error(error)
+
+            } else {
+
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    loadHome()
+
+                } else {
+                    router.replace("/")
+                }
             }
+        } catch (error) {
+            console.error(error)
+        }
+    })
 
-        })()
+    useEffect(() => {
 
-    }, [getSearchText, getCategory])
+        loadHome()
+
+    }, [getCategory])
 
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} getCategoryFunc={getCategory} img={getHeaderImage} />
+            <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} getCategoryFunc={getCategory} img={getHeaderImage} loadHome={loadHome} />
 
             {getIsFound ? (
                 getCategory == "chat" ? (
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={getChatDataArr}
+                        data={chatRef.current}
                         renderItem={({ item }) => <ChatCard data={item} />}
                         keyExtractor={item => item.chatId}
                         estimatedItemSize={200}
@@ -247,7 +194,6 @@ export default function home() {
                 onPressItem={name => {
                     if (name == 1) {
                         navigation.navigate('newGroup', { data: JSON.stringify(getGroupDataArr) })
-                        // router.push({pathname:"/newGroup",params:getGroupDataArr})
                     } else if (name == 2) {
                         router.push("/newChat")
                     } else if (name == 3) {

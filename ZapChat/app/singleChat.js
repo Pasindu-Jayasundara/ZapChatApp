@@ -1,66 +1,34 @@
-import { registerRootComponent } from "expo";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatHeader } from "../components/ChatHeader";
-import { StatusBar } from "expo-status-bar";
 import { ChatBuble } from "../components/ChatBuble";
-import { Date } from "../components/Date";
 import { ChatFooter } from "../components/ChatFooter";
 import { useContext, useEffect, useRef, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FlashList } from "@shopify/flash-list";
 import { WebSocketContext } from "./WebSocketProvider";
+import useStateRef from "react-usestateref";
 
 export default function singleChat() {
 
     const data = useLocalSearchParams();
-
-    const { socket, getChat, setChat } = useContext(WebSocketContext)
-
-    const [getUser, setUser] = useState(null)
-    // const [getChat, setChat] = useState([])
+    const { socket, getChat, setChat, getUser, setUser } = useContext(WebSocketContext)
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     let date;
     let time;
 
-    // useEffect(() => {
-    //     (async () => {
+    const loadchat = (async () => {
+        try {
 
-    //         let verified = await AsyncStorage.getItem("verified");
-    //         let user = await AsyncStorage.getItem("user");
-
-    //         if (verified == null || verified != "true" || user == null) {
-
-    //             await AsyncStorage.removeItem("verified")
-    //             await AsyncStorage.removeItem("user")
-
-    //             router.replace("/")
-    //         }
-    //     })()
-    // }, [])
-
-    useEffect(() => {
-
-        (async () => {
-            try {
-                let parsedUser;
-
-                if (getUser == null) {
-                    let user = await AsyncStorage.getItem("user");
-
-                    parsedUser = JSON.parse(user); // Parse the JSON string to an object
-                    setUser(parsedUser); // Set the parsed object in the state
-
-                } else {
-                    parsedUser = getUser
-                }
-
+            if (getUser != null) {
+                setTryCount(0)
                 let url = process.env.EXPO_PUBLIC_URL + "/SingleChat"
 
                 let obj = {
                     otherUserId: data.userId,
-                    user: parsedUser
+                    user: getUser
                 }
                 let response = await fetch(url, {
                     method: "POST",
@@ -84,6 +52,8 @@ export default function singleChat() {
                             await AsyncStorage.removeItem("verified");
                             await AsyncStorage.removeItem("user");
 
+                            setUser(null)
+
                             router.replace("/")
                         } else {
                             Alert.alert(obj.data);
@@ -95,11 +65,31 @@ export default function singleChat() {
                     Alert.alert("Please Try Again Later");
                     console.log(response)
                 }
+            } else {
 
-            } catch (error) {
-                console.log(error)
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    loadchat()
+
+                } else {
+                    router.replace("/")
+                }
             }
-        })()
+        } catch (error) {
+            console.log(error)
+        }
+    })
+
+    useEffect(() => {
+
+        loadchat()
 
     }, [])
 

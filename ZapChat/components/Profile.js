@@ -1,65 +1,57 @@
 import { Image } from "expo-image"
 import { StyleSheet, View } from "react-native"
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { Button } from "./Button";
-import { InputField } from "./InputField";
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
 const defStatus = require("../assets/images/pencil.png")
 
-export function Profile({ getFunc, setFunc,icon,text ,style}) {
+export function Profile({ getFunc, setFunc, icon, text, style }) {
 
-    // const [getImage, setImage] = useState(defaultProfileImage)
     const [getImage, setImage] = useState(icon)
     const [getFit, setfit] = useState("cover")
-    const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select "+text)
-// "Select Profile Picture"
+    const [getImageSelectBtnText, setImageSelectBtnText] = useState("Select " + text)
+
     useEffect(() => {
+        if (typeof getFunc === 'object' && getFunc.assets && getFunc.assets[0].uri) {
 
-        if (typeof getFunc === 'object') {
-            setImage(getFunc.assets[0].uri)
-        } else {
+            setImage(getFunc.assets[0].uri);
 
-            console.log("g : "+getFunc)
-            if (getFunc == "../assets/images/default.svg") {
-                setImage(getFunc)
+        } else if (typeof getFunc === 'string') {
 
-            } else if(getFunc == "../assets/images/pencil.png"){
-                setImage(defStatus)
+            let value = getFunc;
 
-            }else if ({getFunc}.startsWith("/profile-images/")) {
-
-                const imagePath = process.env.EXPO_PUBLIC_URL + getFunc;
+            if (value === "../assets/images/default.svg") {
+                setImage(value);
+            } else if (value === "../assets/images/pencil.png") {
+                setImage(defStatus);
+            } else if (value.startsWith("/profile-images/")) {
+                const imagePath = process.env.EXPO_PUBLIC_URL + value;
                 setImage({ uri: imagePath });
-
             }
 
-            if(text=="Status Image"){
-                setfit("contain")
+            if (text === "Status Image") {
+                setfit("contain");
             }
+        } else {
+            console.error("Invalid getFunc value:", getFunc);
         }
-
-    }, [getFunc])
+    }, [getFunc]);
 
     const pickImage = async () => {
 
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
-            aspect: [1,1],
+            aspect: [1, 1],
             quality: 1,
         });
 
         console.log(result);
-        // console.log("getImageResult.assets[0]")
-        // console.log(result.assets==null)
 
         if (!result.canceled) {
 
-            setImageSelectBtnText("Change "+text)
+            setImageSelectBtnText("Change " + text)
             setFunc(result)
         }
     };
@@ -67,7 +59,7 @@ export function Profile({ getFunc, setFunc,icon,text ,style}) {
     return (
         <View style={styles.container}>
             <Image
-                style={[styles.image,style]}
+                style={[styles.image, style]}
                 source={getImage}
                 contentFit={getFit}
                 transition={1000}

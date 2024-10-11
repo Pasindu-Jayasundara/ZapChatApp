@@ -1,43 +1,45 @@
-import { registerRootComponent } from "expo";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Profile } from "../components/Profile";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WebSocketContext } from "./WebSocketProvider";
+import useStateRef from "react-usestateref";
 
 const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
 
 export default function profileSetUp() {
 
+    const {
+        socket,
+        getChatDataArr, setChatDataArr,
+        getGroupDataArr, setGroupDataArr,
+        getStatusDataArr, setStatusDataArr,
+        getSearchText, setSearchText,
+        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+    } = useContext(WebSocketContext)
+
     const [getAbout, setAbout] = useState("")
-    const [getImageResult, setImageResult] = useState("../assets/images/default.svg")
-    const [getUser, setUser] = useState("")
-    const [getNewImage, setNewImage] = useState(false)
+    const [getImageResult, setImageResult] = useState("")
+    const [getButtonText, setButtonText] = useState("Update Profile")
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     useEffect(() => {
         (async () => {
 
-            let verified = await AsyncStorage.getItem("verified");
-            let user = await AsyncStorage.getItem("user");
+            try {
+                const aboutJson = await AsyncStorage.getItem("profileAbout")
+                const about = JSON.parse(aboutJson)
 
-            if (verified == null || verified != "true" || user == null) {
-
-                await AsyncStorage.removeItem("verified")
-                await AsyncStorage.removeItem("user")
-
-                router.replace("/")
+                setImageResult(getHeaderImage)
+                setAbout(about)
+            } catch (error) {
+                console.log(error)
             }
 
-            const imageJson = await AsyncStorage.getItem("profileImage")
-            const image = JSON.parse(imageJson)
-            const aboutJson = await AsyncStorage.getItem("profileAbout")
-            const about = JSON.parse(aboutJson)
-
-            setImageResult(image)
-            setAbout(about)
 
         })()
 
@@ -45,112 +47,121 @@ export default function profileSetUp() {
 
     async function request() {
 
-        if (getUser == "") {
-            let user = await AsyncStorage.getItem("user")
-            if (user == null) {
+        setButtonText("Updating ...")
+        try {
+            console.log("user: " + getUser)
 
-                await AsyncStorage.removeItem("verified");
-                await AsyncStorage.removeItem("user");
+            if (getUser != null) {
+                setTryCount(0)
 
-                router.replace("/")
-            } else {
-                setUser(user)
-            }
-        }
+                if (getImageResult.assets != null) {
 
-        // if (getImageResult.assets!=null) {
-        //     setNewImage(true)
-        // } else {
-        //     setNewImage(false)
-        // }
+                    let imageTypeArr = [".png", ".jpg", ".jpeg"]
 
-        // console.warn(getNewImage)
+                    if (getImageResult.assets[0].uri.trim() == "") {
+                        Alert.alert("Missing Image")
 
-        if (getImageResult.assets!=null) {
+                    } else if (getImageResult.assets[0].type != "image") {
+                        Alert.alert("Not a Image")
 
-            let imageTypeArr = [".png", ".jpg", ".jpeg"]
+                    } else if (!imageTypeArr.includes(getImageResult.assets[0].uri.slice(getImageResult.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
+                        Alert.alert("Invalid Image Type")
 
-            if (getImageResult.assets[0].uri.trim() == "") {
-                Alert.alert("Missing Image")
-
-            } else if (getImageResult.assets[0].type != "image") {
-                Alert.alert("Not a Image")
-
-            }else if (!imageTypeArr.includes(getImageResult.assets[0].uri.slice(getImageResult.assets[0].uri.lastIndexOf('.')).toLowerCase())) {
-                Alert.alert("Invalid Image Type")
-
-            }
-        }
-
-        if (getAbout.trim() == "") {
-            Alert.alert("Missing About")
-
-        } else if (getAbout.length > 45) {
-            Alert.alert("About Too Long")
-
-        } else {
-
-            // let sessionId = getUser
-            let url = process.env.EXPO_PUBLIC_URL + "/Profile"
-
-            let formData = new FormData()
-            formData.append("about", getAbout)
-            formData.append("isNewImage", getImageResult.assets!=null)
-            formData.append("user", getUser)
-
-            if (getImageResult.assets!=null) {
-
-                let extention;
-                let invalid;
-
-                if (getImageResult.assets[0].mimeType == "image/jpeg") {
-                    extention = ".jpeg"
-
-                } else if (getImageResult.assets[0].mimeType == "image/jpg") {
-                    extention = ".jpg"
-
-                } else if (getImageResult.assets[0].mimeType == "image/png") {
-                    extention = ".png"
-
-                } else {
-                    Alert.alert("Invalid Extention")
-                    invalid = true
+                    }
                 }
 
-                if (!invalid) {
-                    formData.append("image", {
-                        name: "profileImage" + extention,
-                        type: getImageResult.assets[0].mimeType,
-                        uri: getImageResult.assets[0].uri,
+                if (getAbout.trim() == "") {
+                    Alert.alert("Missing About")
+
+                } else if (getAbout.length > 45) {
+                    Alert.alert("About Too Long")
+
+                } else {
+
+                    let url = process.env.EXPO_PUBLIC_URL + "/Profile"
+
+                    let formData = new FormData()
+                    formData.append("about", getAbout)
+                    formData.append("isNewImage", getImageResult.assets != null)
+                    formData.append("user", getUser)
+
+                    if (getImageResult.assets != null) {
+
+                        let extention;
+                        let invalid;
+
+                        if (getImageResult.assets[0].mimeType == "image/jpeg") {
+                            extention = ".jpeg"
+
+                        } else if (getImageResult.assets[0].mimeType == "image/jpg") {
+                            extention = ".jpg"
+
+                        } else if (getImageResult.assets[0].mimeType == "image/png") {
+                            extention = ".png"
+
+                        } else {
+                            Alert.alert("Invalid Extention")
+                            invalid = true
+                        }
+
+                        if (!invalid) {
+                            formData.append("image", {
+                                name: "profileImage" + extention,
+                                type: getImageResult.assets[0].mimeType,
+                                uri: getImageResult.assets[0].uri,
+                            })
+                            formData.append("extention", extention)
+                        }
+                    }
+
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: formData,
                     })
-                    formData.append("extention", extention)
-                }
-            }
+                    if (response.ok) {
 
-            let response = await fetch(url, {
-                method: "POST",
-                body: formData,
-            })
-            if (response.ok) {
+                        let obj = await response.json()
+                        if (obj.success) {
 
-                let obj = await response.json()
-                if (obj.success) {
+                            await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data))
+                            setHeaderImage(obj.data)
 
-                    await AsyncStorage.setItem("profileImage", JSON.stringify(obj.data))
-                    await AsyncStorage.setItem("profileAbout", JSON.stringify(getAbout))
+                            await AsyncStorage.setItem("profileAbout", JSON.stringify(getAbout))
 
-                    Alert.alert("Profile Update Success");
+                            Alert.alert("Profile Update Success");
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                        setButtonText("Update Profile")
 
-                } else {
-                    Alert.alert(obj.data);
-                    console.log(obj.data)
+                    } else {
+                        Alert.alert("Please Try Again Later");
+                        setButtonText("Update Profile")
+
+                    }
+
                 }
 
             } else {
-                Alert.alert("Please Try Again Later");
-                console.log(response)
-            }
 
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    request()
+
+                } else {
+                    router.replace("/")
+                }
+            }
+        } catch (error) {
+            console.error(error)
+            setButtonText("Update Profile")
         }
     }
 
@@ -160,12 +171,12 @@ export default function profileSetUp() {
             <Text style={styles.title}>My Profile</Text>
             <View style={styles.scrolView}>
 
-                <Profile getFunc={getImageResult} setFunc={setImageResult} icon={defaultProfileImage} text={"Profile Picture"} style={{}}/>
+                <Profile getFunc={getImageResult} setFunc={setImageResult} icon={defaultProfileImage} text={"Profile Picture"} style={{}} />
 
                 <View style={styles.inputFields}>
                     <InputField params={{ lableText: "About", maxLength: 45, func: setAbout, getFunc: getAbout }} />
 
-                    <Button style={styles.btn} text={"Update Profile"} func={request} />
+                    <Button style={styles.btn} text={getButtonText} func={request} />
                 </View>
             </View>
 
@@ -197,9 +208,6 @@ const styles = StyleSheet.create({
     },
     scrolView: {
         flex: 1,
-        // justifyContent: "center",
-        // backgroundColor: "red",
         alignItems: "center",
-        // paddingTop:90
     }
 })

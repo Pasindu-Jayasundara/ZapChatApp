@@ -2,23 +2,22 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { createContext, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
+import useStateRef from 'react-usestateref';
 
 export const WebSocketContext = createContext(null);
-const profileDefault = require("../assets/images/default.svg")
 
 export const WebSocketProvider = ({ children }) => {
 
     const [socket, setSocket] = useState(null);
 
     //my
-    const [getChatDataArr, setChatDataArr] = useState([])
+    const [getChatDataArr, setChatDataArr,chatref] = useStateRef([])
     const [getGroupDataArr, setGroupDataArr] = useState([])
     const [getStatusDataArr, setStatusDataArr] = useState([])
-    const [getHeaderImage, setHeaderImage] = useState(profileDefault)
     const [getChat, setChat] = useState([])
-    const [getText, setText] = useState("")
-    const [getSearchText, setSearchText] = useState("")
     const [getCategory, setCategory] = useState("chat")
+    const [getUser, setUser] = useState(null)
+    const [getHeaderImage, setHeaderImage] = useState(null)
 
     //single chat
     const chatRef = useRef(getChat);
@@ -64,18 +63,16 @@ export const WebSocketProvider = ({ children }) => {
             const dto_obj = JSON.parse(event.data);
 
             if (dto_obj.success) {
-                // switch (data.content.type) {
                 switch (dto_obj.data.location) {
                     case 'status':
 
-                        setStatusDataArr([dto_obj.data,...getStatusDataArrRef.current])
+                        setStatusDataArr([dto_obj.data, ...getStatusDataArrRef.current])
 
                         break;
                     case 'send_group_chat':
 
                         setChat([...chatRef.current, dto_obj.data])
-
-                        setGroupDataArr([dto_obj.data,...getGroupDataArrRef.current])
+                        setGroupDataArr([dto_obj.data, ...getGroupDataArrRef.current])
 
                         break;
                     case 'home':
@@ -93,7 +90,7 @@ export const WebSocketProvider = ({ children }) => {
                     case 'send_chat':
                         setChat([...chatRef.current, dto_obj.data])
 
-                        setChatDataArr([dto_obj.data,...getChatDataArrRef.current])
+                        setChatDataArr([dto_obj.data, ...getChatDataArrRef.current])
                         // let obj = {
                         //     location: "home",
                         //     searchText: getSearchText,
@@ -110,23 +107,25 @@ export const WebSocketProvider = ({ children }) => {
                         (async () => {
                             try {
 
-                                // console.log(JSON.stringify(dto_obj.data))
-                                // console.log(dto_obj.data.isSuccess)
-                                // console.log(dto_obj.data.profileImage)
-
                                 if (dto_obj.data.success) {
 
-                                    await AsyncStorage.setItem("user", JSON.stringify(dto_obj.data.user))
-                                    await AsyncStorage.setItem("profileImage", JSON.stringify(dto_obj.data.profileImage))
-                                    await AsyncStorage.setItem("profileAbout", JSON.stringify(dto_obj.data.profileAbout))
+                                    let jsonuser = JSON.stringify(dto_obj.data.user)
+                                    await AsyncStorage.setItem("user", jsonuser)
+
+                                    let jsonpi = JSON.stringify(dto_obj.data.profileImage)
+                                    await AsyncStorage.setItem("profileImage", jsonpi)
+
+                                    let jsonab = JSON.stringify(dto_obj.data.profileAbout)
+                                    await AsyncStorage.setItem("profileAbout", jsonab)
+
+                                    setUser(dto_obj.data.user)
+                                    setHeaderImage(dto_obj.data.user.profile_image)
 
                                     router.replace("/home")
                                 } else {
                                     // Alert.alert("")
                                     console.log("no")
                                 }
-
-
 
                             } catch (error) {
                                 console.log(error)
@@ -162,14 +161,14 @@ export const WebSocketProvider = ({ children }) => {
     return (
         <WebSocketContext.Provider value={{
             socket,
-            getChatDataArr, setChatDataArr,
+            getChatDataArr, setChatDataArr,chatRef,
             getGroupDataArr, setGroupDataArr,
             getStatusDataArr, setStatusDataArr,
-            getHeaderImage, setHeaderImage,
             getChat, setChat,
             getText, setText,
-            getSearchText, setSearchText,
-            getCategory, setCategory
+            getCategory, setCategory,
+            getUser, setUser,
+            getHeaderImage, setHeaderImage
         }}>
             {children}
         </WebSocketContext.Provider>

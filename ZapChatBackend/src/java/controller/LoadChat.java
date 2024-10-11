@@ -146,7 +146,7 @@ public class LoadChat extends HttpServlet {
                         jsonObject.addProperty("image", "../assets/images/person-square.svg");
 
                     } else {
-                        jsonObject.addProperty("image", single_chat.getTo_user().getProfile_image());
+                        jsonObject.addProperty("image", single_chat.getFrom_user().getProfile_image());
                     }
 
                     jsonObject.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());

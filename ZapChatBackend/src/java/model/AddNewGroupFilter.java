@@ -1,9 +1,7 @@
 package model;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entity.User;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;

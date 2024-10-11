@@ -14,7 +14,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
 @WebFilter(urlPatterns = {"/SendGroupMessage"})
-public class SendGroupMessageFilter implements Filter{
+public class SendGroupMessageFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -25,8 +25,6 @@ public class SendGroupMessageFilter implements Filter{
 
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
-
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         boolean isSuccess = false;
         String message = "";
@@ -79,7 +77,7 @@ public class SendGroupMessageFilter implements Filter{
                             request.setAttribute("groupId", id);
                             request.setAttribute("contentType", contentType);
                             request.setAttribute("content", content);
-                            request.setAttribute("user", content);
+                            request.setAttribute("user", user);
 
                             chain.doFilter(request, response);
                         }
@@ -101,11 +99,11 @@ public class SendGroupMessageFilter implements Filter{
             response.setContentType("application/json");
             response.getWriter().write(gson.toJson(response_DTO));
         }
-        
+
     }
 
     @Override
     public void destroy() {
     }
-    
+
 }

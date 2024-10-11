@@ -1,20 +1,14 @@
 package controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.Group_table;
 import entity.Group_chat;
-import entity.Group_file;
 import entity.Group_member;
 import entity.Group_message;
-import entity.Message;
-import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,10 +33,9 @@ public class NewGroup extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         Gson gson = new Gson();
-        
+
         String groupName = (String) request.getAttribute("name");
-//        User user = (User) request.getSession().getAttribute("user");
-                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
@@ -51,7 +44,7 @@ public class NewGroup extends HttpServlet {
 
         //check if there is a group avaliable for this group name
         Criteria groupCriteria = hibernateSession.createCriteria(Group_table.class);
-        groupCriteria.add(Restrictions.like("name", groupName,MatchMode.ANYWHERE));
+        groupCriteria.add(Restrictions.like("name", groupName, MatchMode.ANYWHERE));
         List<Group_table> searchedGroupList = groupCriteria.list();
 
         ArrayList<JsonObject> groupArray = new ArrayList<>();
@@ -59,8 +52,8 @@ public class NewGroup extends HttpServlet {
         if (!searchedGroupList.isEmpty()) {
             //search group avaliable
 
-            isFound=true;
-            
+            isFound = true;
+
             for (Group_table group : searchedGroupList) {
 
                 JsonObject jsonObject = new JsonObject();
@@ -107,7 +100,7 @@ public class NewGroup extends HttpServlet {
                         jsonObject.addProperty("datetime", sdf.format(groupChat.getDatetime()));
 
                     }
-                    
+
                     if (groupChat.getMessage_content_type().getType().equals("Message")) {
 
                         Criteria groupMessageCriteria = hibernateSession.createCriteria(Group_message.class);
@@ -131,7 +124,7 @@ public class NewGroup extends HttpServlet {
                 Long memeberCount = (Long) groupMemberCriteria.uniqueResult();
 
                 jsonObject.addProperty("members", memeberCount);
-                
+
                 groupArray.add(jsonObject);
 
             }

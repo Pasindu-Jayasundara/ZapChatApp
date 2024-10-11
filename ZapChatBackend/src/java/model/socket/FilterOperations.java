@@ -1,19 +1,11 @@
 package model.socket;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dto.Response_DTO;
-import javax.servlet.http.HttpServletRequest;
 import model.Validation;
 
 public class FilterOperations {
-    
-    public JsonObject SendGroupMessageFilter(JsonObject jsonObject){
-        
-//        Gson gson = new Gson();
-//        JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
 
-//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    public JsonObject SendGroupMessageFilter(JsonObject jsonObject) {
 
         boolean isSuccess = false;
         String message = "";
@@ -33,8 +25,6 @@ public class FilterOperations {
 
                 String groupId = jsonObject.get("groupId").getAsString();
                 String contentType = jsonObject.get("contentType").getAsString();
-                String content = jsonObject.get("content").getAsString();
-//                String user = jsonObject.get("user").getAsString();
 
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
@@ -79,18 +69,16 @@ public class FilterOperations {
         returnObject.addProperty("isSuccess", isSuccess);
         returnObject.addProperty("message", message);
         returnObject.addProperty("location", "send_group_chat");
-        
+
         return returnObject;
-        
+
     }
 
     public JsonObject LoadHomeFilter(JsonObject jsonObject) {
 
-//        boolean isSearch = false;
         boolean isInvalid = false;
         String message = "";
 
-//        Gson gson = new Gson();
         if (jsonObject.has("userId")) {
 
             if (!jsonObject.has("searchText")) {
@@ -126,7 +114,7 @@ public class FilterOperations {
         returnObject.addProperty("isSuccess", !isInvalid);
         returnObject.addProperty("message", message);
         returnObject.addProperty("location", "home");
-        
+
         return returnObject;
 
     }

@@ -3,7 +3,6 @@ package model;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entity.User;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
 
 @WebFilter(urlPatterns = {"/Home"})
 public class HomeFilter implements Filter {
@@ -24,17 +22,13 @@ public class HomeFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-//        HttpServletRequest hsr = (HttpServletRequest) request;
-//        User user = (User) hsr.getSession().getAttribute("user");
-
         boolean isInvalid = false;
         String message = "";
 
         Gson gson = new Gson();
-            JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
+        JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
 
         if (fromJson.has("user")) {
-
 
             if (!fromJson.has("searchText")) {
                 isInvalid = true;
@@ -48,7 +42,7 @@ public class HomeFilter implements Filter {
 
                 String category = fromJson.get("category").getAsString();
                 String searchText = fromJson.get("searchText").getAsString();
-                JsonObject user =  fromJson.get("user").getAsJsonObject();
+                JsonObject user = fromJson.get("user").getAsJsonObject();
 
                 if (category.trim().equals("")) {
                     isInvalid = true;

@@ -2,7 +2,6 @@ package controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.Message;
@@ -22,7 +21,6 @@ import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @WebServlet(name = "LoadChat", urlPatterns = {"/LoadChat"})
@@ -39,7 +37,6 @@ public class LoadChat extends HttpServlet {
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
         User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
-
 
         Criteria userCriteria = hibernateSession.createCriteria(User.class);
         userCriteria.add(Restrictions.ne("id", user.getId()));
@@ -151,8 +148,7 @@ public class LoadChat extends HttpServlet {
 
                     jsonObject.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());
                     jsonObject.addProperty("about", single_chat.getFrom_user().getAbout());
-                                        jsonObject.addProperty("showTick", false);
-
+                    jsonObject.addProperty("showTick", false);
 
                 }
                 jsonObject.addProperty("messageStatus", single_chat.getMessage_status().getStatus());

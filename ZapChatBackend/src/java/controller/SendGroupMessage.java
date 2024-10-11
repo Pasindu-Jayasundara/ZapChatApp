@@ -1,19 +1,15 @@
 package controller;
 
 import com.google.gson.Gson;
-import entity.File;
 import entity.Group_chat;
 import entity.Group_file;
 import entity.Group_member;
 import entity.Group_message;
 import entity.Group_table;
-import entity.Message;
 import entity.Message_content_type;
 import entity.Message_status;
-import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -39,8 +35,7 @@ public class SendGroupMessage extends HttpServlet {
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
         Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
-//        User user = (User) request.getSession().getAttribute("user");
-                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
 
         Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
         groupMemberCriteria.add(Restrictions.and(
@@ -48,11 +43,11 @@ public class SendGroupMessage extends HttpServlet {
                 Restrictions.eq("group_table", group)
         ));
         Group_member group_member = (Group_member) groupMemberCriteria.uniqueResult();
-        
+
         Criteria messageStatusCriteria = hibernateSession.createCriteria(Message_status.class);
         messageStatusCriteria.add(Restrictions.eq("status", "Send"));
         Message_status sendStatus = (Message_status) messageStatusCriteria.uniqueResult();
-        
+
         Criteria messageContentTypeCriteria = hibernateSession.createCriteria(Message_content_type.class);
         messageContentTypeCriteria.add(Restrictions.eq("type", contentType));
         Message_content_type contentTypeResult = (Message_content_type) messageContentTypeCriteria.uniqueResult();

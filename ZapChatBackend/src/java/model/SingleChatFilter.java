@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
 
 @WebFilter(urlPatterns = {"/SingleChat"})
 public class SingleChatFilter implements Filter {
@@ -26,8 +25,6 @@ public class SingleChatFilter implements Filter {
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
 
-//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-
         boolean isSuccess = false;
         String message = "";
 
@@ -36,8 +33,8 @@ public class SingleChatFilter implements Filter {
             if (fromJson.has("otherUserId")) {
 
                 String otherUserId = fromJson.get("otherUserId").getAsString();
-                JsonObject user =  fromJson.get("user").getAsJsonObject();
-                
+                JsonObject user = fromJson.get("user").getAsJsonObject();
+
                 if (!Validation.isInteger(otherUserId)) {
                     message = "Invalid Id Type";
                 } else {

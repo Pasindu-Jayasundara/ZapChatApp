@@ -10,9 +10,7 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import javax.websocket.server.ServerEndpoint;
 import model.HibernateUtil;
 import org.hibernate.Criteria;
@@ -60,7 +58,6 @@ public class WebSocket {
                     if (clients.containsKey(id)) {
 
                         response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), so);
-//                        otherUserSaveChat.addProperty("side", "left");
                         clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
                     }
 
@@ -69,19 +66,15 @@ public class WebSocket {
 
                 break;
             case "send_group_chat":
-//                location: "send_group_chat",
-//                    groupId: data.groupId,
-//                    contentType: "Message",
-//                    content: getText,
-//                    user:parsedUser
+                //location: "send_group_chat",
+                //groupId: data.groupId,
+                //contentType: "Message",
+                //content: getText,
+                //user:parsedUser
 
-//                String otherUserId = object.get("otherUserId").getAsString();
                 JsonObject groupchat = operations.sendGroupChat(object);
-//                JsonObject otherUserSaveChat = saveChat;
 
                 if (groupchat.get("isSuccess").getAsBoolean()) {
-//                    groupchat.addProperty("otherUserId", otherUserId);
-//                    saveChat.addProperty("fromUserId", object.get("fromUserId").getAsInt());
                     response_DTO = new Response_DTO(true, groupchat);
                 } else {
                     response_DTO = new Response_DTO(false, groupchat);
@@ -109,11 +102,8 @@ public class WebSocket {
                     int id = group_member.getUser().getId();
                     if (clients.containsKey(id)) {
 
-//                        otherUserSaveChat.addProperty("side", "left");
                         JsonObject jo = new JsonObject();
                         jo.addProperty("success", groupchat.get("isSuccess").getAsBoolean());
-//                        jo.addProperty("otherUserId", otherUserId);
-//                        jo.addProperty("fromUserId", object.get("fromUserId").getAsInt());
                         jo.add("data", groupchat);
 
                         clients.get(id).getBasicRemote().sendText(gson.toJson(jo));
@@ -213,7 +203,6 @@ public class WebSocket {
 
     @OnClose
     public void onClose(Session session) {
-//        clients.remove(session);
         System.out.println("WebSocket connection closed: " + session.getId());
     }
 

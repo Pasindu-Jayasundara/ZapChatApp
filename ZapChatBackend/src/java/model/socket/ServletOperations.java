@@ -3,7 +3,6 @@ package model.socket;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dto.Response_DTO;
 import entity.File;
 import entity.Group_chat;
 import entity.Group_file;
@@ -43,7 +42,7 @@ public class ServletOperations {
         Status status = (Status) statusCriteria.uniqueResult();
 
         boolean isSuccess = true;
-        
+
         JsonArray ja = new JsonArray();
         JsonObject userObject = new JsonObject();
 
@@ -193,22 +192,10 @@ public class ServletOperations {
         }
 
         String side = "right";
-//        if (groupChat.getGroup_member().getUser().getId() != user.getId()) {
-//            //received message
-//            side = "left";
-//
-//            jsonObject.addProperty("senderName", groupChat.getGroup_member().getUser().getFirst_name() + " " + groupChat.getGroup_member().getUser().getLast_name());
-//            jsonObject.addProperty("senderImg", groupChat.getGroup_member().getUser().getProfile_image());
-//        } else {
-//            //send message
-//            side = "right";
-//        }
-//        jsonObject.addProperty("side", side);
 
         hibernateSession.beginTransaction().commit();
         hibernateSession.close();
 
-//        request.getRequestDispatcher("/SingleGroup").include(request, response);
         JsonObject jo = new JsonObject();
         jo.addProperty("type", contentType);
         if (contentType.equals("Message")) {
@@ -374,7 +361,7 @@ public class ServletOperations {
                         jsonObject2.addProperty("image", "../assets/images/person-square.svg");
 
                     } else {
-                        jsonObject2.addProperty("image", single_chat.getTo_user().getProfile_image());
+                        jsonObject2.addProperty("image", single_chat.getFrom_user().getProfile_image());
                     }
 
                     jsonObject2.addProperty("onlineStatus", single_chat.getFrom_user().getUser_online_status().getStatus());
@@ -823,7 +810,6 @@ public class ServletOperations {
 
             } else {
                 //verified
-//                request.getSession().setAttribute("user", user);
 
                 message = "Login Success";
                 isSuccess = true;
@@ -837,8 +823,6 @@ public class ServletOperations {
         Gson gson = new Gson();
 
         if (isSuccess) {
-//            sessionId = request.getSession().getId();
-//            jo.addProperty("sessionId", sessionId);
 
             jo.add("user", gson.toJsonTree(user));
 

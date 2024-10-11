@@ -4,15 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entity.Group_table;
 import entity.Group_chat;
 import entity.Group_member;
 import entity.Group_message;
-import entity.Message;
-import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -105,9 +101,6 @@ public class LoadGroup extends HttpServlet {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                     SimpleDateFormat time = new SimpleDateFormat("HH:mm");
                     SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");
-
-                    System.out.println(gson.toJson(groupChat));
-                    System.out.println(gson.toJson(groupMember));
 
                     boolean equal = date.format(new Date()).equals(date.format(groupChat.getDatetime()));
                     if (equal) {

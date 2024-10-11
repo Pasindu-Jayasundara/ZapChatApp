@@ -11,10 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
 
 @WebFilter(urlPatterns = {"/SingleGroup"})
-public class SingleGroupFilter implements Filter{
+public class SingleGroupFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -22,11 +21,9 @@ public class SingleGroupFilter implements Filter{
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        
+
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
-
-//        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         boolean isSuccess = false;
         String message = "";
@@ -36,8 +33,8 @@ public class SingleGroupFilter implements Filter{
             if (fromJson.has("groupId")) {
 
                 String groupId = fromJson.get("groupId").getAsString();
-                JsonObject user =  fromJson.get("user").getAsJsonObject();
-                
+                JsonObject user = fromJson.get("user").getAsJsonObject();
+
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
                 } else {
@@ -68,11 +65,11 @@ public class SingleGroupFilter implements Filter{
             response.setContentType("application/json");
             response.getWriter().write(gson.toJson(response_DTO));
         }
-        
+
     }
 
     @Override
     public void destroy() {
     }
-    
+
 }

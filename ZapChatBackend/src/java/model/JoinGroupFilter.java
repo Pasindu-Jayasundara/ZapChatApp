@@ -14,7 +14,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 
 @WebFilter(urlPatterns = {"/JoinGroup"})
-public class JoinGroupFilter implements Filter{
+public class JoinGroupFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -22,11 +22,9 @@ public class JoinGroupFilter implements Filter{
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
- 
+
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
-
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         boolean isSuccess = false;
         String message = "";
@@ -37,6 +35,7 @@ public class JoinGroupFilter implements Filter{
 
                 String groupId = fromJson.get("groupId").getAsString();
                 String user = fromJson.get("user").getAsString();
+
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";
                 } else {
@@ -47,7 +46,7 @@ public class JoinGroupFilter implements Filter{
                     } else {
                         isSuccess = true;
 
-                        request.setAttribute("user", id);
+                        request.setAttribute("user", user);
                         request.setAttribute("groupId", id);
                         chain.doFilter(request, response);
                     }
@@ -67,11 +66,11 @@ public class JoinGroupFilter implements Filter{
             response.setContentType("application/json");
             response.getWriter().write(gson.toJson(response_DTO));
         }
-        
+
     }
 
     @Override
     public void destroy() {
     }
-    
+
 }

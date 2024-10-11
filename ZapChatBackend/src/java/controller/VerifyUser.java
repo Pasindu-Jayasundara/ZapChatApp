@@ -6,7 +6,6 @@ import entity.User;
 import entity.User_online_status;
 import entity.User_verified_status;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;

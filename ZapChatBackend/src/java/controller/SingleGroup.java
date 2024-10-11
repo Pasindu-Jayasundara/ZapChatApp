@@ -4,19 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
-import entity.File;
 import entity.Group_chat;
 import entity.Group_chat_read;
 import entity.Group_file;
 import entity.Group_member;
 import entity.Group_message;
 import entity.Group_table;
-import entity.Message;
-import entity.Message_status;
-import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -27,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 @WebServlet(name = "SingleGroup", urlPatterns = {"/SingleGroup"})

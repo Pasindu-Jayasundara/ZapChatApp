@@ -10,7 +10,6 @@ import entity.Message_status;
 import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.servlet.ServletException;

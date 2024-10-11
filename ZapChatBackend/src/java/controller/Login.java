@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -44,8 +43,6 @@ public class Login extends HttpServlet {
 
             } else {
                 //verified
-//                request.getSession().setAttribute("user", user);
-
                 message = "Login Success";
                 isSuccess = true;
             }
@@ -58,12 +55,8 @@ public class Login extends HttpServlet {
         Gson gson = new Gson();
 
         if (isSuccess) {
-//            sessionId = request.getSession().getId();
-//            jo.addProperty("sessionId", sessionId);
-
-
             jo.add("user", gson.toJsonTree(user));
-            
+
             jo.addProperty("profileImage", user.getProfile_image());
             jo.addProperty("profileAbout", user.getAbout());
         } else {

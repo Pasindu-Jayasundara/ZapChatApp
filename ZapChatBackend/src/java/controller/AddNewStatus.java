@@ -8,7 +8,6 @@ import entity.User;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
@@ -59,9 +58,8 @@ public class AddNewStatus extends HttpServlet {
 
         if (isSuccess) {
 
-                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+            User user = gson.fromJson((String) request.getAttribute("user"), User.class);
 
-//            User user = (User) request.getSession().getAttribute("user");
             Session openSession = HibernateUtil.getSessionFactory().openSession();
 
             boolean isImageSuccess = false;
@@ -106,7 +104,7 @@ public class AddNewStatus extends HttpServlet {
 
                     int statusId = (int) openSession.save(newStatus);
                     status = (Status) openSession.get(Status.class, statusId);
-                }else{
+                } else {
                     status = avaliableStatus;
                 }
 

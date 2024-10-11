@@ -26,8 +26,6 @@ public class SendMessageFilter implements Filter {
         Gson gson = new Gson();
         JsonObject fromJson = gson.fromJson(request.getReader(), JsonObject.class);
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-
         boolean isSuccess = false;
         String message = "";
 

@@ -8,9 +8,7 @@ import entity.Message;
 import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -32,8 +30,7 @@ public class NewChat extends HttpServlet {
 
         Gson gson = new Gson();
         String mobile = (String) request.getAttribute("mobile");
-//        User user = (User) request.getSession().getAttribute("user");
-                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 

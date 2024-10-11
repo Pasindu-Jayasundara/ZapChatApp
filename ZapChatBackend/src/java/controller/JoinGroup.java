@@ -1,14 +1,12 @@
 package controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.Group_member;
 import entity.Group_member_role;
 import entity.Group_table;
 import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -26,8 +24,7 @@ public class JoinGroup extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Gson gson = new Gson();
         int groupId = (int) request.getAttribute("groupId");
-//        User user = (User) request.getSession().getAttribute("user");
-                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
@@ -71,7 +68,6 @@ public class JoinGroup extends HttpServlet {
         }
 
         hibernateSession.close();
-
 
         Response_DTO response_DTO = new Response_DTO(isJoined, message);
 

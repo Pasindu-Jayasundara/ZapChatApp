@@ -1,17 +1,6 @@
 package model.socket;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dto.Response_DTO;
-import entity.Status;
-import entity.User;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import model.HibernateUtil;
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 public class SocketOperations {
 

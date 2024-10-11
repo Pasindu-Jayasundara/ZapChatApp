@@ -82,7 +82,7 @@ public class UserRegisterFilter implements Filter {
 
             } else if (password.trim().equals("")) {
                 //no password
-               isInvalid = true;
+                isInvalid = true;
                 errorMessage = "Password Cannot Be Empty";
 
             } else if (reTypePassword.trim().equals("")) {

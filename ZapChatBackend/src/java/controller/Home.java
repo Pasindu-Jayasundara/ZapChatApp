@@ -1,10 +1,6 @@
 package controller;
 
-import com.google.gson.Gson;
-import dto.Response_DTO;
-import entity.User;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -19,15 +15,18 @@ public class Home extends HttpServlet {
 
         String category = (String) request.getAttribute("category");
 
-        if (category.equals("chat")) {
-            request.getRequestDispatcher("/LoadChat").include(request, response);
-
-        } else if (category.equals("group")) {
-            request.getRequestDispatcher("/LoadGroup").include(request, response);
-
-        } else if (category.equals("status")) {
-            request.getRequestDispatcher("/LoadStatus").include(request, response);
-
+        switch (category) {
+            case "chat":
+                request.getRequestDispatcher("/LoadChat").include(request, response);
+                break;
+            case "group":
+                request.getRequestDispatcher("/LoadGroup").include(request, response);
+                break;
+            case "status":
+                request.getRequestDispatcher("/LoadStatus").include(request, response);
+                break;
+            default:
+                break;
         }
     }
 

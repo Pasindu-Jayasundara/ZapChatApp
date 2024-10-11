@@ -28,7 +28,7 @@ public class Profile extends HttpServlet {
         boolean isSuccess = true;
         String message = "";
 
-        Gson gson =new Gson();
+        Gson gson = new Gson();
         String about = (String) request.getAttribute("about");
         boolean isNewImage = (boolean) request.getAttribute("isNewImage");
 
@@ -46,11 +46,10 @@ public class Profile extends HttpServlet {
         }
 
         if (isSuccess) {
-//            User user = (User) request.getSession().getAttribute("user");
-                    User user = gson.fromJson((String) request.getAttribute("user"),User.class);
+            User user = gson.fromJson((String) request.getAttribute("user"), User.class);
 
             if (isNewImage) {
-                
+
                 String applicationPath = request.getServletContext().getRealPath("");
                 String newApplicationPath = applicationPath.replace("build" + File.separator + "web", "web");
 

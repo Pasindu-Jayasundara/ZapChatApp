@@ -2,22 +2,16 @@ package model;
 
 import com.google.gson.Gson;
 import dto.Response_DTO;
-import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
-import org.kohsuke.rngom.util.Uri;
 
 //@MultipartConfig
 @WebFilter(urlPatterns = {"/Profile"})
@@ -44,9 +38,7 @@ public class ProfileFilter implements Filter {
             img1 = httpServletRequest.getPart("image");
         }
 
-        System.out.println("u1:" +httpServletRequest.getParameter("user"));
         String user = httpServletRequest.getParameter("user");
-        System.out.println("u2:"+user);
         if (user == null) {
             isInvalid = true;
             message = "Please Logedin First";

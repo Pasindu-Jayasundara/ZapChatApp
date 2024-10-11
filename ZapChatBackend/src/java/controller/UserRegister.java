@@ -1,14 +1,12 @@
 package controller;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.User;
 import entity.User_online_status;
 import entity.User_verified_status;
 import java.io.IOException;
 import java.util.Date;
-import java.util.UUID;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;

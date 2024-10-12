@@ -35,6 +35,14 @@ public class ServletOperations {
         JsonObject jsonuser = jsonObject.get("user").getAsJsonObject();
         User user = (User) openSession.get(User.class, jsonuser.get("id").getAsInt());
 
+        System.out.println("userId: "+user.getId());
+        System.out.println("userId: "+user.getId());
+        System.out.println("userId: "+user.getId());
+        System.out.println("userId: "+user.getId());
+        System.out.println("userId: "+user.getId());
+        System.out.println("userId: "+user.getId());
+        System.out.println("userId: "+user.getId());
+        
         Criteria statusCriteria = openSession.createCriteria(Status.class);
         statusCriteria.add(Restrictions.eq("user", user));
         statusCriteria.addOrder(Order.desc("id"));
@@ -50,7 +58,7 @@ public class ServletOperations {
 
             Criteria statusItemCriteria = openSession.createCriteria(Status_item.class);
             statusItemCriteria.add(Restrictions.eq("status", status));
-            statusItemCriteria.addOrder(Order.desc("datetime"));
+            statusItemCriteria.addOrder(Order.asc("datetime"));
             List<Status_item> list = statusItemCriteria.list();
 
             if (!list.isEmpty()) {
@@ -59,12 +67,13 @@ public class ServletOperations {
                 userObject.addProperty("name", user.getFirst_name() + " " + user.getLast_name());
                 userObject.addProperty("image", user.getProfile_image());
 
-                boolean isFirstTime = true;
                 JsonArray statusArray = new JsonArray();
 
+                int size = list.size();
+                int i = 0;
                 for (Status_item statusItem : list) {
-
-                    if (isFirstTime) {
+                    i++;
+                    if (size==i) {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                         SimpleDateFormat time = new SimpleDateFormat("HH:mm");
@@ -80,7 +89,6 @@ public class ServletOperations {
 
                         }
 
-                        isFirstTime = false;
                     }
 
                     JsonObject statusObject = new JsonObject();
@@ -108,7 +116,7 @@ public class ServletOperations {
 
                 }
                 userObject.add("status", statusArray);
-                ja.add(userObject);
+//                ja.add(userObject);
             } else {
                 isSuccess = false;
             }
@@ -116,11 +124,12 @@ public class ServletOperations {
         } else {
             isSuccess = false;
         }
+        userObject.addProperty("location", "status");
 
         JsonObject jo = new JsonObject();
         jo.addProperty("success", isSuccess);
         jo.addProperty("location", "status");
-        jo.add("data", ja);
+        jo.add("data", userObject);
 
         return jo;
     }

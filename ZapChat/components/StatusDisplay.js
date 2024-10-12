@@ -17,7 +17,7 @@ export function StatusDisplay({ data, func }) {
             func(true)
         }
 
-        console.log("l: "+data.image)
+        // console.log("l: "+data.image)
 
     }, [getImageLoad, getTextLoad])
 

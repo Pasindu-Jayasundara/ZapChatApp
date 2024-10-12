@@ -20,13 +20,14 @@ export default function home() {
         socket,
         getChatDataArr, setChatDataArr, chatRef,getChatDataArrRef,
         getGroupDataArr, setGroupDataArr,
-        getStatusDataArr, setStatusDataArr,
+        getStatusDataArr, setStatusDataArr,getStatusDataArrRef,
         getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage,getSearchText, setSearchText
     } = useContext(WebSocketContext)
 
     const [getIsFound, setIsFound] = useState(false)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
     const [getHomeChat, setHomeChat, homeChatRef] = useStateRef([])
+    const [getHomeStatus, setHomeStatus, homeStatusRef] = useStateRef([])
 
     const navigation = useNavigation();
     const actions = [
@@ -83,7 +84,7 @@ export default function home() {
                             setGroupDataArr(obj.data.data)
                         } else if (getCategory == "status") {
                             setStatusDataArr(obj.data.data)
-
+                            setHomeStatus(obj.data.data)
                         }
                         setIsFound(obj.data.isFound)
 
@@ -144,6 +145,10 @@ export default function home() {
     }, [getChatDataArrRef.current])
 
     useEffect(() => {
+        setHomeStatus(getStatusDataArrRef.current)
+    }, [getStatusDataArrRef.current])
+
+    useEffect(() => {
         loadHome()
     }, [getCategory])
 
@@ -158,7 +163,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={homeChatRef.current}
                         renderItem={({ item }) => <ChatCard data={item} />}
-                        keyExtractor={(item) => (item.chatId ? item.chatId.toString() : Math.random().toString())}  // Add fallback key
+                        keyExtractor={(item) => (item.chatId ? item.chatId.toString() : Math.random().toString())} 
                         estimatedItemSize={200}
                     />
 
@@ -176,9 +181,9 @@ export default function home() {
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={getStatusDataArr}
+                        data={homeStatusRef.current}
                         renderItem={({ item }) => <StatusCard data={item} />}
-                        keyExtractor={item => item.statusId.toString()}
+                        keyExtractor={(item) => (item.statusId ? item.statusId.toString() : Math.random().toString())} 
                         estimatedItemSize={200}
                     />
 

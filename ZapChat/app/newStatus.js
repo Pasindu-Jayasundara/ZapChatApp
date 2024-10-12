@@ -81,7 +81,6 @@ export default function newStatus() {
 
                 if (isText) {
                     formData.append("text", getStatusText)
-                    console.log(getStatusText)
                 }
                 if (isImage) {
                     formData.append("image", {
@@ -90,15 +89,19 @@ export default function newStatus() {
                         uri: getStatusImage.assets[0].uri,
                     })
                     formData.append("extention", extention)
-                    formData.append("user", getUser)
                 }
+                formData.append("user", JSON.stringify(getUser))
 
                 if (isImage || isText) {
+
                     let response = await fetch(url, {
                         method: "POST",
                         body: formData,
                     })
+
                     if (response.ok) {
+
+                        console.log("response: "+response)
 
                         let obj = await response.json()
                         if (obj.success) {
@@ -115,7 +118,6 @@ export default function newStatus() {
 
                             if (socket && socket.readyState == socket.OPEN) {
 
-                                console.log("obj")
                                 let obj = {
                                     location: "status",
                                     user: getUser

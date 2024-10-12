@@ -16,8 +16,6 @@ export function StatusCard({ data }) {
     const [getStatusArr, setStatusArr] = useState([])
     const [getAutoPlay, setAutoPlay] = useState(false)
 
-    let index = 0
-
     useEffect(() => {
 
         if (data.image != "../assets/images/default.svg") {
@@ -32,12 +30,10 @@ export function StatusCard({ data }) {
     }, [data])
 
     const modalhide = () => {
-        setScrollStatus(false)
         setModalStatus(false)
     }
 
     const modalshow = () => {
-        setScrollStatus(true)
         setModalStatus(true)
     }
 

@@ -11,7 +11,7 @@ export const WebSocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
     //my
-    const [getChatDataArr, setChatDataArr,chatref] = useStateRef([])
+    const [getChatDataArr, setChatDataArr, chatref] = useStateRef([])
     const [getGroupDataArr, setGroupDataArr] = useState([])
     const [getStatusDataArr, setStatusDataArr] = useState([])
     const [getChat, setChat] = useState([])
@@ -60,14 +60,16 @@ export const WebSocketProvider = ({ children }) => {
 
         ws.onmessage = (event) => {
 
-            console.log("e1: " + event.data);
+            // console.log("e1: " + event.data);
             const dto_obj = JSON.parse(event.data);
 
             if (dto_obj.success) {
                 switch (dto_obj.data.location) {
                     case 'status':
 
-                        setStatusDataArr([dto_obj.data, ...getStatusDataArrRef.current])
+                        const restStatus = getStatusDataArrRef.current.filter(obj =>obj.statusId != dto_obj.data.data.statusId)
+                        getStatusDataArrRef.current =[]
+                        setStatusDataArr([dto_obj.data.data, ...restStatus])
 
                         break;
                     case 'send_group_chat':
@@ -78,13 +80,9 @@ export const WebSocketProvider = ({ children }) => {
                         break;
                     case 'home':
 
-                        console.log("homedata:" +  JSON.stringify(dto_obj.data))
-                        console.log("homedata2 :" +   JSON.stringify(getChatDataArrRef.current))
-                        // console.log(JSON.stringify([dto_obj.data.data,...getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)]))
-
                         const rest = getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)
                         getCategory == "chat" ? (
-                            setChatDataArr([dto_obj.data.data,...rest])
+                            setChatDataArr([dto_obj.data.data, ...rest])
                         ) : getCategory == "group" ? (
                             setGroupDataArr(dto_obj.data.data)
                         ) : getCategory == "status" ? (
@@ -93,7 +91,7 @@ export const WebSocketProvider = ({ children }) => {
 
                         break;
                     case 'send_chat':
-                        
+
                         setChat([...chatRef.current, dto_obj.data])
 
                         let obj = {
@@ -103,7 +101,7 @@ export const WebSocketProvider = ({ children }) => {
                             userId: dto_obj.data.fromUserId,
                             otherUserId: dto_obj.data.otherUserId,
                         }
-                        console.log("to home:" + JSON.stringify(obj))
+                        // console.log("to home:" + JSON.stringify(obj))
                         ws.send(JSON.stringify(obj))
 
                         break;
@@ -126,7 +124,7 @@ export const WebSocketProvider = ({ children }) => {
                                     setUser(dto_obj.data.user)
                                     if (getHeaderImage != "../assets/images/default.svg") {
                                         setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + dto_obj.data.user.profile_image })
-                                    }else {
+                                    } else {
                                         setHeaderImage(defImg)
                                     }
 
@@ -170,9 +168,9 @@ export const WebSocketProvider = ({ children }) => {
     return (
         <WebSocketContext.Provider value={{
             socket,
-            getChatDataArr, setChatDataArr,chatRef,
-            getGroupDataArr, setGroupDataArr,getChatDataArrRef,
-            getStatusDataArr, setStatusDataArr,
+            getChatDataArr, setChatDataArr, chatRef,
+            getGroupDataArr, setGroupDataArr, getChatDataArrRef,
+            getStatusDataArr, setStatusDataArr, getStatusDataArrRef,
             getChat, setChat,
             getCategory, setCategory,
             getUser, setUser,

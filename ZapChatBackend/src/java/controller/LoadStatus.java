@@ -115,15 +115,17 @@ public class LoadStatus extends HttpServlet {
                 //status items
                 Criteria statusItemCriteria = hibernateSession.createCriteria(Status_item.class);
                 statusItemCriteria.add(Restrictions.eq("status", status));
-                statusItemCriteria.addOrder(Order.desc("datetime"));
+                statusItemCriteria.addOrder(Order.asc("datetime"));
                 List<Status_item> statusItemList = statusItemCriteria.list();
 
-                boolean isFirstTime = true;
 
+                int size = statusItemList.size();
+                int i = 0;
+                
                 JsonArray statusArray = new JsonArray();
                 for (Status_item statusItem : statusItemList) {
-
-                    if (isFirstTime) {
+                    i++;
+                    if (size == i) {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
                         SimpleDateFormat time = new SimpleDateFormat("HH:mm");
@@ -139,7 +141,6 @@ public class LoadStatus extends HttpServlet {
 
                         }
 
-                        isFirstTime = false;
                     }
 
                     JsonObject statusObject = new JsonObject();

@@ -39,30 +39,34 @@ public class WebSocket {
 
         switch (type) {
             case "status":
+                
+                System.out.println("status: "+object);
 
                 ServletOperations so = new ServletOperations();
                 JsonObject jsonObject = so.LoadLastStatus(object);
+                
+                System.out.println("json object: "+jsonObject);
 
-                response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), so);
+                response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
                 session.getBasicRemote().sendText(gson.toJson(response_DTO));
 
                 //others
-                org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
-
-                Criteria userCriteria = hs.createCriteria(User.class);
-                List<User> userCriteriaList = userCriteria.list();
-
-                for (User user : userCriteriaList) {
-
-                    int id = user.getId();
-                    if (clients.containsKey(id)) {
-
-                        response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), so);
-                        clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
-                    }
-
-                }
-                hs.close();
+//                org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
+//
+//                Criteria userCriteria = hs.createCriteria(User.class);
+//                List<User> userCriteriaList = userCriteria.list();
+//
+//                for (User user : userCriteriaList) {
+//
+//                    int id = user.getId();
+//                    if (clients.containsKey(id)) {
+//
+//                        response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
+//                        clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
+//                    }
+//
+//                }
+//                hs.close();
 
                 break;
             case "send_group_chat":

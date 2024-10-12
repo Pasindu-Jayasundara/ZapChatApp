@@ -78,7 +78,8 @@ export const WebSocketProvider = ({ children }) => {
                         break;
                     case 'home':
 
-                        console.log("homedata:" + dto_obj.data)
+                        console.log("homedata:" +  JSON.stringify(dto_obj.data))
+                        console.log("homedata2 :" +   JSON.stringify(getChatDataArrRef.current))
                         // console.log(JSON.stringify([dto_obj.data.data,...getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)]))
 
                         const rest = getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)

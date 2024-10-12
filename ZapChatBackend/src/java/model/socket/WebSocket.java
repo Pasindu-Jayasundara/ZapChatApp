@@ -128,7 +128,7 @@ public class WebSocket {
                 JsonObject fromjo = fromloadHome.get("data").getAsJsonObject();
                 fromloadHome.remove("data");
 
-                User fromUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId2));
+                User fromUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId1));
 
                 fromjo.addProperty("userId", otherUserId2);
                 fromjo.addProperty("name", fromUser.getFirst_name() + " " + fromUser.getLast_name());
@@ -148,9 +148,9 @@ public class WebSocket {
                     JsonObject tojo = toloadHome.get("data").getAsJsonObject();
                     toloadHome.remove("data");
 
-                    User toUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId1));
+                    User toUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId2));
 
-                    tojo.addProperty("userId", otherUserId1);
+                    tojo.addProperty("userId", Integer.parseInt(otherUserId2));
                     tojo.addProperty("name", toUser.getFirst_name() + " " + toUser.getLast_name());
                     tojo.addProperty("Image", toUser.getProfile_image());
                     tojo.addProperty("onlineStatus", toUser.getUser_online_status().getStatus());

@@ -26,6 +26,7 @@ export default function home() {
 
     const [getIsFound, setIsFound] = useState(false)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
+    const [getHomeChat, setHomeChat, homeChatRef] = useStateRef([])
 
     const navigation = useNavigation();
     const actions = [
@@ -77,6 +78,7 @@ export default function home() {
 
                         if (getCategory == "chat") {
                             setChatDataArr(obj.data.data)
+                            setHomeChat(obj.data.data)
                         } else if (getCategory == "group") {
                             setGroupDataArr(obj.data.data)
                         } else if (getCategory == "status") {
@@ -138,10 +140,13 @@ export default function home() {
     })
 
     useEffect(() => {
+        setHomeChat(getChatDataArrRef.current)
+    }, [getChatDataArrRef.current])
+
+    useEffect(() => {
         loadHome()
     }, [getCategory])
 
-    console.log("home: "+JSON.stringify(getChatDataArrRef.current))
     return (
         <SafeAreaView style={styles.safearea}>
             <Header searchTextFunc={setSearchText} setCategoryFunc={setCategory} getCategoryFunc={getCategory} img={getHeaderImage} loadHome={loadHome} />
@@ -151,11 +156,9 @@ export default function home() {
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={getChatDataArrRef.current}
+                        data={homeChatRef.current}
                         renderItem={({ item }) => <ChatCard data={item} />}
-                        // keyExtractor={item => item.chatId.toString()}
-                        // keyExtractor={(item) => (item.chatId ? item.chatId.toString() : Math.random().toString())}  // Add fallback key
- 
+                        keyExtractor={(item) => (item.chatId ? item.chatId.toString() : Math.random().toString())}  // Add fallback key
                         estimatedItemSize={200}
                     />
 

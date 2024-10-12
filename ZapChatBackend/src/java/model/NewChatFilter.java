@@ -38,7 +38,7 @@ public class NewChatFilter implements Filter {
             } else {
 
                 String mobile = fromJson.get("mobile").getAsString();
-                String user = fromJson.get("user").getAsString();
+                JsonObject user = fromJson.get("user").getAsJsonObject();
 
                 if (mobile.trim().equals("")) {
                     isInvalid = true;

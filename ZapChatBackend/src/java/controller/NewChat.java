@@ -30,7 +30,7 @@ public class NewChat extends HttpServlet {
 
         Gson gson = new Gson();
         String mobile = (String) request.getAttribute("mobile");
-        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
+        User user = gson.fromJson((JsonObject) request.getAttribute("user"), User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 

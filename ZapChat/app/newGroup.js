@@ -31,6 +31,7 @@ export default function newGroup() {
     const [getDataArray, setDataArray] = useState([])
     const [getSearchGroupName, setSearchGroupName] = useState("")
     const [getNewGroupName, setNewGroupName] = useState("")
+    const [getButtonText, setButtonText] = useState("Create +")
     const [getIsFound, setIsFound] = useState(false)
     const [getNewGroupModalStatus, setNewGroupModalStatus] = useState(false)
     const [getGroupImage, setGroupImage] = useState("../assets/images/team.png")
@@ -200,6 +201,7 @@ export default function newGroup() {
 
         try {
             if (getUser != null) {
+                setButtonText("Creating ...")
                 if (getGroupImage.assets != null) {
 
                     let imageTypeArr = [".png", ".jpg", ".jpeg"]
@@ -279,6 +281,7 @@ export default function newGroup() {
                         }
                     }
                 }
+                setButtonText("Create +")
             } else {
 
                 console.log("Trying... " + tryCountRef.current)
@@ -332,7 +335,7 @@ export default function newGroup() {
                     <Profile getFunc={getGroupImage} setFunc={setGroupImage} icon={newGroupIcon} text={"Group icon"} style={styles.profileview} />
                     <View style={styles.bottom}>
                         <InputField params={{ lableText: "Group Name", secureTextEntry: false, inputMode: "text", maxLength: 45, func: setNewGroupName, getFunc: getNewGroupName }} />
-                        <Button text={"Create +"} style={[styles.newButton, styles.create]} func={addNewGroup} />
+                        <Button text={getButtonText} style={[styles.newButton, styles.create]} func={addNewGroup} />
                     </View>
                 </View>
 
@@ -432,7 +435,7 @@ const styles = StyleSheet.create({
         columnGap: 15,
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 20
+        marginVertical: 20
     },
     input: {
         backgroundColor: "#e3e3e3",

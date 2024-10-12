@@ -16,6 +16,7 @@ export default function newStatus() {
     const { socket, getUser, setUser } = useContext(WebSocketContext)
 
     const [getStatusText, setStatusText] = useState("")
+    const [getStatusButtonText, setStatusButtonText] = useState("Post")
     const [getStatusImage, setStatusImage] = useState("../assets/images/pencil.png")
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
@@ -25,7 +26,7 @@ export default function newStatus() {
 
             if (getUser != null) {
                 setTryCount(0)
-
+                setStatusButtonText("Posting ...")
                 let isImage = false;
                 let isText = false;
 
@@ -139,6 +140,7 @@ export default function newStatus() {
                 } else {
                     Alert.alert("Nothing to Post")
                 }
+                setStatusButtonText("Post")
             } else {
 
                 console.log("Trying... " + tryCountRef.current)
@@ -168,7 +170,7 @@ export default function newStatus() {
                 <Profile getFunc={getStatusImage} setFunc={setStatusImage} icon={newStatusIcon} text={"Status Image"} style={styles.profileview} />
                 <View style={styles.bottom}>
                     <InputField params={{ lableText: "Text", secureTextEntry: false, inputMode: "text", maxLength: 45, func: setStatusText, getFunc: getStatusText }} />
-                    <Button text={"Post"} style={[styles.newButton, styles.create]} func={addNewStatus} />
+                    <Button text={getStatusButtonText} style={[styles.newButton, styles.create]} func={addNewStatus} />
                 </View>
             </ScrollView>
 

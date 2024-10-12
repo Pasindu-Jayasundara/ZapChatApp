@@ -25,6 +25,7 @@ export default function home() {
     } = useContext(WebSocketContext)
 
     const [getIsFound, setIsFound] = useState(false)
+    const [getActionText, setActionText] = useState("No")
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
     const [getHomeChat, setHomeChat, homeChatRef] = useStateRef([])
     const [getHomeStatus, setHomeStatus, homeStatusRef] = useStateRef([])
@@ -56,7 +57,7 @@ export default function home() {
 
             if (getUser != null) {
                 setTryCount(0)
-
+                setActionText("Looking for")
                 let url = process.env.EXPO_PUBLIC_URL + "/Home"
 
                 let obj = {
@@ -116,7 +117,7 @@ export default function home() {
                     Alert.alert("Please Try Again Later");
                     console.log(response)
                 }
-
+                setActionText("No")
 
             } else {
 
@@ -192,7 +193,7 @@ export default function home() {
             ) : (
 
                 <View style={styles.noView}>
-                    <Text style={styles.noText}>No {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
+                    <Text style={styles.noText}>{getActionText} {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
                 </View>
 
             )}

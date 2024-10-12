@@ -1,6 +1,7 @@
 package controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.Group_member;
 import entity.Group_member_role;
@@ -24,7 +25,7 @@ public class JoinGroup extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Gson gson = new Gson();
         int groupId = (int) request.getAttribute("groupId");
-        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
+        User user = gson.fromJson((JsonObject) request.getAttribute("user"), User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
@@ -44,7 +45,6 @@ public class JoinGroup extends HttpServlet {
 
             if (member == null) {
                 //not a member
-
                 Criteria memberRoleCriteria = hibernateSession.createCriteria(Group_member_role.class);
                 memberRoleCriteria.add(Restrictions.eq("role", "Member"));
                 Group_member_role memberRole = (Group_member_role) memberRoleCriteria.uniqueResult();
@@ -54,7 +54,7 @@ public class JoinGroup extends HttpServlet {
                 newMember.setGroup_table(group);
                 newMember.setUser(user);
 
-                hibernateSession.save(group);
+                hibernateSession.save(newMember);
                 hibernateSession.beginTransaction().commit();
 
                 isJoined = true;

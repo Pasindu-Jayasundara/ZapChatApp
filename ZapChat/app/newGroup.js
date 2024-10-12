@@ -254,9 +254,7 @@ export default function newGroup() {
                                 uri: getGroupImage.assets[0].uri,
                             })
                             formData.append("extention", extention)
-                            formData.append("user", getUser)
-                            console.log("h: " + getNewGroupName)
-
+                            formData.append("user", JSON.stringify(getUser))
 
                             let response = await fetch(url, {
                                 method: "POST",
@@ -301,6 +299,7 @@ export default function newGroup() {
             }
         } catch (error) {
             console.log(error)
+            setButtonText("Create +")
         }
     }
 

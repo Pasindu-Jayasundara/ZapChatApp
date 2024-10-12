@@ -44,6 +44,8 @@ export function ChatFooter({ data }) {
 
                     socket.send(JSON.stringify(obj))
 
+                    setText("")
+
                 }
             } else {
 

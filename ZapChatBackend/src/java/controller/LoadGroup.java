@@ -82,7 +82,7 @@ public class LoadGroup extends HttpServlet {
             for (Group_member groupMember : searchFrom) {
 
                 Criteria groupChatCriteria = hibernateSession.createCriteria(Group_chat.class);
-                groupChatCriteria.add(Restrictions.eq("group_member", groupMember));
+                groupChatCriteria.add(Restrictions.eq("group_table", groupMember.getGroup_table()));
                 groupChatCriteria.addOrder(Order.desc("id"));
                 groupChatCriteria.setMaxResults(1);
                 Group_chat groupChat = (Group_chat) groupChatCriteria.uniqueResult();

@@ -4,26 +4,28 @@ import { Alert, Pressable, StyleSheet, Text, View } from "react-native"
 import { Button } from "./Button"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import useStateRef from "react-usestateref";
 
 const defaultTeam = require("../assets/images/team.png");
 
-export function GroupHeader({ data }) {
+export function GroupHeader({ data, getUser, setUser,setIsNew,isNewRef }) {
 
     const [getImage, setImage] = useState(defaultTeam)
     const [getName, setName] = useState("Group name")
     const [getMembers, setMembers] = useState("Members")
-    const [getUser, setUser] = useState("")
-    const [getIsNew, setIsNew] = useState(false)
-    const [getNewStyle, setNewStyle] = useState()
+    const [getButtonText, setButtonText] = useState("Join")
+    // const [getIsNew, setIsNew] = useState(false)
+    const [getNewStyle, setNewStyle] = useState({})
+    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     function toBoolean(value) {
         if (typeof value === 'boolean') {
-            return value; 
+            return value;
         }
         if (typeof value === 'string') {
-            return value.toLowerCase() === 'true'; 
+            return value.toLowerCase() === 'true';
         }
-        return !!value; 
+        return !!value;
     }
 
     useEffect(() => {
@@ -33,96 +35,96 @@ export function GroupHeader({ data }) {
         }
         setName(data.name)
         setMembers(data.members + " members")
+        setIsNew =toBoolean(data.isNew)
 
-        // console.log(typeof data.isNew)
-        // if(typeof data.isNew=="string"){
-        //     let value = data.isNew=="true"
-        //     setIsNew(value)
-        //     console.log(getIsNew)
-
-        // }else{
-            setIsNew(toBoolean(data.isNew))
-
-        // }
-
-        if(getIsNew){
+        if (isNewRef) {
             setNewStyle(styles.space)
-        }else{
+        } else {
             setNewStyle(null)
         }
     }, [])
 
     const joinGroup = async () => {
-
+        setButtonText("Joining ...")
         try {
-            if (getUser == "") {
-                let user = await AsyncStorage.getItem("user")
-                if (user == null) {
 
-                    await AsyncStorage.removeItem("verified");
-                    await AsyncStorage.removeItem("user");
+            if (getUser != null) {
+                setTryCount(0)
 
-                    router.replace("/")
-                } else {
-                    setUser(user)
+                let url = process.env.EXPO_PUBLIC_URL + "/JoinGroup"
+
+                let obj = {
+                    groupId: data.groupId,
+                    user: getUser
                 }
-            }
-
-            let url = process.env.EXPO_PUBLIC_URL + "/JoinGroup"
-
-            let obj = {
-                groupId: data.groupId,
-                user:getUser
-            }
-            let response = await fetch(url, {
-                method: "POST",
-                body: JSON.stringify(obj),
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            })
-
-            if (response.ok) {
-
-                let obj = await response.json()
-                if (obj.success) {
-
-                    setIsNew(false)
-                    setNewStyle()
-
-                } else {
-                    if (obj.data == "Please LogIn") {
-
-                        await AsyncStorage.removeItem("verified");
-                        await AsyncStorage.removeItem("user");
-
-                        router.replace("/")
-                    } else {
-                        Alert.alert(obj.data);
+                let response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(obj),
+                    headers: {
+                        "Content-Type": "application/json",
                     }
-                    console.log(obj.data)
+                })
+
+                if (response.ok) {
+
+                    let obj = await response.json()
+                    if (obj.success) {
+
+                        setIsNew=false
+                        setNewStyle({})
+
+                    } else {
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                        console.log(obj.data)
+                    }
+
+                } else {
+                    Alert.alert("Please Try Again Later");
+                    console.log(response)
+                    setButtonText("Join")
+
                 }
-
             } else {
-                Alert.alert("Please Try Again Later");
-                console.log(response)
-            }
 
+                console.log("Trying... " + tryCountRef.current)
+
+                if (tryCountRef.current < 3) {
+                    setTryCount(tryCountRef.current++)
+
+                    let user = await AsyncStorage.getItem("user");
+                    let parsedUser = await JSON.parse(user);
+                    setUser(parsedUser);
+
+                    joinGroup()
+
+                } else {
+                    router.replace("/")
+                }
+            }
         } catch (error) {
             console.error(error)
+            setButtonText("Join")
         }
 
     }
 
     return (
-        <Pressable style={[styles.container,getNewStyle]}>
+        <Pressable style={[styles.container, getNewStyle]}>
             <Image source={getImage} style={styles.image} />
             <View style={styles.textcontainer}>
                 <Text style={styles.name} numberOfLines={1}>{getName}</Text>
                 <Text style={styles.message} numberOfLines={1}>{getMembers}</Text>
             </View>
-            {getIsNew? (
-                <Button text={"Join"} style={styles.joinButton} func={joinGroup} />
+            {isNewRef ? (
+                <Button text={getButtonText} style={styles.joinButton} func={joinGroup} />
             ) : null}
         </Pressable>
     )
@@ -174,7 +176,7 @@ const styles = StyleSheet.create({
         borderBottomColor: "#e3e3e3",
         borderBottomWidth: 1,
     },
-    space:{
+    space: {
         justifyContent: "space-between"
     }
 })

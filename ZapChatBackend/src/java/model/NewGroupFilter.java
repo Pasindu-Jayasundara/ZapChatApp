@@ -38,7 +38,7 @@ public class NewGroupFilter implements Filter {
             } else {
 
                 String groupName = fromJson.get("name").getAsString();
-                String user = fromJson.get("user").getAsString();
+                JsonObject user = fromJson.get("user").getAsJsonObject();
 
                 if (groupName.trim().equals("")) {
                     isInvalid = true;

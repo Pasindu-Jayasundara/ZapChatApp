@@ -40,6 +40,7 @@ public class LoadChat extends HttpServlet {
 
         Criteria userCriteria = hibernateSession.createCriteria(User.class);
         userCriteria.add(Restrictions.ne("id", user.getId()));
+        userCriteria.addOrder(Order.desc("id"));
         List<User> userList = userCriteria.list();
 
         ArrayList<Single_chat> chatArray = new ArrayList<>();

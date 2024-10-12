@@ -51,22 +51,22 @@ public class WebSocket {
                 session.getBasicRemote().sendText(gson.toJson(response_DTO));
 
                 //others
-//                org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
-//
-//                Criteria userCriteria = hs.createCriteria(User.class);
-//                List<User> userCriteriaList = userCriteria.list();
-//
-//                for (User user : userCriteriaList) {
-//
-//                    int id = user.getId();
-//                    if (clients.containsKey(id)) {
-//
-//                        response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
-//                        clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
-//                    }
-//
-//                }
-//                hs.close();
+                org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
+
+                Criteria userCriteria = hs.createCriteria(User.class);
+                List<User> userCriteriaList = userCriteria.list();
+
+                for (User user : userCriteriaList) {
+
+                    int id = user.getId();
+                    if (clients.containsKey(id)) {
+
+                        response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
+                        clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
+                    }
+
+                }
+                hs.close();
 
                 break;
             case "send_group_chat":
@@ -199,13 +199,6 @@ public class WebSocket {
                         response_DTO = new Response_DTO(false, otherUserSaveChat);
                     }
 
-//                    otherUserSaveChat.addProperty("side", "left");
-//
-//                    JsonObject jo = new JsonObject();
-//                    jo.addProperty("success", otherUserSaveChat.get("isSuccess").getAsBoolean());
-//                    jo.addProperty("otherUserId", otherUserId);
-//                    jo.addProperty("fromUserId", object.get("fromUserId").getAsInt());
-//                    jo.add("data", otherUserSaveChat);
                     clients.get(otherUserId).getBasicRemote().sendText(gson.toJson(response_DTO));
                 }
 
@@ -234,6 +227,7 @@ public class WebSocket {
                 break;
         }
     }
+
 
     @OnClose
     public void onClose(Session session) {

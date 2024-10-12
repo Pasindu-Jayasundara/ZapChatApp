@@ -15,8 +15,7 @@ export default function singleChat() {
     const data = useLocalSearchParams();
     const { socket, getChat, setChat, getUser, setUser,chatRef } = useContext(WebSocketContext)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
-    // console.log("chat single: "+data)
-    // console.log("chat single: "+JSON.stringify(data))
+
     let date;
     let time;
 
@@ -91,8 +90,6 @@ export default function singleChat() {
     useEffect(() => {
         loadchat()
     }, [])
-
-    // console.log(getChat)
 
     return (
         <SafeAreaView style={styles.safearea}>

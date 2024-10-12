@@ -97,38 +97,39 @@ public class SingleGroup extends HttpServlet {
 
                     jsonArray.add(jsonObject);
 
-                    //update message status
-                    if (user.getId() != groupChat.getGroup_member().getUser().getId()) {
-                        //received 
+                    //update message status only when the user is a member of this group
+                    Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
+                    groupMemberCriteria.add(Restrictions.and(
+                            Restrictions.eq("user", user),
+                            Restrictions.eq("group_table", group)
+                    ));
+                    Group_member group_member = (Group_member) groupMemberCriteria.uniqueResult();
 
-                        Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
-                        groupMemberCriteria.add(Restrictions.and(
-                                Restrictions.eq("user", user),
-                                Restrictions.eq("group_table", group)
-                        ));
-                        Group_member group_member = (Group_member) groupMemberCriteria.uniqueResult();
+                    if (group_member != null) {
+                        if (user.getId() != groupChat.getGroup_member().getUser().getId()) {
+                            //received 
 
-                        Criteria chatReadCriteria = hibernateSession.createCriteria(Group_chat_read.class);
-                        chatReadCriteria.add(Restrictions.and(
-                                Restrictions.eq("group_member", group_member),
-                                Restrictions.eq("group_chat", groupChat)
-                        ));
-                        Group_chat_read groupchat = (Group_chat_read) chatReadCriteria.uniqueResult();
+                            Criteria chatReadCriteria = hibernateSession.createCriteria(Group_chat_read.class);
+                            chatReadCriteria.add(Restrictions.and(
+                                    Restrictions.eq("group_member", group_member),
+                                    Restrictions.eq("group_chat", groupChat)
+                            ));
+                            Group_chat_read groupchat = (Group_chat_read) chatReadCriteria.uniqueResult();
 
-                        if (groupchat == null) {
-                            //havent read yet
+                            if (groupchat == null) {
+                                //havent read yet
 
-                            Group_chat_read read = new Group_chat_read();
-                            read.setGroup_chat(groupChat);
-                            read.setGroup_member(group_member);
+                                Group_chat_read read = new Group_chat_read();
+                                read.setGroup_chat(groupChat);
+                                read.setGroup_member(group_member);
 
-                            hibernateSession.save(read);
-                            hibernateSession.beginTransaction().commit();
+                                hibernateSession.save(read);
+                                hibernateSession.beginTransaction().commit();
+
+                            }
 
                         }
-
                     }
-
                 }
 
             }

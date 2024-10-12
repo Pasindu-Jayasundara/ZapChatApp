@@ -67,8 +67,8 @@ export const WebSocketProvider = ({ children }) => {
                 switch (dto_obj.data.location) {
                     case 'status':
 
-                        const restStatus = getStatusDataArrRef.current.filter(obj =>obj.statusId != dto_obj.data.data.statusId)
-                        getStatusDataArrRef.current =[]
+                        const restStatus = getStatusDataArrRef.current.filter(obj => obj.statusId != dto_obj.data.data.statusId)
+                        getStatusDataArrRef.current = []
                         setStatusDataArr([dto_obj.data.data, ...restStatus])
 
                         break;
@@ -77,17 +77,23 @@ export const WebSocketProvider = ({ children }) => {
                         setChat([...chatRef.current, dto_obj.data])
                         setGroupDataArr([dto_obj.data, ...getGroupDataArrRef.current])
 
+                        // setChat([...chatRef.current, dto_obj.data])
+
+                        // let objGroup = {
+                        //     location: "home",
+                        //     searchText: getSearchText,
+                        //     category: getCategory,
+                        //     userId: dto_obj.data.fromUserId,
+                        //     otherUserId: dto_obj.data.otherUserId,
+                        // }
+                        // ws.send(JSON.stringify(obj))
+
                         break;
                     case 'home':
 
                         const rest = getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)
-                        getCategory == "chat" ? (
-                            setChatDataArr([dto_obj.data.data, ...rest])
-                        ) : getCategory == "group" ? (
-                            setGroupDataArr(dto_obj.data.data)
-                        ) : getCategory == "status" ? (
-                            setStatusDataArr(dto_obj.data.data)
-                        ) : null
+                        getChatDataArrRef.current = []
+                        // setChatDataArr([dto_obj.data.data, ...rest])
 
                         break;
                     case 'send_chat':
@@ -101,7 +107,6 @@ export const WebSocketProvider = ({ children }) => {
                             userId: dto_obj.data.fromUserId,
                             otherUserId: dto_obj.data.otherUserId,
                         }
-                        // console.log("to home:" + JSON.stringify(obj))
                         ws.send(JSON.stringify(obj))
 
                         break;

@@ -34,7 +34,7 @@ public class JoinGroupFilter implements Filter {
             if (fromJson.has("groupId")) {
 
                 String groupId = fromJson.get("groupId").getAsString();
-                String user = fromJson.get("user").getAsString();
+                JsonObject user = fromJson.get("user").getAsJsonObject();
 
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";

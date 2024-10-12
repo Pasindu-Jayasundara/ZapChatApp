@@ -35,7 +35,7 @@ public class NewGroup extends HttpServlet {
         Gson gson = new Gson();
 
         String groupName = (String) request.getAttribute("name");
-        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
+        User user = gson.fromJson((JsonObject) request.getAttribute("user"), User.class);
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 

@@ -15,7 +15,7 @@ export default function singleGroup() {
     const data = useLocalSearchParams();
     const { socket, getChat, setChat, getUser, setUser } = useContext(WebSocketContext)
 
-    const [getIsNew, setIsNew] = useState(false)
+    const [getIsNew, setIsNew,isNewRef] = useStateRef(false)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
 
     let date;
@@ -43,8 +43,6 @@ export default function singleGroup() {
                     groupId: data.groupId,
                     user: getUser
                 }
-
-                console.log("parsedUser: " + parsedUser)
 
                 let response = await fetch(url, {
                     method: "POST",
@@ -102,14 +100,12 @@ export default function singleGroup() {
     })
 
     useEffect(() => {
-
         loadgroup()
-
-    }, [])
+    }, [isNewRef.current])
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <GroupHeader data={data} />
+            <GroupHeader data={data} getUser={getUser} setUser={setUser} setIsNew={isNewRef.current} isNewRef={isNewRef.current}/>
             <View style={styles.body}>
 
                 <FlashList
@@ -131,12 +127,12 @@ export default function singleGroup() {
                 />
             </View>
 
-            {getIsNew ? (
+            {isNewRef.current ? (
                 <View style={styles.newView}>
                     <Text style={styles.newText}>Join Now to Send Messages</Text>
                 </View>
             ) : (
-                <GroupChatFooter data={data} func={setChat} />
+                <GroupChatFooter data={data} />
             )}
         </SafeAreaView>
     )

@@ -2,10 +2,13 @@ import { Image } from "expo-image";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Date } from "./Date";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const sendTick = require("../assets/images/send.svg")
 const receivedTick = require("../assets/images/received.svg")
 const readTick = require("../assets/images/read.svg")
+
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 export function ChatBuble({ params,isNewDate,isNewTime}) {
 
@@ -74,7 +77,7 @@ export function ChatBuble({ params,isNewDate,isNewTime}) {
         <>
             {isNewDate ? <Date date={params.date}/> : ""}
 
-            <View style={[styles.wrapper, getWrapperStyle]}>
+            <AnimatedView entering={FadeIn} exiting={FadeOut} style={[styles.wrapper, getWrapperStyle]}>
                 <View style={[styles.container, getContainerStyle]}>
                     <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
                 </View>
@@ -82,7 +85,7 @@ export function ChatBuble({ params,isNewDate,isNewTime}) {
                     {isNewTime?<Text style={styles.time} numberOfLines={1}>{getTime}</Text>:""}
                     {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
                 </View>
-            </View>
+            </AnimatedView>
         </>
     )
 }

@@ -15,14 +15,18 @@ export default function singleChat() {
     const data = useLocalSearchParams();
     const { socket, getChat, setChat, getUser, setUser,chatRef } = useContext(WebSocketContext)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
+    const [getResent, setResent] = useState(true)
 
     let date;
     let time;
 
     const loadchat = (async () => {
+
         try {
 
             if (getUser != null) {
+                setResent(false)
+
                 setTryCount(0)
                 let url = process.env.EXPO_PUBLIC_URL + "/SingleChat"
 
@@ -65,6 +69,8 @@ export default function singleChat() {
                     Alert.alert("Please Try Again Later");
                     console.log(response)
                 }
+
+                setResent(true)
             } else {
 
                 console.log("Trying... " + tryCountRef.current)
@@ -85,10 +91,18 @@ export default function singleChat() {
         } catch (error) {
             console.log(error)
         }
+
     })
 
     useEffect(() => {
-        loadchat()
+
+        setInterval(() => {
+
+            if(getResent){
+                loadchat()
+            }
+            
+        }, 3000);
     }, [])
 
     return (

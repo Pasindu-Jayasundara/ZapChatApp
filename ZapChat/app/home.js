@@ -11,21 +11,24 @@ import { StatusCard } from "../components/StatusCard";
 import { GroupCard } from "../components/GroupCard";
 import { WebSocketContext } from "./WebSocketProvider";
 import useStateRef from "react-usestateref";
+import { FadeIn, FadeOut } from "react-native-reanimated";
 
-const defImg =  require("../assets/images/default.svg")
+const defImg = require("../assets/images/default.svg")
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function home() {
 
     const {
         socket,
-        getChatDataArr, setChatDataArr, chatRef,getChatDataArrRef,
+        getChatDataArr, setChatDataArr, chatRef, getChatDataArrRef,
         getGroupDataArr, setGroupDataArr,
-        getStatusDataArr, setStatusDataArr,getStatusDataArrRef,
-        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage,getSearchText, setSearchText
+        getStatusDataArr, setStatusDataArr, getStatusDataArrRef,
+        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage, getSearchText, setSearchText
     } = useContext(WebSocketContext)
 
     const [getIsFound, setIsFound] = useState(false)
     const [getActionText, setActionText] = useState("No")
+    const [getResent, setResent] = useState(true)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
     const [getHomeChat, setHomeChat, homeChatRef] = useStateRef([])
     const [getHomeStatus, setHomeStatus, homeStatusRef] = useStateRef([])
@@ -56,6 +59,9 @@ export default function home() {
         try {
 
             if (getUser != null) {
+
+                setResent(false)
+
                 setTryCount(0)
                 setActionText("Looking for")
                 let url = process.env.EXPO_PUBLIC_URL + "/Home"
@@ -80,7 +86,7 @@ export default function home() {
 
                         if (getCategory == "chat") {
                             setChatDataArr(obj.data.data)
-                            setHomeChat(obj.data.data)
+                            // setHomeChat(obj.data.data)
                         } else if (getCategory == "group") {
                             setGroupDataArr(obj.data.data)
                         } else if (getCategory == "status") {
@@ -89,11 +95,11 @@ export default function home() {
                         }
                         setIsFound(obj.data.isFound)
 
-                        if(getHeaderImage==null){
+                        if (getHeaderImage == null) {
 
                             if ((obj.data.profile != "../assets/images/default.svg") && (obj.data.profile != getHeaderImage)) {
                                 setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
-                            }else {
+                            } else {
                                 setHeaderImage(defImg)
                             }
 
@@ -112,10 +118,13 @@ export default function home() {
                         }
                         console.log(obj.data)
                     }
+                    setResent(true)
 
                 } else {
                     Alert.alert("Please Try Again Later");
                     console.log(response)
+
+                    setResent(true)
                 }
                 setActionText("No")
 
@@ -124,7 +133,7 @@ export default function home() {
                 console.log("Trying... " + tryCountRef.current)
 
                 if (tryCountRef.current < 3) {
-                    setTryCount(tryCountRef.current++)
+                    setTryCount(tryCountRef.current + 1)
 
                     let user = await AsyncStorage.getItem("user");
                     let parsedUser = await JSON.parse(user);
@@ -141,17 +150,30 @@ export default function home() {
         }
     })
 
-    useEffect(() => {
-        setHomeChat(getChatDataArrRef.current)
-    }, [getChatDataArrRef.current])
+    // useEffect(() => {
+    //     setHomeChat(getChatDataArrRef.current)
+    // }, [getChatDataArrRef.current])
+
+    // useEffect(() => {
+    //     setHomeStatus(getStatusDataArrRef.current)
+    // }, [getStatusDataArrRef.current])
 
     useEffect(() => {
-        setHomeStatus(getStatusDataArrRef.current)
-    }, [getStatusDataArrRef.current])
 
-    useEffect(() => {
-        loadHome()
+        setInterval(() => {
+            if (getResent) {
+                loadHome()
+            }
+        }, 20000);
     }, [getCategory])
+
+    // useEffect(() => {
+    //     setInterval(() => {
+    //         if(getResent){
+    //             loadHome()
+    //         }
+    //     }, 10000);
+    // }, [])
 
     return (
         <SafeAreaView style={styles.safearea}>
@@ -162,9 +184,9 @@ export default function home() {
 
                     <FlashList
                         contentContainerStyle={styles.body}
-                        data={homeChatRef.current}
+                        data={getChatDataArrRef.current}
                         renderItem={({ item }) => <ChatCard data={item} />}
-                        keyExtractor={(item) => (item.chatId ? item.chatId.toString() : Math.random().toString())} 
+                        keyExtractor={(item) => Math.random().toString()}
                         estimatedItemSize={200}
                     />
 
@@ -184,7 +206,7 @@ export default function home() {
                         contentContainerStyle={styles.body}
                         data={homeStatusRef.current}
                         renderItem={({ item }) => <StatusCard data={item} />}
-                        keyExtractor={(item) => (item.statusId ? item.statusId.toString() : Math.random().toString())} 
+                        keyExtractor={(item) => (item.statusId ? item.statusId.toString() : Math.random().toString())}
                         estimatedItemSize={200}
                     />
 
@@ -192,9 +214,9 @@ export default function home() {
 
             ) : (
 
-                <View style={styles.noView}>
+                <AnimatedView entering={FadeIn} exiting={FadeOut} style={styles.noView}>
                     <Text style={styles.noText}>{getActionText} {getCategory.charAt(0).toUpperCase() + getCategory.substring(1)} !</Text>
-                </View>
+                </AnimatedView>
 
             )}
 

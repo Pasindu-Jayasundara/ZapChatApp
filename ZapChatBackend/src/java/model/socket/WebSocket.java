@@ -24,6 +24,7 @@ public class WebSocket {
     @OnOpen
     public void onOpen(Session session) {
         System.out.println("New WebSocket connection: " + session.getId());
+        session.setMaxIdleTimeout(600000);
     }
 
     @OnMessage
@@ -34,200 +35,32 @@ public class WebSocket {
         JsonObject object = gson.fromJson(message, JsonObject.class);
         String type = object.get("location").getAsString();
 
-        SocketOperations operations = new SocketOperations();
-        Response_DTO response_DTO = null;
-
         switch (type) {
             case "status":
+                status(message, session);
                 
-                System.out.println("status: "+object);
-
-                ServletOperations so = new ServletOperations();
-                JsonObject jsonObject = so.LoadLastStatus(object);
-                
-                System.out.println("json object: "+jsonObject);
-
-                response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
-                session.getBasicRemote().sendText(gson.toJson(response_DTO));
-
-                //others
-                org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
-
-                Criteria userCriteria = hs.createCriteria(User.class);
-                List<User> userCriteriaList = userCriteria.list();
-
-                for (User user : userCriteriaList) {
-
-                    int id = user.getId();
-                    if (clients.containsKey(id)) {
-
-                        response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
-                        clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
-                    }
-
-                }
-                hs.close();
-
                 break;
             case "send_group_chat":
-                //location: "send_group_chat",
-                //groupId: data.groupId,
-                //contentType: "Message",
-                //content: getText,
-                //user:parsedUser
-
-                JsonObject groupchat = operations.sendGroupChat(object);
-
-                if (groupchat.get("isSuccess").getAsBoolean()) {
-                    response_DTO = new Response_DTO(true, groupchat);
-                } else {
-                    response_DTO = new Response_DTO(false, groupchat);
-                }
-
-                session.getBasicRemote().sendText(gson.toJson(response_DTO));
-
-                //load group memebers to send message
-                org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
-                int groupId = object.get("groupId").getAsInt();
-                Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
-
-                JsonObject jsonuser = object.get("user").getAsJsonObject();
-                User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
-
-                Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
-                groupMemberCriteria.add(Restrictions.and(
-                        Restrictions.ne("user", user),
-                        Restrictions.eq("group_table", group)
-                ));
-                List<Group_member> groupMemberList = groupMemberCriteria.list();
-
-                for (Group_member group_member : groupMemberList) {
-
-                    int id = group_member.getUser().getId();
-                    if (clients.containsKey(id)) {
-
-                        JsonObject jo = new JsonObject();
-                        jo.addProperty("success", groupchat.get("isSuccess").getAsBoolean());
-                        jo.add("data", groupchat);
-
-                        clients.get(id).getBasicRemote().sendText(gson.toJson(jo));
-                    }
-
-                }
-                hibernateSession.close();
+                send_group_chat(message, session);
 
                 break;
 
             case "home":
-
-                org.hibernate.Session hibernateSessionHome = HibernateUtil.getSessionFactory().openSession();
-
-                String otherUserId2 = object.get("userId").getAsString(); //from
-                String otherUserId1 = object.get("otherUserId").getAsString(); //to
-
-                JsonObject fromloadHome = operations.loadHome(object);
-                JsonObject toloadHome = fromloadHome;
-
-                //from
-                JsonObject fromjo = fromloadHome.get("data").getAsJsonObject();
-                fromloadHome.remove("data");
-
-                User fromUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId1));
-
-                fromjo.addProperty("userId", otherUserId2);
-                fromjo.addProperty("name", fromUser.getFirst_name() + " " + fromUser.getLast_name());
-                fromjo.addProperty("Image", fromUser.getProfile_image());
-                fromjo.addProperty("onlineStatus", fromUser.getUser_online_status().getStatus());
-                fromjo.addProperty("about", fromUser.getAbout());
-                fromjo.addProperty("showTick", Boolean.FALSE);
-
-                fromloadHome.add("data", new Gson().toJsonTree(fromjo));
-
-                response_DTO = new Response_DTO(fromloadHome.get("isFound").getAsBoolean(), fromloadHome);
-                session.getBasicRemote().sendText(gson.toJson(response_DTO));
-
-                //to
-                if (clients.containsKey(otherUserId1)) {
-
-                    JsonObject tojo = toloadHome.get("data").getAsJsonObject();
-                    toloadHome.remove("data");
-
-                    User toUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId2));
-
-                    tojo.addProperty("userId", Integer.parseInt(otherUserId2));
-                    tojo.addProperty("name", toUser.getFirst_name() + " " + toUser.getLast_name());
-                    tojo.addProperty("Image", toUser.getProfile_image());
-                    tojo.addProperty("onlineStatus", toUser.getUser_online_status().getStatus());
-                    tojo.addProperty("about", toUser.getAbout());
-                    tojo.addProperty("showTick", Boolean.FALSE);
-
-                    toloadHome.add("data", new Gson().toJsonTree(tojo));
-
-                    response_DTO = new Response_DTO(toloadHome.get("isFound").getAsBoolean(), toloadHome);
-                    clients.get(otherUserId1).getBasicRemote().sendText(gson.toJson(response_DTO));
-                }
+                home(message, session);
 
                 break;
             case "send_chat":
-
-                //single chat
-                String otherUserId = object.get("otherUserId").getAsString();
-                String fromUserId = object.get("fromUserId").getAsString();
-
-                JsonObject saveChat = operations.saveChat(object);
-                JsonObject otherUserSaveChat = saveChat;
-
-                if (saveChat.get("isSuccess").getAsBoolean()) {
-                    saveChat.addProperty("side", "right");
-                    saveChat.addProperty("otherUserId", otherUserId);
-                    saveChat.addProperty("fromUserId", object.get("fromUserId").getAsInt());
-                    response_DTO = new Response_DTO(true, saveChat);
-                } else {
-                    response_DTO = new Response_DTO(false, saveChat);
-                }
-
-                session.getBasicRemote().sendText(gson.toJson(response_DTO));
-
-                if (clients.containsKey(otherUserId)) {
-
-                    if (otherUserSaveChat.get("isSuccess").getAsBoolean()) {
-                        otherUserSaveChat.addProperty("side", "left");
-                        otherUserSaveChat.addProperty("otherUserId", otherUserId);
-                        saveChat.addProperty("fromUserId", fromUserId);
-                        response_DTO = new Response_DTO(true, otherUserSaveChat);
-                    } else {
-                        response_DTO = new Response_DTO(false, otherUserSaveChat);
-                    }
-
-                    clients.get(otherUserId).getBasicRemote().sendText(gson.toJson(response_DTO));
-                }
-
+                send_chat(message, session);
+                
                 break;
-
             case "login":
-
-                JsonObject login = operations.login(object);
-
-                if (login.get("success").getAsBoolean()) {
-
-                    String id = login.get("user").getAsJsonObject().get("id").getAsString();
-                    if (!clients.containsKey(id)) {
-                        clients.put(id, session);
-                    }
-                    response_DTO = new Response_DTO(true, login);
-
-                } else {
-                    response_DTO = new Response_DTO(false, login);
-                }
-
-                session.getBasicRemote().sendText(gson.toJson(response_DTO));
+                login(message, session);
 
                 break;
             default:
                 break;
         }
     }
-
 
     @OnClose
     public void onClose(Session session) {
@@ -236,7 +69,219 @@ public class WebSocket {
 
     @OnError
     public void onError(Session session, Throwable throwable) {
+        System.out.println("WebSocket error occurred: " + throwable);
         System.out.println("WebSocket error occurred: " + throwable.getMessage());
+    }
+
+    //
+    //custom
+    //
+    private void status(String message, Session session) throws IOException {
+
+        Gson gson = new Gson();
+        JsonObject object = gson.fromJson(message, JsonObject.class);
+
+        ServletOperations so = new ServletOperations();
+        JsonObject jsonObject = so.LoadLastStatus(object);
+
+        Response_DTO response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
+        session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+        //others
+        org.hibernate.Session hs = HibernateUtil.getSessionFactory().openSession();
+
+        Criteria userCriteria = hs.createCriteria(User.class);
+        List<User> userCriteriaList = userCriteria.list();
+
+        for (User user : userCriteriaList) {
+
+            int id = user.getId();
+            if (clients.containsKey(id)) {
+
+                response_DTO = new Response_DTO(jsonObject.get("success").getAsBoolean(), jsonObject);
+                clients.get(id).getBasicRemote().sendText(gson.toJson(response_DTO));
+            }
+
+        }
+        hs.close();
+    }
+
+    private void send_group_chat(String message, Session session) throws IOException {
+
+        //location: "send_group_chat",
+        //groupId: data.groupId,
+        //contentType: "Message",
+        //content: getText,
+        //user:parsedUser
+        
+        Gson gson = new Gson();
+        JsonObject object = gson.fromJson(message, JsonObject.class);
+
+        SocketOperations operations = new SocketOperations();
+        Response_DTO response_DTO = null;
+
+        JsonObject groupchat = operations.sendGroupChat(object);
+
+        if (groupchat.get("isSuccess").getAsBoolean()) {
+            response_DTO = new Response_DTO(true, groupchat);
+        } else {
+            response_DTO = new Response_DTO(false, groupchat);
+        }
+
+        session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+        //load group memebers to send message
+        org.hibernate.Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
+        int groupId = object.get("groupId").getAsInt();
+        Group_table group = (Group_table) hibernateSession.get(Group_table.class, groupId);
+
+        JsonObject jsonuser = object.get("user").getAsJsonObject();
+        User user = (User) hibernateSession.get(User.class, jsonuser.get("id").getAsInt());
+
+        Criteria groupMemberCriteria = hibernateSession.createCriteria(Group_member.class);
+        groupMemberCriteria.add(Restrictions.and(
+                Restrictions.ne("user", user),
+                Restrictions.eq("group_table", group)
+        ));
+        List<Group_member> groupMemberList = groupMemberCriteria.list();
+
+        for (Group_member group_member : groupMemberList) {
+
+            int id = group_member.getUser().getId();
+            if (clients.containsKey(id)) {
+
+                JsonObject jo = new JsonObject();
+                jo.addProperty("success", groupchat.get("isSuccess").getAsBoolean());
+                jo.add("data", groupchat);
+
+                clients.get(id).getBasicRemote().sendText(gson.toJson(jo));
+            }
+
+        }
+        hibernateSession.close();
+    }
+
+    private void home(String message, Session session) throws IOException {
+
+        Gson gson = new Gson();
+        JsonObject object = gson.fromJson(message, JsonObject.class);
+
+        SocketOperations operations = new SocketOperations();
+        Response_DTO response_DTO = null;
+
+        org.hibernate.Session hibernateSessionHome = HibernateUtil.getSessionFactory().openSession();
+
+        String otherUserId2 = object.get("userId").getAsString(); //from
+        String otherUserId1 = object.get("otherUserId").getAsString(); //to
+
+        JsonObject fromloadHome = operations.loadHome(object);
+        JsonObject toloadHome = fromloadHome;
+
+        //from
+        JsonObject fromjo = fromloadHome.get("data").getAsJsonObject();
+        fromloadHome.remove("data");
+
+        User fromUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId1));
+
+        fromjo.addProperty("userId", fromUser.getId());
+        fromjo.addProperty("name", fromUser.getFirst_name() + " " + fromUser.getLast_name());
+        fromjo.addProperty("Image", fromUser.getProfile_image());
+        fromjo.addProperty("onlineStatus", fromUser.getUser_online_status().getStatus());
+        fromjo.addProperty("about", fromUser.getAbout());
+        fromjo.addProperty("showTick", Boolean.FALSE);
+
+        fromloadHome.add("data", new Gson().toJsonTree(fromjo));
+
+        response_DTO = new Response_DTO(fromloadHome.get("isFound").getAsBoolean(), fromloadHome);
+        session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+        //to
+        if (clients.containsKey(otherUserId2)) {
+
+            JsonObject tojo = toloadHome.get("data").getAsJsonObject();
+            toloadHome.remove("data");
+
+            User toUser = (User) hibernateSessionHome.get(User.class, Integer.parseInt(otherUserId2));
+
+            tojo.addProperty("userId", toUser.getId());
+            tojo.addProperty("name", toUser.getFirst_name() + " " + toUser.getLast_name());
+            tojo.addProperty("Image", toUser.getProfile_image());
+            tojo.addProperty("onlineStatus", toUser.getUser_online_status().getStatus());
+            tojo.addProperty("about", toUser.getAbout());
+            tojo.addProperty("showTick", Boolean.FALSE);
+
+            toloadHome.add("data", gson.toJsonTree(tojo));
+
+            response_DTO = new Response_DTO(toloadHome.get("isFound").getAsBoolean(), toloadHome);
+            clients.get(otherUserId1).getBasicRemote().sendText(gson.toJson(response_DTO));
+        }
+    }
+
+    private void send_chat(String message, Session session) throws IOException {
+        
+        Gson gson = new Gson();
+        JsonObject object = gson.fromJson(message, JsonObject.class);
+
+        SocketOperations operations = new SocketOperations();
+        Response_DTO response_DTO = null;
+
+        //single chat
+        String otherUserId = object.get("otherUserId").getAsString();
+        String fromUserId = object.get("fromUserId").getAsString();
+
+        JsonObject saveChat = operations.saveChat(object);
+        JsonObject otherUserSaveChat = saveChat;
+
+        if (saveChat.get("isSuccess").getAsBoolean()) {
+            saveChat.addProperty("side", "right");
+            saveChat.addProperty("otherUserId", otherUserId);
+            saveChat.addProperty("fromUserId", object.get("fromUserId").getAsInt());
+            response_DTO = new Response_DTO(true, saveChat);
+        } else {
+            response_DTO = new Response_DTO(false, saveChat);
+        }
+
+        session.getBasicRemote().sendText(gson.toJson(response_DTO));
+
+        if (clients.containsKey(otherUserId)) {
+
+            if (otherUserSaveChat.get("isSuccess").getAsBoolean()) {
+                otherUserSaveChat.addProperty("side", "left");
+                otherUserSaveChat.addProperty("otherUserId", otherUserId);
+                saveChat.addProperty("fromUserId", fromUserId);
+                response_DTO = new Response_DTO(true, otherUserSaveChat);
+            } else {
+                response_DTO = new Response_DTO(false, otherUserSaveChat);
+            }
+
+            clients.get(otherUserId).getBasicRemote().sendText(gson.toJson(response_DTO));
+        }
+
+    }
+
+    private void login(String message, Session session) throws IOException {
+
+        Gson gson = new Gson();
+        JsonObject object = gson.fromJson(message, JsonObject.class);
+
+        SocketOperations operations = new SocketOperations();
+        Response_DTO response_DTO = null;
+
+        JsonObject login = operations.login(object);
+
+        if (login.get("success").getAsBoolean()) {
+
+            String id = login.get("user").getAsJsonObject().get("id").getAsString();
+            if (!clients.containsKey(id)) {
+                clients.put(id, session);
+            }
+            response_DTO = new Response_DTO(true, login);
+
+        } else {
+            response_DTO = new Response_DTO(false, login);
+        }
+
+        session.getBasicRemote().sendText(gson.toJson(response_DTO));
     }
 
 }

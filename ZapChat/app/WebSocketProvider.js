@@ -91,9 +91,9 @@ export const WebSocketProvider = ({ children }) => {
                         break;
                     case 'home':
 
-                        const rest = getChatDataArrRef.current.filter(obj => obj.userId !== dto_obj.data.data.userId)
-                        getChatDataArrRef.current = []
-                        // setChatDataArr([dto_obj.data.data, ...rest])
+                        const rest = getChatDataArrRef.current.filter(obj => obj.userId != dto_obj.data.data.userId)
+                        // getChatDataArrRef.current = [rest]
+                        setChatDataArr([dto_obj.data.data, ...rest])
 
                         break;
                     case 'send_chat':

@@ -4,8 +4,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native"
 import Modal from "react-native-modal";
 import SwiperFlatList from "react-native-swiper-flatlist"
 import { StatusDisplay } from "./StatusDisplay"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const defaultImage = require("../assets/images/profileDefault.png")
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function StatusCard({ data }) {
 
@@ -39,13 +41,13 @@ export function StatusCard({ data }) {
 
     return (
         <>
-            <Pressable style={styles.container} onPress={modalshow}>
+            <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={modalshow}>
                 <Image source={getImage} style={styles.image} />
                 <View style={styles.textcontainer}>
                     <Text style={styles.name} numberOfLines={1}>{getName}</Text>
                     <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
                 </View>
-            </Pressable>
+            </AnimatedPressable>
 
             <Modal isVisible={getModalStatus} style={styles.modal} onBackButtonPress={modalhide} onBackdropPress={modalhide}>
 

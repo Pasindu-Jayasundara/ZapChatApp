@@ -32,21 +32,62 @@ export function ChatFooter({ data }) {
             if (getUser != null) {
                 setTryCount(0)
 
-                if (socket && socket.readyState == socket.OPEN) {
+                // if (socket && socket.readyState == socket.OPEN) {
 
-                    let obj = {
-                        location: "send_chat",
-                        otherUserId: data.userId,
-                        fromUserId: getUser.id,
-                        contentType: "Message",
-                        content: getText
-                    }
+                //     let obj = {
+                //         location: "send_chat",
+                //         otherUserId: data.userId,
+                //         fromUserId: getUser.id,
+                //         contentType: "Message",
+                //         content: getText
+                //     }
+                //     socket.send(JSON.stringify(obj))
+                // }
 
-                    socket.send(JSON.stringify(obj))
-
-                    setText("")
-
+                let obj = {
+                    location: "send_chat",
+                    otherUserId: data.userId,
+                    fromUserId: getUser.id,
+                    contentType: "Message",
+                    content: getText
                 }
+                let url = process.env.EXPO_PUBLIC_URL + "/SendMessage"
+
+                let response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(obj),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+
+                if (response.ok) {
+
+                    let obj = await response.json()
+                    if (obj.success) {
+
+                        setText("")
+
+                    } else {
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            setUser(null)
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                        console.log(obj.data)
+                    }
+                    setResent(!getResent)
+
+                } else {
+                    Alert.alert("Please Try Again Later");
+                    console.log(response)
+                }
+
             } else {
 
                 console.log("Trying... " + tryCountRef.current)

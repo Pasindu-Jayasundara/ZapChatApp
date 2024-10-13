@@ -2,8 +2,10 @@ import { Image } from "expo-image"
 import { router } from "expo-router"
 import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const defaultTeam = require("../assets/images/team.png");
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function GroupCard({ data }) {
 
@@ -24,7 +26,7 @@ export function GroupCard({ data }) {
     }, [data])
 
     return (
-        <Pressable style={styles.container} onPress={() => { router.push({ pathname: "/singleGroup", params: data }) }}>
+        <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={() => { router.push({ pathname: "/singleGroup", params: data }) }}>
             <Image source={getImage} style={styles.image}  contentFit="cover"/>
             <View style={styles.textcontainer}>
                 <View style={styles.view1}>
@@ -36,7 +38,7 @@ export function GroupCard({ data }) {
                 </View>
 
             </View>
-        </Pressable>
+        </AnimatedPressable>
     )
 }
 

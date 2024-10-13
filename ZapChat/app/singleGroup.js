@@ -17,6 +17,7 @@ export default function singleGroup() {
 
     const [getIsNew, setIsNew,isNewRef] = useStateRef(false)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
+    const [getResent, setResent] = useState(true)
 
     let date;
     let time;
@@ -36,6 +37,8 @@ export default function singleGroup() {
 
         try {
             if (getUser != null) {
+
+                setResent(false)
                 setTryCount(0)
                 let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
@@ -72,10 +75,12 @@ export default function singleGroup() {
                             Alert.alert(obj.data);
                         }
                     }
-
+                    setResent(true)
                 } else {
                     Alert.alert("Please Try Again Later");
                     console.log(response)
+
+                    setResent(true)
                 }
             } else {
 
@@ -100,7 +105,13 @@ export default function singleGroup() {
     })
 
     useEffect(() => {
-        loadgroup()
+        setInterval(() => {
+
+            if(getResent){
+                loadgroup()
+            }
+            
+        }, 3000);
     }, [isNewRef.current])
 
     return (

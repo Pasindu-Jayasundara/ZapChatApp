@@ -2,8 +2,11 @@ import { Image } from "expo-image"
 import { router } from "expo-router"
 import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-export function ChatCard({ data }) {
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+export function ChatCard({ data}) {
 
     const [getImage, setImage] = useState(require("../assets/images/person-square.svg"))
     const [getName, setName] = useState("")
@@ -45,7 +48,7 @@ export function ChatCard({ data }) {
     }
 
     return (
-        <Pressable style={styles.container} onPress={() => { router.push({ pathname: "/singleChat", params: data }) }}>
+        <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={() => { router.push({ pathname: "/singleChat", params: data }) }}>
             <Image source={getImage} style={styles.image}  contentFit="cover"/>
             <View style={styles.textcontainer}>
                 <View style={styles.view1}>
@@ -60,7 +63,7 @@ export function ChatCard({ data }) {
                 </View>
 
             </View>
-        </Pressable>
+        </AnimatedPressable>
     )
 }
 

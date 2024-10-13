@@ -254,11 +254,11 @@ public class ServletOperations {
 
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
-        int fromjsonuserId = jsonObject.get("userId").getAsInt();
+        int fromjsonuserId = jsonObject.get("userId").getAsInt(); //2
         User fromuser = (User) hibernateSession.get(User.class, fromjsonuserId);//from
 
-        int tojsonuserId = jsonObject.get("otherUserId").getAsInt();
-        User touser = (User) hibernateSession.get(User.class, tojsonuserId);//from
+        int tojsonuserId = jsonObject.get("otherUserId").getAsInt();//1
+        User touser = (User) hibernateSession.get(User.class, tojsonuserId);//to
 
         Criteria chatCriteria = hibernateSession.createCriteria(Single_chat.class);
         chatCriteria.add(Restrictions.and(

@@ -1,6 +1,9 @@
 import { Text, View } from "react-native"
 import { StyleSheet } from "react-native"
 import { useEffect, useState } from "react";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 export function Date({date}) {
 
@@ -13,9 +16,9 @@ export function Date({date}) {
     }, [date])
 
     return (
-        <View style={styles.container}>
+        <AnimatedView entering={FadeIn} exiting={FadeOut} style={styles.container}>
             <Text style={styles.date}>{getDate}</Text>
-        </View>
+        </AnimatedView>
     )
 }
 

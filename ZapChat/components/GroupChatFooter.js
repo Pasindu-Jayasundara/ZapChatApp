@@ -33,19 +33,64 @@ export function GroupChatFooter({ data }) {
             if (getUser != null) {
                 setTryCount(0)
 
-                if (socket && socket.readyState == socket.OPEN) {
+                // if (socket && socket.readyState == socket.OPEN) {
 
-                    let obj = {
-                        location: "send_group_chat",
-                        groupId: data.groupId,
-                        contentType: "Message",
-                        content: getText,
-                        user: getUser
-                    }
+                //     let obj = {
+                //         location: "send_group_chat",
+                //         groupId: data.groupId,
+                //         contentType: "Message",
+                //         content: getText,
+                //         user: getUser
+                //     }
 
-                    socket.send(JSON.stringify(obj))
+                //     socket.send(JSON.stringify(obj))
 
+                // }
+
+                let obj = {
+                    location: "send_group_chat",
+                    groupId: data.groupId,
+                    contentType: "Message",
+                    content: getText,
+                    user: getUser
                 }
+                let url = process.env.EXPO_PUBLIC_URL + "/SendGroupMessage"
+
+                let response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(obj),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+
+                if (response.ok) {
+
+                    let obj = await response.json()
+                    if (obj.success) {
+
+                        setText("")
+
+                    } else {
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            setUser(null)
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                        console.log(obj.data)
+                    }
+                    setResent(!getResent)
+
+                } else {
+                    Alert.alert("Please Try Again Later");
+                    console.log(response)
+                }
+
             } else {
 
                 console.log("Trying... " + tryCountRef.current)

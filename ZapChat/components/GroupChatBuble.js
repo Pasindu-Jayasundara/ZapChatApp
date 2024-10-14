@@ -70,7 +70,7 @@ export function GroupChatBuble({ params, isNewDate, isNewTime }) {
 
     useEffect(() => {
 
-        console.log(getSide)
+        // console.log(getSide)
         if (getSide == "right") {
             setWrapperStyle(rightSideWrapper);
             setContainerStyle(rightSideContainer);
@@ -109,7 +109,7 @@ export function GroupChatBuble({ params, isNewDate, isNewTime }) {
                         <View style={[styles.container, getContainerStyle, styles.right]}>
                             <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
                         </View>
-                        <View style={styles.detail}>
+                        <View style={[styles.detail,styles.detail2]}>
                             {isNewTime ? <Text style={styles.time} numberOfLines={1}>{getTime}</Text> : ""}
                             {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
                         </View>
@@ -146,6 +146,9 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         borderRadius: 10
+    },
+    detail2:{
+        justifyContent: "flex-start",
     },
     detail: {
         flexDirection: "row",

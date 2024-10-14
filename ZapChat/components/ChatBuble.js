@@ -10,7 +10,7 @@ const readTick = require("../assets/images/read.svg")
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
-export function ChatBuble({ params,isNewDate,isNewTime}) {
+export function ChatBuble({ params, isNewDate, isNewTime }) {
 
     const [getTime, setTime] = useState("")
     const [getSide, setSide] = useState("")
@@ -41,23 +41,23 @@ export function ChatBuble({ params,isNewDate,isNewTime}) {
         setTime(params.time)
         setContentType(params.type)
 
-        if(params.type=="Message"){
+        if (params.type == "Message") {
             setMessage(params.message)
-        }else if(params.type=="File"){
+        } else if (params.type == "File") {
             setFilePath(params.path)
         }
 
-        if(params.messageStatus=="Send"){
+        if (params.messageStatus == "Send") {
             setTic(sendTick)
 
-        }else if(params.messageStatus=="Received"){
+        } else if (params.messageStatus == "Received") {
             setTic(receivedTick)
 
-        }else if(params.messageStatus=="Read"){
+        } else if (params.messageStatus == "Read") {
             setTic(readTick)
 
         }
-        
+
     }, [params])
 
     useEffect(() => {
@@ -75,21 +75,32 @@ export function ChatBuble({ params,isNewDate,isNewTime}) {
 
     return (
         <>
-            {isNewDate ? <Date date={params.date}/> : ""}
+            {isNewDate ? <Date date={params.date} /> : ""}
 
             <AnimatedView entering={FadeIn} exiting={FadeOut} style={[styles.wrapper, getWrapperStyle]}>
                 <View style={[styles.container, getContainerStyle]}>
                     <Text style={[styles.message, getTextStyle]}>{getMessage}</Text>
                 </View>
-                <View style={styles.detail}>
-                    {isNewTime?<Text style={styles.time} numberOfLines={1}>{getTime}</Text>:""}
-                    {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
-                </View>
+                {getSide == "right" ? (
+                    <View style={styles.detail}>
+                        {isNewTime ? <Text style={styles.time} numberOfLines={1}>{getTime}</Text> : ""}
+                        {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
+                    </View>
+                ) : (
+                    <View style={[styles.detail, styles.detail2]}>
+                        {isNewTime ? <Text style={styles.time} numberOfLines={1}>{getTime}</Text> : ""}
+                        {getSide == "right" ? <Image source={getTic} style={styles.tick} /> : ""}
+                    </View>
+                )}
+
             </AnimatedView>
         </>
     )
 }
 const styles = StyleSheet.create({
+    detail2: {
+        justifyContent: "flex-start",
+    },
     detail: {
         flexDirection: "row",
         // backgroundColor:"green",

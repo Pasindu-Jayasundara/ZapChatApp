@@ -45,7 +45,7 @@ public class SendGroupMessageFilter implements Filter {
                 String groupId = fromJson.get("groupId").getAsString();
                 String contentType = fromJson.get("contentType").getAsString();
                 String content = fromJson.get("content").getAsString();
-                String user = fromJson.get("user").getAsString();
+                JsonObject user = fromJson.get("user").getAsJsonObject();
 
                 if (!Validation.isInteger(groupId)) {
                     message = "Invalid Id Type";

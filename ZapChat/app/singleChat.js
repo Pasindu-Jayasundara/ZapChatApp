@@ -1,4 +1,4 @@
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, BackHandler, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ChatHeader } from "../components/ChatHeader";
 import { ChatBuble } from "../components/ChatBuble";
@@ -13,9 +13,16 @@ import useStateRef from "react-usestateref";
 export default function singleChat() {
 
     const data = useLocalSearchParams();
-    const { socket, getChat, setChat, getUser, setUser,chatRef } = useContext(WebSocketContext)
+    const { getUser, setUser } = useContext(WebSocketContext)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
     const [getResent, setResent] = useState(true)
+    const [getChat, setChat] = useState([])
+    const [getSetIntervalId, setSetIntervalId] = useState(0)
+
+    const chatRef = useRef(getChat);
+    useEffect(() => {
+        chatRef.current = getChat;
+    }, [getChat])
 
     let date;
     let time;
@@ -25,53 +32,58 @@ export default function singleChat() {
         try {
 
             if (getUser != null) {
-                setResent(false)
 
-                setTryCount(0)
-                let url = process.env.EXPO_PUBLIC_URL + "/SingleChat"
+                if (getResent) {
 
-                let obj = {
-                    otherUserId: data.userId,
-                    user: getUser
-                }
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(obj),
-                    headers: {
-                        "Content-Type": "application/json",
+                    setResent(false)
+
+                    setTryCount(0)
+                    let url = process.env.EXPO_PUBLIC_URL + "/SingleChat"
+
+                    let obj = {
+                        otherUserId: data.userId,
+                        user: getUser
                     }
-                })
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
+                        }
+                    })
 
-                if (response.ok) {
+                    if (response.ok) {
 
-                    let obj = await response.json()
-                    if (obj.success) {
+                        let obj = await response.json()
+                        if (obj.success) {
 
-                        setChat(obj.data)
+                            setChat(obj.data)
+
+                        } else {
+
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                setUser(null)
+
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                            console.log("c: " + obj.data)
+                        }
 
                     } else {
-
-                        if (obj.data == "Please LogIn") {
-
-                            await AsyncStorage.removeItem("verified");
-                            await AsyncStorage.removeItem("user");
-
-                            setUser(null)
-
-                            router.replace("/")
-                        } else {
-                            Alert.alert(obj.data);
-                        }
-                        console.log("c: " + obj.data)
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
                     }
 
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
+                    setResent(true)
                 }
-
-                setResent(true)
             } else {
+                setResent(true)
 
                 console.log("Trying... " + tryCountRef.current)
 
@@ -89,20 +101,36 @@ export default function singleChat() {
                 }
             }
         } catch (error) {
+            setResent(true)
+
             console.log(error)
         }
 
     })
 
     useEffect(() => {
+        const handleBackPress = () => {
+            clearInterval(getSetIntervalId)
+            router.back()
 
-        setInterval(() => {
+            return true;
+        };
 
-            if(getResent){
-                loadchat()
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        return () => {
+            if (backHandler && backHandler.remove) {
+                backHandler.remove(); 
             }
-            
-        }, 3000);
+        };
+    }, [getSetIntervalId]);
+
+    useEffect(() => {
+        let id = setInterval(() => {
+            loadchat()
+        }, 2000);
+
+        setSetIntervalId(id)
     }, [])
 
     return (
@@ -110,7 +138,7 @@ export default function singleChat() {
             <ChatHeader data={data} />
             <View style={styles.body}>
                 <FlashList
-                    data={getChat}
+                    data={chatRef.current}
                     renderItem={({ item }) => {
 
                         const isNewDate = (date == item.date) ? false : true;
@@ -125,7 +153,7 @@ export default function singleChat() {
                         return <ChatBuble params={item} isNewDate={isNewDate} isNewTime={isNewTime} />;
                     }}
                     estimatedItemSize={200}
-                    keyExtractor={item=>item.chatId.toString()}
+                    keyExtractor={item => item.chatId.toString()}
                 />
             </View>
             <ChatFooter data={data} />

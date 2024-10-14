@@ -14,12 +14,7 @@ const defaultProfileImage = require("../assets/images/profile-page-empty.svg")
 export default function profileSetUp() {
 
     const {
-        socket,
-        getChatDataArr, setChatDataArr,
-        getGroupDataArr, setGroupDataArr,
-        getStatusDataArr, setStatusDataArr,
-        getSearchText, setSearchText,
-        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+        getUser, setUser, getHeaderImage, setHeaderImage
     } = useContext(WebSocketContext)
 
     const [getAbout, setAbout] = useState("")
@@ -165,6 +160,43 @@ export default function profileSetUp() {
         }
     }
 
+    function logout() {
+
+        try {
+
+            Alert.alert(
+                "Confirm Logout",
+                "Are you sure you want to Logout?",
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel"
+                    },
+                    {
+                        text: "OK",
+                        onPress: async () => {
+
+                            await AsyncStorage.removeItem("user")
+                            await AsyncStorage.removeItem("profileImage")
+                            await AsyncStorage.removeItem("profileAbout")
+
+                            setUser(null)
+
+                            router.replace("/")
+
+                        }
+                    }
+                ],
+                { cancelable: false }
+            );
+
+        } catch (error) {
+            Alert.alert("Please Try Again Later!")
+        }
+
+    }
+
     return (
         <SafeAreaView style={styles.safearea}>
 
@@ -178,13 +210,23 @@ export default function profileSetUp() {
 
                     <Button style={styles.btn} text={getButtonText} func={request} />
                 </View>
+                <Button style={styles.logoutBtn} textStyle={{color: "red"}} text={"Log out"} func={logout} />
+
             </View>
+
 
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+
+    logoutBtn: {
+        marginTop: 20,
+        width: "100%",
+        backgroundColor: "transparent",
+        alignSelf: "center"
+    },
     btn: {
         marginTop: 20,
         width: "100%"
@@ -194,7 +236,8 @@ const styles = StyleSheet.create({
         marginTop: 70
     },
     safearea: {
-        flex: 1
+        flex: 1,
+        paddingTop: 20
     },
     title: {
         color: "#ff5b6b",
@@ -202,9 +245,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         // marginTop: 75,
         paddingLeft: 35,
-    },
-    safearea: {
-        flex: 1
     },
     scrolView: {
         flex: 1,

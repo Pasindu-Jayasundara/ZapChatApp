@@ -14,11 +14,7 @@ const searchIcon = require("../assets/images/search.svg")
 export default function newChat() {
 
     const {
-        socket,
-        getChatDataArr, setChatDataArr, chatRef,
-        getGroupDataArr, setGroupDataArr,
-        getStatusDataArr, setStatusDataArr,
-        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+        getUser, setUser, getHeaderImage, setHeaderImage
     } = useContext(WebSocketContext)
 
     const [getDataArray, setDataArray] = useState([])

@@ -17,6 +17,10 @@ export function Profile({ getFunc, setFunc, icon, text, style }) {
 
             setImage(getFunc.assets[0].uri);
 
+        } else if (typeof getFunc === 'object') {
+
+            setImage(getFunc);
+
         } else if (typeof getFunc === 'string') {
 
             let value = getFunc;

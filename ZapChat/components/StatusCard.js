@@ -41,13 +41,13 @@ export function StatusCard({ data }) {
 
     return (
         <>
-            <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={modalshow}>
+            <Pressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={modalshow}>
                 <Image source={getImage} style={styles.image} />
                 <View style={styles.textcontainer}>
                     <Text style={styles.name} numberOfLines={1}>{getName}</Text>
                     <Text style={styles.time} numberOfLines={1}>{getTime}</Text>
                 </View>
-            </AnimatedPressable>
+            </Pressable>
 
             <Modal isVisible={getModalStatus} style={styles.modal} onBackButtonPress={modalhide} onBackdropPress={modalhide}>
 

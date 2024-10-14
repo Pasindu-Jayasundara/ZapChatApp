@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 
-export function Button({ text, style, func }) {
+export function Button({ text, style, func,textStyle={} }) {
 
     const [getText, setText] = useState("");
     const [getStyle, setStyle] = useState({});
@@ -22,7 +22,7 @@ export function Button({ text, style, func }) {
     return (
 
         <Pressable style={[styles.pressable, getStyle]} onPress={handlePress}>
-            <Text style={styles.buttonText}>{getText}</Text>
+            <Text style={[styles.buttonText,textStyle]}>{getText}</Text>
         </Pressable>
     );
 }

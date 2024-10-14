@@ -26,7 +26,7 @@ export function GroupCard({ data }) {
     }, [data])
 
     return (
-        <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={() => { router.push({ pathname: "/singleGroup", params: data }) }}>
+        <Pressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={() => { router.push({ pathname: "/singleGroup", params: data }) }}>
             <Image source={getImage} style={styles.image}  contentFit="cover"/>
             <View style={styles.textcontainer}>
                 <View style={styles.view1}>
@@ -38,7 +38,7 @@ export function GroupCard({ data }) {
                 </View>
 
             </View>
-        </AnimatedPressable>
+        </Pressable>
     )
 }
 

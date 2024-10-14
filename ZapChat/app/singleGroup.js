@@ -1,4 +1,4 @@
-import { Alert, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, BackHandler, KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GroupChatBuble } from "../components/GroupChatBuble";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -13,11 +13,18 @@ import useStateRef from "react-usestateref";
 export default function singleGroup() {
 
     const data = useLocalSearchParams();
-    const { socket, getChat, setChat, getUser, setUser } = useContext(WebSocketContext)
+    const { getUser, setUser } = useContext(WebSocketContext)
 
-    const [getIsNew, setIsNew,isNewRef] = useStateRef(false)
+    const [getIsNew, setIsNew, isNewRef] = useStateRef(false)
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
     const [getResent, setResent] = useState(true)
+    const [getChat, setChat] = useState([])
+    const [getSetIntervalId, setSetIntervalId] = useState(0)
+
+    const chatRef = useRef(getChat);
+    useEffect(() => {
+        chatRef.current = getChat;
+    }, [getChat])
 
     let date;
     let time;
@@ -37,50 +44,51 @@ export default function singleGroup() {
 
         try {
             if (getUser != null) {
+                if (getResent) {
+                    setResent(false)
+                    setTryCount(0)
+                    let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
 
-                setResent(false)
-                setTryCount(0)
-                let url = process.env.EXPO_PUBLIC_URL + "/SingleGroup"
-
-                let obj = {
-                    groupId: data.groupId,
-                    user: getUser
-                }
-
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(obj),
-                    headers: {
-                        "Content-Type": "application/json",
+                    let obj = {
+                        groupId: data.groupId,
+                        user: getUser
                     }
-                })
 
-                if (response.ok) {
-
-                    let obj = await response.json()
-                    if (obj.success) {
-
-                        setChat(obj.data)
-
-                    } else {
-
-                        if (obj.data == "Please LogIn") {
-
-                            await AsyncStorage.removeItem("verified");
-                            await AsyncStorage.removeItem("user");
-
-                            setUser(null)
-                            router.replace("/")
-                        } else {
-                            Alert.alert(obj.data);
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
                         }
-                    }
-                    setResent(true)
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
+                    })
 
-                    setResent(true)
+                    if (response.ok) {
+
+                        let obj = await response.json()
+                        if (obj.success) {
+
+                            setChat(obj.data)
+
+                        } else {
+
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                setUser(null)
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                        }
+                        setResent(true)
+                    } else {
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
+
+                        setResent(true)
+                    }
                 }
             } else {
 
@@ -105,22 +113,41 @@ export default function singleGroup() {
     })
 
     useEffect(() => {
-        setInterval(() => {
+        const handleBackPress = () => {
+            clearInterval(getSetIntervalId)
+            router.back()
 
-            if(getResent){
-                loadgroup()
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+        return () => {
+            if (backHandler && backHandler.remove) {
+                backHandler.remove();
             }
-            
-        }, 3000);
+        };
+    }, [getSetIntervalId]);
+
+    useEffect(() => {
+        loadgroup()
     }, [isNewRef.current])
+
+    useEffect(() => {
+        let id = setInterval(() => {
+            loadgroup()
+        }, 2000);
+
+        setSetIntervalId(id)
+    }, [])
 
     return (
         <SafeAreaView style={styles.safearea}>
-            <GroupHeader data={data} getUser={getUser} setUser={setUser} setIsNew={isNewRef.current} isNewRef={isNewRef.current}/>
+            <GroupHeader data={data} getUser={getUser} setUser={setUser} setIsNew={isNewRef.current} isNewRef={isNewRef.current} />
             <View style={styles.body}>
 
                 <FlashList
-                    data={getChat}
+                    data={chatRef.current}
                     renderItem={({ item }) => {
 
                         const isNewDate = (date == item.date) ? false : true;

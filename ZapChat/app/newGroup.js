@@ -19,11 +19,7 @@ const newGroupIcon = require("../assets/images/team.png")
 export default function newGroup() {
 
     const {
-        socket,
-        getChatDataArr, setChatDataArr, chatRef,
-        getGroupDataArr, setGroupDataArr,
-        getStatusDataArr, setStatusDataArr,
-        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage
+getUser, setUser, getHeaderImage, setHeaderImage
     } = useContext(WebSocketContext)
 
     const { data } = useGlobalSearchParams()

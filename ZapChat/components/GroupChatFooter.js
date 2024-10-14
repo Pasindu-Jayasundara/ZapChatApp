@@ -84,7 +84,6 @@ export function GroupChatFooter({ data }) {
                         }
                         console.log(obj.data)
                     }
-                    setResent(!getResent)
 
                 } else {
                     Alert.alert("Please Try Again Later");
@@ -122,7 +121,7 @@ export function GroupChatFooter({ data }) {
             quality: 1,
         });
 
-        console.log(result);
+        // console.log(result);
 
         if (!result.canceled) {
             setImage(result.assets[0].uri);

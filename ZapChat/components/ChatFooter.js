@@ -49,7 +49,8 @@ export function ChatFooter({ data }) {
                     otherUserId: data.userId,
                     fromUserId: getUser.id,
                     contentType: "Message",
-                    content: getText
+                    content: getText,
+                    user: getUser
                 }
                 let url = process.env.EXPO_PUBLIC_URL + "/SendMessage"
 
@@ -81,7 +82,6 @@ export function ChatFooter({ data }) {
                         }
                         console.log(obj.data)
                     }
-                    setResent(!getResent)
 
                 } else {
                     Alert.alert("Please Try Again Later");
@@ -119,7 +119,7 @@ export function ChatFooter({ data }) {
             quality: 1,
         });
 
-        console.log(result);
+        // console.log(result);
 
         if (!result.canceled) {
             setImage(result.assets[0].uri);

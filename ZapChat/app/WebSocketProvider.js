@@ -8,179 +8,179 @@ export const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ children }) => {
 
-    const [socket, setSocket] = useState(null);
+    // const [socket, setSocket] = useState(null);
 
     //my
-    const [getChatDataArr, setChatDataArr, chatref] = useStateRef([])
-    const [getGroupDataArr, setGroupDataArr] = useState([])
-    const [getStatusDataArr, setStatusDataArr] = useState([])
-    const [getChat, setChat] = useState([])
-    const [getCategory, setCategory] = useState("chat")
+    // const [getChatDataArr, setChatDataArr, chatref] = useStateRef([])
+    // const [getGroupDataArr, setGroupDataArr] = useState([])
+    // const [getStatusDataArr, setStatusDataArr] = useState([])
+    // const [getChat, setChat] = useState([])
+    // const [getCategory, setCategory] = useState("chat")
     const [getUser, setUser] = useState(null)
     const [getHeaderImage, setHeaderImage] = useState(null)
-    const [getSearchText, setSearchText] = useState("")
+    // const [getSearchText, setSearchText] = useState("")
 
     //single chat
-    const chatRef = useRef(getChat);
-    useEffect(() => {
-        chatRef.current = getChat;
-    }, [getChat])
+    // const chatRef = useRef(getChat);
+    // useEffect(() => {
+    //     chatRef.current = getChat;
+    // }, [getChat])
 
     // chat
-    const getChatDataArrRef = useRef(getChatDataArr);
-    useEffect(() => {
-        getChatDataArrRef.current = getChatDataArr;
-    }, [getChatDataArr])
+    // const getChatDataArrRef = useRef(getChatDataArr);
+    // useEffect(() => {
+    //     getChatDataArrRef.current = getChatDataArr;
+    // }, [getChatDataArr])
 
     //group
-    const getGroupDataArrRef = useRef(getGroupDataArr);
-    useEffect(() => {
-        getGroupDataArrRef.current = getGroupDataArr;
-    }, [getGroupDataArr])
+    // const getGroupDataArrRef = useRef(getGroupDataArr);
+    // useEffect(() => {
+    //     getGroupDataArrRef.current = getGroupDataArr;
+    // }, [getGroupDataArr])
 
     //status
-    const getStatusDataArrRef = useRef(getStatusDataArr);
-    useEffect(() => {
-        getStatusDataArrRef.current = getStatusDataArr;
-    }, [getStatusDataArr])
+    // const getStatusDataArrRef = useRef(getStatusDataArr);
+    // useEffect(() => {
+    //     getStatusDataArrRef.current = getStatusDataArr;
+    // }, [getStatusDataArr])
     //end - my
 
-    const socketRef = useRef(socket);
-    useEffect(() => {
-        socketRef.current = socket;
-    }, [socket])
+    // const socketRef = useRef(socket);
+    // useEffect(() => {
+    //     socketRef.current = socket;
+    // }, [socket])
 
-    useEffect(() => {
-        const ws = new WebSocket(process.env.EXPO_PUBLIC_URL + "/WebSocket");
+    // useEffect(() => {
+    //     const ws = new WebSocket(process.env.EXPO_PUBLIC_URL + "/WebSocket");
 
-        ws.onopen = () => {
-            console.log('WebSocket connected successfully');
-            setSocket(ws);
-        };
+    //     ws.onopen = () => {
+    //         console.log('WebSocket connected successfully');
+    //         setSocket(ws);
+    //     };
 
-        ws.onmessage = (event) => {
+    //     ws.onmessage = (event) => {
 
-            // console.log("e1: " + event.data);
-            const dto_obj = JSON.parse(event.data);
+    //         // console.log("e1: " + event.data);
+    //         const dto_obj = JSON.parse(event.data);
 
-            if (dto_obj.success) {
-                switch (dto_obj.data.location) {
-                    case 'status':
+    //         if (dto_obj.success) {
+    //             switch (dto_obj.data.location) {
+    //                 case 'status':
 
-                        const restStatus = getStatusDataArrRef.current.filter(obj => obj.statusId != dto_obj.data.data.statusId)
-                        getStatusDataArrRef.current = []
-                        setStatusDataArr([dto_obj.data.data, ...restStatus])
+    //                     const restStatus = getStatusDataArrRef.current.filter(obj => obj.statusId != dto_obj.data.data.statusId)
+    //                     getStatusDataArrRef.current = []
+    //                     setStatusDataArr([dto_obj.data.data, ...restStatus])
 
-                        break;
-                    case 'send_group_chat':
+    //                     break;
+    //                 case 'send_group_chat':
 
-                        setChat([...chatRef.current, dto_obj.data])
-                        setGroupDataArr([dto_obj.data, ...getGroupDataArrRef.current])
+    //                     setChat([...chatRef.current, dto_obj.data])
+    //                     setGroupDataArr([dto_obj.data, ...getGroupDataArrRef.current])
 
-                        // setChat([...chatRef.current, dto_obj.data])
+    //                     // setChat([...chatRef.current, dto_obj.data])
 
-                        // let objGroup = {
-                        //     location: "home",
-                        //     searchText: getSearchText,
-                        //     category: getCategory,
-                        //     userId: dto_obj.data.fromUserId,
-                        //     otherUserId: dto_obj.data.otherUserId,
-                        // }
-                        // ws.send(JSON.stringify(obj))
+    //                     // let objGroup = {
+    //                     //     location: "home",
+    //                     //     searchText: getSearchText,
+    //                     //     category: getCategory,
+    //                     //     userId: dto_obj.data.fromUserId,
+    //                     //     otherUserId: dto_obj.data.otherUserId,
+    //                     // }
+    //                     // ws.send(JSON.stringify(obj))
 
-                        break;
-                    case 'home':
+    //                     break;
+    //                 case 'home':
 
-                        const rest = getChatDataArrRef.current.filter(obj => obj.userId != dto_obj.data.data.userId)
-                        // getChatDataArrRef.current = [rest]
-                        setChatDataArr([dto_obj.data.data, ...rest])
+    //                     const rest = getChatDataArrRef.current.filter(obj => obj.userId != dto_obj.data.data.userId)
+    //                     // getChatDataArrRef.current = [rest]
+    //                     setChatDataArr([dto_obj.data.data, ...rest])
 
-                        break;
-                    case 'send_chat':
+    //                     break;
+    //                 case 'send_chat':
 
-                        setChat([...chatRef.current, dto_obj.data])
+    //                     setChat([...chatRef.current, dto_obj.data])
 
-                        let obj = {
-                            location: "home",
-                            searchText: getSearchText,
-                            category: getCategory,
-                            userId: dto_obj.data.fromUserId,
-                            otherUserId: dto_obj.data.otherUserId,
-                        }
-                        ws.send(JSON.stringify(obj))
+    //                     let obj = {
+    //                         location: "home",
+    //                         searchText: getSearchText,
+    //                         category: getCategory,
+    //                         userId: dto_obj.data.fromUserId,
+    //                         otherUserId: dto_obj.data.otherUserId,
+    //                     }
+    //                     ws.send(JSON.stringify(obj))
 
-                        break;
-                    case 'login':
+    //                     break;
+    //                 case 'login':
 
-                        (async () => {
-                            try {
+    //                     (async () => {
+    //                         try {
 
-                                if (dto_obj.data.success) {
+    //                             if (dto_obj.data.success) {
 
-                                    let jsonuser = JSON.stringify(dto_obj.data.user)
-                                    await AsyncStorage.setItem("user", jsonuser)
+    //                                 let jsonuser = JSON.stringify(dto_obj.data.user)
+    //                                 await AsyncStorage.setItem("user", jsonuser)
 
-                                    let jsonpi = JSON.stringify(dto_obj.data.profileImage)
-                                    await AsyncStorage.setItem("profileImage", jsonpi)
+    //                                 let jsonpi = JSON.stringify(dto_obj.data.profileImage)
+    //                                 await AsyncStorage.setItem("profileImage", jsonpi)
 
-                                    let jsonab = JSON.stringify(dto_obj.data.profileAbout)
-                                    await AsyncStorage.setItem("profileAbout", jsonab)
+    //                                 let jsonab = JSON.stringify(dto_obj.data.profileAbout)
+    //                                 await AsyncStorage.setItem("profileAbout", jsonab)
 
-                                    setUser(dto_obj.data.user)
-                                    if (getHeaderImage != "../assets/images/default.svg") {
-                                        setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + dto_obj.data.user.profile_image })
-                                    } else {
-                                        setHeaderImage(defImg)
-                                    }
+    //                                 setUser(dto_obj.data.user)
+    //                                 if (getHeaderImage != "../assets/images/default.svg") {
+    //                                     setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + dto_obj.data.user.profile_image })
+    //                                 } else {
+    //                                     setHeaderImage(defImg)
+    //                                 }
 
-                                    router.replace("/home")
-                                } else {
-                                    // Alert.alert("")
-                                    console.log("no")
-                                }
+    //                                 router.replace("/home")
+    //                             } else {
+    //                                 // Alert.alert("")
+    //                                 console.log("no")
+    //                             }
 
-                            } catch (error) {
-                                console.log(error)
+    //                         } catch (error) {
+    //                             console.log(error)
 
-                            }
-                        })()
+    //                         }
+    //                     })()
 
-                        break;
-                    default:
-                        console.log('Unknown message type', dto_obj.type);
-                }
-            } else {
-                console.log("a : " + event.data)
-                Alert.alert(dto_obj.data.msg)
-            }
-        };
+    //                     break;
+    //                 default:
+    //                     console.log('Unknown message type', dto_obj.type);
+    //             }
+    //         } else {
+    //             console.log("a : " + event.data)
+    //             Alert.alert(dto_obj.data.msg)
+    //         }
+    //     };
 
-        ws.onclose = (event) => {
-            console.log('WebSocket closed', event);
-            setSocket(null);
-        };
+    //     ws.onclose = (event) => {
+    //         console.log('WebSocket closed', event);
+    //         setSocket(null);
+    //     };
 
-        ws.onerror = (error) => {
-            console.log('WebSocket error:', error);
-            setSocket(null);
-        };
+    //     ws.onerror = (error) => {
+    //         console.log('WebSocket error:', error);
+    //         setSocket(null);
+    //     };
 
-        return () => {
-            ws.close();
-        };
-    }, []);
+    //     return () => {
+    //         ws.close();
+    //     };
+    // }, []);
 
     return (
         <WebSocketContext.Provider value={{
-            socket,
-            getChatDataArr, setChatDataArr, chatRef,
-            getGroupDataArr, setGroupDataArr, getChatDataArrRef,
-            getStatusDataArr, setStatusDataArr, getStatusDataArrRef,
-            getChat, setChat,
-            getCategory, setCategory,
+            // socket,
+            // getChatDataArr, setChatDataArr, chatRef,
+            // getGroupDataArr, setGroupDataArr, getChatDataArrRef,
+            // getStatusDataArr, setStatusDataArr, getStatusDataArrRef,
+            // getChat, setChat,
+            // getCategory, setCategory,
             getUser, setUser,
             getHeaderImage, setHeaderImage,
-            getSearchText, setSearchText
+            // getSearchText, setSearchText
         }}>
             {children}
         </WebSocketContext.Provider>

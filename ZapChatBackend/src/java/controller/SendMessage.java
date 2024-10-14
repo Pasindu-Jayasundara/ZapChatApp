@@ -1,6 +1,7 @@
 package controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import entity.File;
 import entity.Message;
 import entity.Message_content_type;
@@ -33,7 +34,7 @@ public class SendMessage extends HttpServlet {
         Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
 
         User otherUser = (User) hibernateSession.get(User.class, otherUserId);
-        User user = gson.fromJson((String) request.getAttribute("user"), User.class);
+        User user = gson.fromJson((JsonObject) request.getAttribute("user"), User.class);
 
         Criteria messageStatusCriteria = hibernateSession.createCriteria(Message_status.class);
         messageStatusCriteria.add(Restrictions.eq("status", "Send"));

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+// const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export function ChatCard({ data}) {
 
@@ -47,8 +47,12 @@ export function ChatCard({ data}) {
         return !!value; 
     }
 
+    function gotoSingleChat(){
+        router.push({ pathname: "/singleChat", params: data})
+    }
+
     return (
-        <AnimatedPressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={() => { router.push({ pathname: "/singleChat", params: data }) }}>
+        <Pressable entering={FadeIn} exiting={FadeOut} style={styles.container} onPress={gotoSingleChat}>
             <Image source={getImage} style={styles.image}  contentFit="cover"/>
             <View style={styles.textcontainer}>
                 <View style={styles.view1}>
@@ -63,7 +67,7 @@ export function ChatCard({ data}) {
                 </View>
 
             </View>
-        </AnimatedPressable>
+        </Pressable>
     )
 }
 

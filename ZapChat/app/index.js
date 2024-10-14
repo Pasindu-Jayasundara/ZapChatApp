@@ -10,18 +10,17 @@ import useStateRef from "react-usestateref";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const logoIcon = require("../assets/images/logo.gif");
+const defImg = require("../assets/images/default.svg");
 
 // SplashScreen.preventAutoHideAsync();
 // SplashScreen.hideAsync();
 
 export default function index() {
-    const { socket, getUser, setUser } = useContext(WebSocketContext)
+    const { getUser, setUser,getHeaderImage, setHeaderImage, } = useContext(WebSocketContext)
 
     const [getMobile, setMobile] = useState("")
     const [getPassword, setPassword] = useState("")
     const [getButtonText, setButtonText, ref] = useStateRef("Let's Go")
-    const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
-
 
     const check = async () => {
 
@@ -33,24 +32,81 @@ export default function index() {
         check()
     }, [])
 
-    function request() {
+    async function request() {
 
         setButtonText("Wait ...")
 
         if (getMobile.trim().length == 10) {
             if (getPassword.trim().length >= 8) {
 
-                if (socket && socket.readyState == socket.OPEN) {
-
-                    console.log("obj")
-                    let obj = {
-                        location: "login",
-                        mobile: getMobile,
-                        password: getPassword
-                    }
-
-                    socket.send(JSON.stringify(obj))
+                let obj = {
+                    location: "login",
+                    mobile: getMobile,
+                    password: getPassword
                 }
+
+                let url = process.env.EXPO_PUBLIC_URL + "/Login"
+
+                let response = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify(obj),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                })
+
+                if (response.ok) {
+
+                    let obj = await response.json()
+                    if (obj.success) {
+
+                        try {
+
+                            let jsonuser = JSON.stringify(obj.data.user)
+                            await AsyncStorage.setItem("user", jsonuser)
+
+                            let jsonpi = JSON.stringify(obj.data.profileImage)
+                            await AsyncStorage.setItem("profileImage", jsonpi)
+
+                            let jsonab = JSON.stringify(obj.data.profileAbout)
+                            await AsyncStorage.setItem("profileAbout", jsonab)
+
+                            setUser(obj.data.user)
+                            if (getHeaderImage != "../assets/images/default.svg") {
+                                setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.user.profile_image })
+                            } else {
+                                setHeaderImage(defImg)
+                            }
+
+                            router.replace("/home")
+
+                        } catch (error) {
+                            console.log(error)
+
+                        }
+
+                    } else {
+                        if (obj.data == "Please LogIn") {
+
+                            await AsyncStorage.removeItem("verified");
+                            await AsyncStorage.removeItem("user");
+
+                            setUser(null)
+                            router.replace("/")
+                        } else {
+                            Alert.alert(obj.data);
+                        }
+                        console.log(obj.data)
+                    }
+                    setButtonText("Let's Go")
+
+                } else {
+                    Alert.alert("Please Try Again Later");
+                    console.log(response)
+                    setButtonText("Let's Go")
+
+                }
+
 
             } else {
                 Alert.alert("Password must be between 8-20 letters")

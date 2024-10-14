@@ -19,11 +19,7 @@ const AnimatedView = Animated.createAnimatedComponent(View);
 export default function home() {
 
     const {
-        socket,
-        getChatDataArr, setChatDataArr, chatRef, getChatDataArrRef,
-        getGroupDataArr, setGroupDataArr,
-        getStatusDataArr, setStatusDataArr, getStatusDataArrRef,
-        getCategory, setCategory, getUser, setUser, getHeaderImage, setHeaderImage, getSearchText, setSearchText
+        getUser, setUser, getHeaderImage, setHeaderImage
     } = useContext(WebSocketContext)
 
     const [getIsFound, setIsFound] = useState(false)
@@ -32,6 +28,32 @@ export default function home() {
     const [getTryCount, setTryCount, tryCountRef] = useStateRef(0)
     const [getHomeChat, setHomeChat, homeChatRef] = useStateRef([])
     const [getHomeStatus, setHomeStatus, homeStatusRef] = useStateRef([])
+    const [getChatDataArr, setChatDataArr, chatref] = useStateRef([])
+    const [getGroupDataArr, setGroupDataArr] = useState([])
+    const [getStatusDataArr, setStatusDataArr] = useState([])
+    const [getCategory, setCategory] = useState("chat")
+    const [getSearchText, setSearchText] = useState("")
+    const [getSetIntervalId, setSetIntervalId] = useState(0)
+
+    const getChatDataArrRef = useRef(getChatDataArr);
+    useEffect(() => {
+        getChatDataArrRef.current = getChatDataArr;
+    }, [getChatDataArr])
+
+    const getGroupDataArrRef = useRef(getGroupDataArr);
+    useEffect(() => {
+        getGroupDataArrRef.current = getGroupDataArr;
+    }, [getGroupDataArr])
+
+    const getStatusDataArrRef = useRef(getStatusDataArr);
+    useEffect(() => {
+        getStatusDataArrRef.current = getStatusDataArr;
+    }, [getStatusDataArr])
+
+    const getSetIntervalIdRef = useRef(getSetIntervalId);
+    useEffect(() => {
+        getSetIntervalIdRef.current = getSetIntervalId;
+    }, [getSetIntervalId])
 
     const navigation = useNavigation();
     const actions = [
@@ -60,76 +82,79 @@ export default function home() {
 
             if (getUser != null) {
 
-                setResent(false)
+                if (getResent) {
 
-                setTryCount(0)
-                setActionText("Looking for")
-                let url = process.env.EXPO_PUBLIC_URL + "/Home"
 
-                let obj = {
-                    searchText: getSearchText,
-                    category: getCategory,
-                    user: getUser
-                }
-                let response = await fetch(url, {
-                    method: "POST",
-                    body: JSON.stringify(obj),
-                    headers: {
-                        "Content-Type": "application/json",
+                    setResent(false)
+
+                    setTryCount(0)
+                    setActionText("Looking for")
+                    let url = process.env.EXPO_PUBLIC_URL + "/Home"
+
+                    let obj = {
+                        searchText: getSearchText,
+                        category: getCategory,
+                        user: getUser
                     }
-                })
-
-                if (response.ok) {
-
-                    let obj = await response.json()
-                    if (obj.success) {
-
-                        if (getCategory == "chat") {
-                            setChatDataArr(obj.data.data)
-                            // setHomeChat(obj.data.data)
-                        } else if (getCategory == "group") {
-                            setGroupDataArr(obj.data.data)
-                        } else if (getCategory == "status") {
-                            setStatusDataArr(obj.data.data)
-                            setHomeStatus(obj.data.data)
+                    let response = await fetch(url, {
+                        method: "POST",
+                        body: JSON.stringify(obj),
+                        headers: {
+                            "Content-Type": "application/json",
                         }
-                        setIsFound(obj.data.isFound)
+                    })
 
-                        if (getHeaderImage == null) {
+                    if (response.ok) {
 
-                            if ((obj.data.profile != "../assets/images/default.svg") && (obj.data.profile != getHeaderImage)) {
-                                setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
-                            } else {
-                                setHeaderImage(defImg)
+                        let obj = await response.json()
+                        if (obj.success) {
+
+                            if (getCategory == "chat") {
+                                setChatDataArr(obj.data.data)
+                                // setHomeChat(obj.data.data)
+                            } else if (getCategory == "group") {
+                                setGroupDataArr(obj.data.data)
+                            } else if (getCategory == "status") {
+                                setStatusDataArr(obj.data.data)
+                                setHomeStatus(obj.data.data)
+                            }
+                            setIsFound(obj.data.isFound)
+
+                            if (getHeaderImage == null) {
+
+                                if ((obj.data.profile != "../assets/images/default.svg") && (obj.data.profile != getHeaderImage)) {
+                                    setHeaderImage({ uri: process.env.EXPO_PUBLIC_URL + obj.data.profile })
+                                } else {
+                                    setHeaderImage(defImg)
+                                }
+
                             }
 
+                        } else {
+                            if (obj.data == "Please LogIn") {
+
+                                await AsyncStorage.removeItem("verified");
+                                await AsyncStorage.removeItem("user");
+
+                                setUser(null)
+                                router.replace("/")
+                            } else {
+                                Alert.alert(obj.data);
+                            }
+                            console.log(obj.data)
                         }
+                        setResent(true)
 
                     } else {
-                        if (obj.data == "Please LogIn") {
+                        Alert.alert("Please Try Again Later");
+                        console.log(response)
 
-                            await AsyncStorage.removeItem("verified");
-                            await AsyncStorage.removeItem("user");
-
-                            setUser(null)
-                            router.replace("/")
-                        } else {
-                            Alert.alert(obj.data);
-                        }
-                        console.log(obj.data)
+                        setResent(true)
                     }
-                    setResent(true)
-
-                } else {
-                    Alert.alert("Please Try Again Later");
-                    console.log(response)
-
-                    setResent(true)
+                    setActionText("No")
                 }
-                setActionText("No")
-
             } else {
-
+                setResent(true)
                 console.log("Trying... " + tryCountRef.current)
 
                 if (tryCountRef.current < 3) {
@@ -146,34 +171,15 @@ export default function home() {
                 }
             }
         } catch (error) {
+            setResent(true)
             console.error(error)
         }
     })
 
-    // useEffect(() => {
-    //     setHomeChat(getChatDataArrRef.current)
-    // }, [getChatDataArrRef.current])
-
-    // useEffect(() => {
-    //     setHomeStatus(getStatusDataArrRef.current)
-    // }, [getStatusDataArrRef.current])
-
     useEffect(() => {
-
-        setInterval(() => {
-            if (getResent) {
-                loadHome()
-            }
-        }, 20000);
+        loadHome()
     }, [getCategory])
 
-    // useEffect(() => {
-    //     setInterval(() => {
-    //         if(getResent){
-    //             loadHome()
-    //         }
-    //     }, 10000);
-    // }, [])
 
     return (
         <SafeAreaView style={styles.safearea}>
@@ -185,7 +191,7 @@ export default function home() {
                     <FlashList
                         contentContainerStyle={styles.body}
                         data={getChatDataArrRef.current}
-                        renderItem={({ item }) => <ChatCard data={item} />}
+                        renderItem={({ item }) => <ChatCard data={item}/>}
                         keyExtractor={(item) => Math.random().toString()}
                         estimatedItemSize={200}
                     />

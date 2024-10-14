@@ -13,7 +13,7 @@ const newStatusIcon = require("../assets/images/pencil.png")
 
 export default function newStatus() {
 
-    const { socket, getUser, setUser } = useContext(WebSocketContext)
+    const { getUser, setUser } = useContext(WebSocketContext)
 
     const [getStatusText, setStatusText] = useState("")
     const [getStatusButtonText, setStatusButtonText] = useState("Post")
@@ -116,17 +116,6 @@ export default function newStatus() {
                             extention = undefined
 
                             Alert.alert("Status Posting Success");
-
-                            if (socket && socket.readyState == socket.OPEN) {
-
-                                let obj = {
-                                    location: "status",
-                                    user: getUser
-                                }
-
-                                socket.send(JSON.stringify(obj))
-
-                            }
 
                         } else {
                             Alert.alert(obj.data);

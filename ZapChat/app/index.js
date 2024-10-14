@@ -4,19 +4,17 @@ import { InputField } from "../components/InputField";
 import { Button } from "../components/Button";
 import { Link, router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
-import * as SplashScreen from 'expo-splash-screen';
 import { WebSocketContext } from "./WebSocketProvider";
 import useStateRef from "react-usestateref";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 const logoIcon = require("../assets/images/logo.gif");
 const defImg = require("../assets/images/default.svg");
 
-// SplashScreen.preventAutoHideAsync();
-// SplashScreen.hideAsync();
-
 export default function index() {
-    const { getUser, setUser,getHeaderImage, setHeaderImage, } = useContext(WebSocketContext)
+    const { getUser, setUser, getHeaderImage, setHeaderImage, } = useContext(WebSocketContext)
 
     const [getMobile, setMobile] = useState("")
     const [getPassword, setPassword] = useState("")
@@ -121,6 +119,19 @@ export default function index() {
 
     }
 
+    const [loaded, error] = useFonts({
+        'popin-regular': require('../assets/fonts/Poppins-Regular.ttf'),
+    });
+
+    useEffect(() => {
+        if (loaded || error) {
+            SplashScreen.hideAsync();
+        }
+    }, [loaded, error]);
+
+    if (!loaded && !error) {
+        return null;
+    }
     return (
         <SafeAreaView style={styles.safeAreaView}>
             <ScrollView contentContainerStyle={styles.scrollView}>

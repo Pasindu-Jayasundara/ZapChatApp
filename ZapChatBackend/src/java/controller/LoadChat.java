@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dto.Response_DTO;
 import entity.Message;
+import entity.Message_status;
 import entity.Single_chat;
 import entity.User;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import model.HibernateUtil;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 @WebServlet(name = "LoadChat", urlPatterns = {"/LoadChat"})
@@ -152,6 +154,39 @@ public class LoadChat extends HttpServlet {
                     jsonObject.addProperty("showTick", false);
 
                 }
+
+                // unread message -> received Message
+                int unreadMessageCount = 0;
+                
+                Message_status readMsgStatus = (Message_status) hibernateSession.get(Message_status.class, 3);//read
+                Message_status receivedMsgStatus = (Message_status) hibernateSession.get(Message_status.class, 2);//received
+
+                Criteria unreadCriteria = hibernateSession.createCriteria(Single_chat.class);
+                unreadCriteria.add(Restrictions.or(
+                        Restrictions.and(
+                                Restrictions.eq("from_user", single_chat.getFrom_user()),
+                                Restrictions.eq("to_user", single_chat.getTo_user())
+                        ),
+                        Restrictions.and(
+                                Restrictions.eq("from_user", single_chat.getTo_user()),
+                                Restrictions.eq("to_user", single_chat.getFrom_user())
+                        )
+                ));
+                unreadCriteria.add(Restrictions.ne("message_status",readMsgStatus));
+                List<Single_chat> unreadList = unreadCriteria.list();
+                if(!unreadList.isEmpty()){
+                    for (Single_chat single_chat1 : unreadList) {
+                        
+                        unreadMessageCount++;
+                        single_chat1.setMessage_status(receivedMsgStatus);
+                        hibernateSession.update(single_chat1);
+                        
+                    }
+                    hibernateSession.beginTransaction().commit();
+                }
+                jsonObject.addProperty("unreadCount", unreadMessageCount);
+                
+                
                 jsonObject.addProperty("messageStatus", single_chat.getMessage_status().getStatus());
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");

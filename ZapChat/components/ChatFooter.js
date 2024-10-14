@@ -135,9 +135,9 @@ export function ChatFooter({ data }) {
                 </View>
             </Modal>
             <>
-                <Pressable style={styles.pressable} onPress={pickImage}>
+                {/* <Pressable style={styles.pressable} onPress={pickImage}>
                     <Image source={attachIcon} style={styles.icon} />
-                </Pressable>
+                </Pressable> */}
                 <Pressable style={styles.pressable} onPress={() => { setEmojiModal(!getEmojiModal) }}>
                     <Image source={emojiIcon} style={styles.icon} />
                 </Pressable>

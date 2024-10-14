@@ -12,6 +12,8 @@ import { GroupCard } from "../components/GroupCard";
 import { WebSocketContext } from "./WebSocketProvider";
 import useStateRef from "react-usestateref";
 import { FadeIn, FadeOut } from "react-native-reanimated";
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 const defImg = require("../assets/images/default.svg")
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -34,6 +36,21 @@ export default function home() {
     const [getCategory, setCategory] = useState("chat")
     const [getSearchText, setSearchText] = useState("")
     const [getSetIntervalId, setSetIntervalId] = useState(0)
+
+    const [loaded, error] = useFonts({
+        'popin-regular': require('../assets/fonts/Poppins-Regular.ttf'),
+    });
+
+    useEffect(() => {
+        if (loaded || error) {
+            SplashScreen.hideAsync();
+        }
+    }, [loaded, error]);
+
+    if (!loaded && !error) {
+        return null;
+    }
+
 
     const getChatDataArrRef = useRef(getChatDataArr);
     useEffect(() => {
@@ -191,7 +208,7 @@ export default function home() {
                     <FlashList
                         contentContainerStyle={styles.body}
                         data={getChatDataArrRef.current}
-                        renderItem={({ item }) => <ChatCard data={item}/>}
+                        renderItem={({ item }) => <ChatCard data={item} getUser={getUser} func={loadHome}/>}
                         keyExtractor={(item) => Math.random().toString()}
                         estimatedItemSize={200}
                     />

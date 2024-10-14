@@ -3,13 +3,32 @@ import { Image } from "expo-image"
 import { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native"
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
 const windowWidth = Dimensions.get('window').width;
 const img = require("../assets/images/Avatar.png")
+
+SplashScreen.preventAutoHideAsync();
+
 export function StatusDisplay({ data, func }) {
 
     const [getImageLoad, setImageLoad] = useState(true)
     const [getTextLoad, setTextLoad] = useState(true)
+
+    const [loaded, error] = useFonts({
+        'popin-regular': require('../assets/fonts/Poppins-Regular.ttf'),
+    });
+
+    useEffect(() => {
+        if (loaded || error) {
+            SplashScreen.hideAsync();
+        }
+    }, [loaded, error]);
+
+    if (!loaded && !error) {
+        return null;
+    }
 
     useEffect(() => {
 
@@ -64,7 +83,8 @@ const styles = StyleSheet.create({
         // backgroundColor:"red",
         flexWrap: "wrap",
         alignSelf: "center",
-        paddingHorizontal: 30
+        paddingHorizontal: 30,
+        fontFamily:"popin-regular"
     },
     footer: {
         width: "100%",

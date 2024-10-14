@@ -138,10 +138,11 @@ export function ChatCard({ data, getUser, func }) {
 
 const styles = StyleSheet.create({
     unreadCountStyle: {
-        fontSize: 13,
+        fontSize: 7,
         color: "white",
-        padding: 5,
-        backgroundColor: "#ff5b6b"
+        padding: 2,
+        backgroundColor: "#ff5b6b",
+        borderRadius: 50
     },
     msgStatus: {
         width: 17,

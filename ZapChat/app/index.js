@@ -119,19 +119,6 @@ export default function index() {
 
     }
 
-    const [loaded, error] = useFonts({
-        'popin-regular': require('../assets/fonts/Poppins-Regular.ttf'),
-    });
-
-    useEffect(() => {
-        if (loaded || error) {
-            SplashScreen.hideAsync();
-        }
-    }, [loaded, error]);
-
-    if (!loaded && !error) {
-        return null;
-    }
     return (
         <SafeAreaView style={styles.safeAreaView}>
             <ScrollView contentContainerStyle={styles.scrollView}>

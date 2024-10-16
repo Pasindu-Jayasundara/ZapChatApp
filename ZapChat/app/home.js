@@ -37,21 +37,6 @@ export default function home() {
     const [getSearchText, setSearchText] = useState("")
     const [getSetIntervalId, setSetIntervalId] = useState(0)
 
-    const [loaded, error] = useFonts({
-        'popin-regular': require('../assets/fonts/Poppins-Regular.ttf'),
-    });
-
-    useEffect(() => {
-        if (loaded || error) {
-            SplashScreen.hideAsync();
-        }
-    }, [loaded, error]);
-
-    if (!loaded && !error) {
-        return null;
-    }
-
-
     const getChatDataArrRef = useRef(getChatDataArr);
     useEffect(() => {
         getChatDataArrRef.current = getChatDataArr;

@@ -9,26 +9,10 @@ import * as SplashScreen from 'expo-splash-screen';
 const windowWidth = Dimensions.get('window').width;
 const img = require("../assets/images/Avatar.png")
 
-SplashScreen.preventAutoHideAsync();
-
 export function StatusDisplay({ data, func }) {
 
     const [getImageLoad, setImageLoad] = useState(true)
     const [getTextLoad, setTextLoad] = useState(true)
-
-    const [loaded, error] = useFonts({
-        'popin-regular': require('../assets/fonts/Poppins-Regular.ttf'),
-    });
-
-    useEffect(() => {
-        if (loaded || error) {
-            SplashScreen.hideAsync();
-        }
-    }, [loaded, error]);
-
-    if (!loaded && !error) {
-        return null;
-    }
 
     useEffect(() => {
 
@@ -84,7 +68,7 @@ const styles = StyleSheet.create({
         flexWrap: "wrap",
         alignSelf: "center",
         paddingHorizontal: 30,
-        fontFamily:"popin-regular"
+        // fontFamily:"popin-regular"
     },
     footer: {
         width: "100%",

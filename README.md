@@ -1,5 +1,5 @@
 # ZapChatApp
-ZapChat is a Realtime meassaging Mobile Application with various featues
+ZapChat is a Realtime meassaging Mobile Application with Seamless communication, Group Chats, Status Sharing and secure user authentication.
  
 ### Features
 - Real-time messaging
